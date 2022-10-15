@@ -325,8 +325,7 @@ CGameRules *InstallGameRules()
 
 		if ( (teamplay == 1) || ( g_iTeamplay == 1 ) ) // Game.cfg set or map
 			return new CHalfLifeTeamplay;
-		else
-		//End Miagi Teamplay
+			//End Miagi Teamplay
 
 		// Discwar's always in teamplay mode.
 		//CVAR_SET_FLOAT( "mp_teamplay", 1 );
