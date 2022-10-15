@@ -82,6 +82,7 @@
       <ObjectFileName>.\Releasemp\</ObjectFileName>
       <ProgramDataBaseFileName>.\Releasemp\</ProgramDataBaseFileName>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
