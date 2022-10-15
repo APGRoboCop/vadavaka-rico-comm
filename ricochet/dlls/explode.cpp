@@ -64,7 +64,7 @@ void CShower::Think()
 
 	pev->speed -= 0.1;
 	if ( pev->speed > 0 )
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	else
 		UTIL_Remove( this );
 	pev->flags &= ~FL_ONGROUND;
@@ -218,7 +218,7 @@ void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	}
 
 	SetThink( &CEnvExplosion::Smoke );
-	pev->nextthink = gpGlobals->time + 0.3;
+	pev->nextthink = gpGlobals->time + 0.3f;
 
 	// draw sparks
 	if ( !( pev->spawnflags & SF_ENVEXPLOSION_NOSPARKS ) )

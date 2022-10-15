@@ -572,7 +572,7 @@ void DoSpark(entvars_t *pev, const Vector &location )
 void CBaseButton::ButtonSpark ()
 {
 	SetThink ( &CBaseButton :: ButtonSpark );
-	pev->nextthink = gpGlobals->time + ( 0.1 + RANDOM_FLOAT ( 0, 1.5 ) );// spark again at random interval
+	pev->nextthink = gpGlobals->time + ( 0.1f + RANDOM_FLOAT ( 0, 1.5 ) );// spark again at random interval
 
 	DoSpark( pev, pev->mins );
 }
@@ -794,7 +794,7 @@ void CBaseButton::ButtonBackHome()
 	if ( FBitSet ( pev->spawnflags, SF_BUTTON_SPARK_IF_OFF ) )
 	{
 		SetThink ( &CBaseButton :: ButtonSpark );
-		pev->nextthink = gpGlobals->time + 0.5;// no hurry.
+		pev->nextthink = gpGlobals->time + 0.5f;// no hurry.
 	}
 }
 
@@ -1029,7 +1029,7 @@ void CMomentaryRotButton::UpdateSelf( float value )
 	}
 	m_lastUsed = 1;
 
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 	if ( m_direction > 0 && value >= 1.0 )
 	{
 		pev->avelocity = g_vecZero;
@@ -1048,9 +1048,9 @@ void CMomentaryRotButton::UpdateSelf( float value )
 
 	// HACKHACK -- If we're going slow, we'll get multiple player packets per frame, bump nexthink on each one to avoid stalling
 	if ( pev->nextthink < pev->ltime )
-		pev->nextthink = pev->ltime + 0.1;
+		pev->nextthink = pev->ltime + 0.1f;
 	else
-		pev->nextthink += 0.1;
+		pev->nextthink += 0.1f;
 	
 	pev->avelocity = (m_direction * pev->speed) * pev->movedir;
 	SetThink( &CMomentaryRotButton::Off );
@@ -1082,7 +1082,7 @@ void CMomentaryRotButton::Off()
 	if ( FBitSet( pev->spawnflags, SF_PENDULUM_AUTO_RETURN ) && m_returnSpeed > 0 )
 	{
 		SetThink( &CMomentaryRotButton::Return );
-		pev->nextthink = pev->ltime + 0.1;
+		pev->nextthink = pev->ltime + 0.1f;
 		m_direction = -1;
 	}
 	else

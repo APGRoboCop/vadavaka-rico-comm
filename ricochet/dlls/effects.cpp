@@ -88,7 +88,7 @@ void CBubbling::Spawn()
 	if ( !(pev->spawnflags & SF_BUBBLES_STARTOFF) )
 	{
 		SetThink( &CBubbling::FizzThink );
-		pev->nextthink = gpGlobals->time + 2.0;
+		pev->nextthink = gpGlobals->time + 2.0f;
 		m_state = 1;
 	}
 	else 
@@ -109,7 +109,7 @@ void CBubbling::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	if ( m_state )
 	{
 		SetThink( &CBubbling::FizzThink );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 	else
 	{
@@ -473,7 +473,7 @@ void CLightning::Spawn()
 		if ( pev->dmg > 0 )
 		{
 			SetThink( &CLightning::DamageThink );
-			pev->nextthink = gpGlobals->time + 0.1;
+			pev->nextthink = gpGlobals->time + 0.1f;
 		}
 		if ( pev->targetname )
 		{
@@ -499,7 +499,7 @@ void CLightning::Spawn()
 		if ( FStringNull(pev->targetname) || FBitSet(pev->spawnflags, SF_BEAM_STARTON) )
 		{
 			SetThink( &CLightning::StrikeThink );
-			pev->nextthink = gpGlobals->time + 1.0;
+			pev->nextthink = gpGlobals->time + 1.0f;
 		}
 	}
 }
@@ -617,7 +617,7 @@ void CLightning::StrikeUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_T
 	else
 	{
 		SetThink( &CLightning::StrikeThink );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 
 	if ( !FBitSet( pev->spawnflags, SF_BEAM_TOGGLE ) )
@@ -1689,7 +1689,7 @@ void CTestEffect::TestThink()
 			m_pBeam[i]->SetBrightness( 255 * t );
 			// m_pBeam[i]->SetScrollRate( 20 * t );
 		}
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 	else
 	{
@@ -1708,7 +1708,7 @@ void CTestEffect::TestThink()
 void CTestEffect::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	SetThink( &CTestEffect::TestThink );
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 	m_flStartTime = gpGlobals->time;
 }
 

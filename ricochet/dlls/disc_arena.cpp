@@ -242,7 +242,7 @@ void CDiscArena::StartRound()
 
 	// Start counting down
 	m_iArenaState = ARENA_COUNTDOWN;
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 	SetThink( &CDiscArena::CountDownThink );
 }
 
@@ -290,14 +290,14 @@ void CDiscArena::BattleThink()
 {
 	if ( gpGlobals->time >= m_flTimeLimitOver - 1.0 )
 	{
-		pev->nextthink = gpGlobals->time + 1.0;
+		pev->nextthink = gpGlobals->time + 1.0f;
 		SetThink( &CDiscArena::TimeOver );
 		return;
 	}
 
 	if ( !CheckBattleOver() )
 	{
-		pev->nextthink = gpGlobals->time + 1.0;
+		pev->nextthink = gpGlobals->time + 1.0f;
 	}
 }
 
@@ -387,7 +387,7 @@ void CDiscArena::CountDownThink()
 
 	if (m_iSecondsTillStart)
 	{
-		pev->nextthink = gpGlobals->time + 1.0;
+		pev->nextthink = gpGlobals->time + 1.0f;
 	}
 	else
 	{
@@ -400,7 +400,7 @@ void CDiscArena::CountDownThink()
 			((CDiscwarPowerup*)pFunc)->Enable();
 		}
 
-		pev->nextthink = gpGlobals->time + 1.0;
+		pev->nextthink = gpGlobals->time + 1.0f;
 		SetThink( &CDiscArena::BattleThink );
 	}
 }
@@ -416,7 +416,7 @@ void CDiscArena::PlayerKilled( CBasePlayer *pPlayer )
 		if ( !CheckBattleOver() )
 		{
 				//Play with this to see if white disc glitch can be fixed - desNotes
-			pev->nextthink = gpGlobals->time + 0.5;
+			pev->nextthink = gpGlobals->time + 0.5f;
 			SetThink( &CDiscArena::CheckOverThink );
 		}
 	}
@@ -646,12 +646,12 @@ void CDiscArena::CheckOverThink()
 	{
 		if ( m_iArenaState == ARENA_COUNTDOWN )
 		{
-			pev->nextthink = gpGlobals->time + 0.1;
+			pev->nextthink = gpGlobals->time + 0.1f;
 			SetThink( &CDiscArena::CountDownThink );
 		}
 		else
 		{
-			pev->nextthink = gpGlobals->time + 0.1;
+			pev->nextthink = gpGlobals->time + 0.1f;
 			SetThink( &CDiscArena::BattleThink );
 		}
 	}
@@ -778,7 +778,7 @@ void CDiscArena::AddClient( CBasePlayer *pPlayer, BOOL bCheckStart )
 		{
 			// Start a battle in a second to let the clients learn about this new player
 			SetThink( &CDiscArena::StartBattleThink );
-			pev->nextthink = gpGlobals->time + 1.0;
+			pev->nextthink = gpGlobals->time + 1.0f;
 		}
 		else
 		{

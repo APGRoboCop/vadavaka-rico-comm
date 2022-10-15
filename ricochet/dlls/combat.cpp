@@ -557,7 +557,7 @@ void CGib :: WaitTillLand ()
 	else
 	{
 		// wait and check again in another half second.
-		pev->nextthink = gpGlobals->time + 0.5;
+		pev->nextthink = gpGlobals->time + 0.5f;
 	}
 }
 

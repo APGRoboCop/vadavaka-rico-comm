@@ -587,7 +587,7 @@ void CFuncRotating :: SpinUp()
 {
 	Vector	vecAVel;//rotational velocity
 
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 	pev->avelocity = pev->avelocity + ( pev->movedir * ( pev->speed * m_flFanFriction ) );
 
 	vecAVel = pev->avelocity;// cache entity's rotational velocity
@@ -809,12 +809,12 @@ void CPendulum :: Spawn()
 	m_accel = (pev->speed * pev->speed) / (2 * fabs(m_distance));	// Calculate constant acceleration from speed and distance
 	m_maxSpeed = pev->speed;
 	m_start = pev->angles;
-	m_center = pev->angles + (m_distance * 0.5) * pev->movedir;
+	m_center = pev->angles + (m_distance * 0.5f) * pev->movedir;
 
 	if ( FBitSet( pev->spawnflags, SF_BRUSH_ROTATE_INSTANT) )
 	{		
 		SetThink( &CPendulum :: SUB_CallUseToggle );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 	pev->speed = 0;
 	SetUse( &CPendulum :: PendulumUse );
@@ -849,7 +849,7 @@ void CPendulum :: PendulumUse( CBaseEntity *pActivator, CBaseEntity *pCaller, US
 	}
 	else
 	{
-		pev->nextthink = pev->ltime + 0.1;		// Start the pendulum moving
+		pev->nextthink = pev->ltime + 0.1f;		// Start the pendulum moving
 		m_time = gpGlobals->time;		// Save time to calculate dt
 		SetThink( &CPendulum :: Swing );
 		m_dampSpeed = m_maxSpeed;
@@ -893,7 +893,7 @@ void CPendulum :: Swing()
 	pev->avelocity = pev->speed * pev->movedir;
 
 	// Call this again
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 
 	if ( m_damp )
 	{
@@ -926,7 +926,7 @@ void CPendulum :: Touch ( CBaseEntity *pOther )
 		return;
 
 	// calculate damage based on rotation speed
-	float damage = pev->dmg * pev->speed * 0.01;
+	float damage = pev->dmg * pev->speed * 0.01f;
 
 	if ( damage < 0 )
 		damage = -damage;
