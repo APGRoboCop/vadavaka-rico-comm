@@ -2,3 +2,4 @@ ricochet/dlls/Releasemp*
 ricochet/dlls/.vs*
 *.obj
 *.o
+*.so
