@@ -1,0 +1,84 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: mp - Win32 Profile--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1509.tmp" with contents
+[
+/nologo /G5 /MT /W3 /GX /Zi /O2 /I "..\dlls" /I "..\engine" /I "..\..\game_shared" /I "..\common" /I "..\pm_shared" /I "..\\" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "VALVE_DLL" /Fp".\Profilemp/mp.pch" /YX /Fo".\Profilemp/" /Fd".\Profilemp/" /FD /c 
+"C:\HLDevelopment\SDK\SDK2_3\Multiplayer Source\ricochet\dlls\disc_arena.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP1509.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP150A.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /profile /debug /machine:I386 /def:".\mp.def" /out:".\Profilemp/mp.dll" /implib:".\Profilemp/mp.lib" 
+".\Profilemp\airtank.obj"
+".\Profilemp\animating.obj"
+".\Profilemp\animation.obj"
+".\Profilemp\bmodels.obj"
+".\Profilemp\buttons.obj"
+".\Profilemp\cbase.obj"
+".\Profilemp\client.obj"
+".\Profilemp\combat.obj"
+".\Profilemp\disc_arena.obj"
+".\Profilemp\disc_powerups.obj"
+".\Profilemp\disc_weapon_disc.obj"
+".\Profilemp\doors.obj"
+".\Profilemp\effects.obj"
+".\Profilemp\explode.obj"
+".\Profilemp\func_break.obj"
+".\Profilemp\func_tank.obj"
+".\Profilemp\game.obj"
+".\Profilemp\gamerules.obj"
+".\Profilemp\ggrenade.obj"
+".\Profilemp\globals.obj"
+".\Profilemp\h_ai.obj"
+".\Profilemp\h_battery.obj"
+".\Profilemp\h_cycler.obj"
+".\Profilemp\h_export.obj"
+".\Profilemp\healthkit.obj"
+".\Profilemp\items.obj"
+".\Profilemp\lights.obj"
+".\Profilemp\maprules.obj"
+".\Profilemp\mortar.obj"
+".\Profilemp\mpstubb.obj"
+".\Profilemp\multiplay_gamerules.obj"
+".\Profilemp\observer.obj"
+".\Profilemp\pathcorner.obj"
+".\Profilemp\plane.obj"
+".\Profilemp\plats.obj"
+".\Profilemp\player.obj"
+".\Profilemp\pm_debug.obj"
+".\Profilemp\pm_math.obj"
+".\Profilemp\pm_shared.obj"
+".\Profilemp\singleplay_gamerules.obj"
+".\Profilemp\skill.obj"
+".\Profilemp\sound.obj"
+".\Profilemp\soundent.obj"
+".\Profilemp\spectator.obj"
+".\Profilemp\subs.obj"
+".\Profilemp\teamplay_gamerules.obj"
+".\Profilemp\triggers.obj"
+".\Profilemp\util.obj"
+".\Profilemp\voice_gamemgr.obj"
+".\Profilemp\weapons.obj"
+".\Profilemp\world.obj"
+".\Profilemp\xen.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP150A.tmp"
+<h3>Output Window</h3>
+Compiling...
+disc_arena.cpp
+Linking...
+   Creating library .\Profilemp/mp.lib and object .\Profilemp/mp.exp
+
+
+
+<h3>Results</h3>
+mp.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

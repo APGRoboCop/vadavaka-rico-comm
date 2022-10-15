@@ -1,0 +1,84 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: mp - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCC1.tmp" with contents
+[
+/nologo /G5 /MT /W3 /GX /Zi /O2 /I "..\dlls" /I "..\..\engine" /I "..\..\common" /I "..\..\game_shared" /I "..\pm_shared" /I "..\\" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "VALVE_DLL" /Fp".\Releasemp/mp.pch" /YX /Fo".\Releasemp/" /Fd".\Releasemp/" /FD /c 
+"C:\HLDevelopment\SDK\SDK2_3\Multiplayer Source\ricochet\dlls\multiplay_gamerules.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCC1.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCC2.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /dll /incremental:no /pdb:".\Releasemp/mp.pdb" /map:".\Releasemp/mp.map" /debug /machine:I386 /def:".\mp.def" /out:".\Releasemp/mp.dll" /implib:".\Releasemp/mp.lib" 
+".\Releasemp\airtank.obj"
+".\Releasemp\animating.obj"
+".\Releasemp\animation.obj"
+".\Releasemp\bmodels.obj"
+".\Releasemp\buttons.obj"
+".\Releasemp\cbase.obj"
+".\Releasemp\client.obj"
+".\Releasemp\combat.obj"
+".\Releasemp\disc_arena.obj"
+".\Releasemp\disc_powerups.obj"
+".\Releasemp\disc_weapon_disc.obj"
+".\Releasemp\doors.obj"
+".\Releasemp\effects.obj"
+".\Releasemp\explode.obj"
+".\Releasemp\func_break.obj"
+".\Releasemp\func_tank.obj"
+".\Releasemp\game.obj"
+".\Releasemp\gamerules.obj"
+".\Releasemp\ggrenade.obj"
+".\Releasemp\globals.obj"
+".\Releasemp\h_ai.obj"
+".\Releasemp\h_battery.obj"
+".\Releasemp\h_cycler.obj"
+".\Releasemp\h_export.obj"
+".\Releasemp\healthkit.obj"
+".\Releasemp\items.obj"
+".\Releasemp\lights.obj"
+".\Releasemp\maprules.obj"
+".\Releasemp\mortar.obj"
+".\Releasemp\mpstubb.obj"
+".\Releasemp\multiplay_gamerules.obj"
+".\Releasemp\observer.obj"
+".\Releasemp\pathcorner.obj"
+".\Releasemp\plane.obj"
+".\Releasemp\plats.obj"
+".\Releasemp\player.obj"
+".\Releasemp\pm_debug.obj"
+".\Releasemp\pm_math.obj"
+".\Releasemp\pm_shared.obj"
+".\Releasemp\singleplay_gamerules.obj"
+".\Releasemp\skill.obj"
+".\Releasemp\sound.obj"
+".\Releasemp\soundent.obj"
+".\Releasemp\spectator.obj"
+".\Releasemp\subs.obj"
+".\Releasemp\teamplay_gamerules.obj"
+".\Releasemp\triggers.obj"
+".\Releasemp\util.obj"
+".\Releasemp\voice_gamemgr.obj"
+".\Releasemp\weapons.obj"
+".\Releasemp\world.obj"
+".\Releasemp\xen.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPCC2.tmp"
+<h3>Output Window</h3>
+Compiling...
+multiplay_gamerules.cpp
+Linking...
+   Creating library .\Releasemp/mp.lib and object .\Releasemp/mp.exp
+
+
+
+<h3>Results</h3>
+mp.dll - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
