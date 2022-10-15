@@ -118,9 +118,9 @@ void AngleMatrix (const vec3_t angles, float (*matrix)[4] )
 	matrix[0][2] = (cr*sp*cy+-sr*-sy);
 	matrix[1][2] = (cr*sp*sy+-sr*cy);
 	matrix[2][2] = cr*cp;
-	matrix[0][3] = 0.0;
-	matrix[1][3] = 0.0;
-	matrix[2][3] = 0.0;
+	matrix[0][3] = 0.0f;
+	matrix[1][3] = 0.0f;
+	matrix[2][3] = 0.0f;
 }
 
 void AngleIMatrix (const vec3_t angles, float matrix[3][4] )
@@ -148,9 +148,9 @@ void AngleIMatrix (const vec3_t angles, float matrix[3][4] )
 	matrix[2][0] = (cr*sp*cy+-sr*-sy);
 	matrix[2][1] = (cr*sp*sy+-sr*cy);
 	matrix[2][2] = cr*cp;
-	matrix[0][3] = 0.0;
-	matrix[1][3] = 0.0;
-	matrix[2][3] = 0.0;
+	matrix[0][3] = 0.0f;
+	matrix[1][3] = 0.0f;
+	matrix[2][3] = 0.0f;
 }
 
 

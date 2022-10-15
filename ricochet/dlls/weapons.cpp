@@ -381,7 +381,7 @@ void CBasePlayerItem :: FallInit()
 //=========================================================
 void CBasePlayerItem::FallThink ()
 {
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 
 	if ( pev->flags & FL_ONGROUND )
 	{
@@ -574,7 +574,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 			// weapon isn't useable, switch.
 			if ( !(iFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) && g_pGameRules->GetNextBestWeapon( m_pPlayer, this ) )
 			{
-				m_flNextPrimaryAttack = ( UseDecrement() ? 0.0 : gpGlobals->time ) + 0.3;
+				m_flNextPrimaryAttack = ( UseDecrement() ? 0.0f : gpGlobals->time ) + 0.3f;
 				return;
 			}
 		}
@@ -621,14 +621,14 @@ void CBasePlayerItem::Drop()
 {
 	SetTouch( NULL );
 	SetThink(&CBasePlayerItem :: SUB_Remove);
-	pev->nextthink = gpGlobals->time + .1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 void CBasePlayerItem::Kill()
 {
 	SetTouch( NULL );
 	SetThink(&CBasePlayerItem :: SUB_Remove);
-	pev->nextthink = gpGlobals->time + .1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 void CBasePlayerItem::Holster( int skiplocal /* = 0 */ )
@@ -646,7 +646,7 @@ void CBasePlayerItem::AttachToPlayer ( CBasePlayer *pPlayer )
 	pev->modelindex = 0;// server won't send down to clients if modelindex == 0
 	pev->model = iStringNull;
 	pev->owner = pPlayer->edict();
-	pev->nextthink = gpGlobals->time + .1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 	SetTouch( NULL );
 }
 
@@ -984,7 +984,7 @@ void CBasePlayerAmmo :: DefaultTouch( CBaseEntity *pOther )
 		{
 			SetTouch( NULL );
 			SetThink(&CBasePlayerAmmo :: SUB_Remove);
-			pev->nextthink = gpGlobals->time + .1;
+			pev->nextthink = gpGlobals->time + 0.1f;
 		}
 	}
 	else if (gEvilImpulse101)
@@ -992,7 +992,7 @@ void CBasePlayerAmmo :: DefaultTouch( CBaseEntity *pOther )
 		// evil impulse 101 hack, kill always
 		SetTouch( NULL );
 		SetThink(&CBasePlayerAmmo :: SUB_Remove);
-		pev->nextthink = gpGlobals->time + .1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 }
 

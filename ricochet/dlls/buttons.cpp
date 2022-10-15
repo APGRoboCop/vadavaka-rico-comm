@@ -174,7 +174,7 @@ void CMultiSource::Spawn()
 
 	pev->solid = SOLID_NOT;
 	pev->movetype = MOVETYPE_NONE;
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 	pev->spawnflags |= SF_MULTI_INIT;	// Until it's initialized
 	SetThink(&CMultiSource::Register);
 }
@@ -460,7 +460,7 @@ void CBaseButton::Spawn( )
 	if ( FBitSet ( pev->spawnflags, SF_BUTTON_SPARK_IF_OFF ) )// this button should spark in OFF state
 	{
 		SetThink ( &CBaseButton :: ButtonSpark );
-		pev->nextthink = gpGlobals->time + 0.5;// no hurry, make sure everything else spawns
+		pev->nextthink = gpGlobals->time + 0.5f;// no hurry, make sure everything else spawns
 	}
 
 	SetMovedir(pev);

@@ -346,7 +346,7 @@ float SetController( void *pmodel, entvars_t *pev, int iController, float flValu
 			flValue = -flValue;
 
 		// does the controller not wrap?
-		if (pbonecontroller->start + 359.0 >= pbonecontroller->end)
+		if (pbonecontroller->start + 359.0f >= pbonecontroller->end)
 		{
 			if (flValue > ((pbonecontroller->start + pbonecontroller->end) / 2.0) + 180)
 				flValue = flValue - 360;
@@ -356,9 +356,9 @@ float SetController( void *pmodel, entvars_t *pev, int iController, float flValu
 		else
 		{
 			if (flValue > 360)
-				flValue = flValue - (int)(flValue / 360.0) * 360.0;
+				flValue = flValue - (int)(flValue / 360.0f) * 360.0f;
 			else if (flValue < 0)
-				flValue = flValue + (int)((flValue / -360.0) + 1) * 360.0;
+				flValue = flValue + (int)((flValue / -360.0f) + 1) * 360.0f;
 		}
 	}
 
@@ -368,7 +368,7 @@ float SetController( void *pmodel, entvars_t *pev, int iController, float flValu
 	if (setting > 255) setting = 255;
 	pev->controller[iController] = setting;
 
-	return setting * (1.0 / 255.0) * (pbonecontroller->end - pbonecontroller->start) + pbonecontroller->start;
+	return setting * (1.0f / 255.0f) * (pbonecontroller->end - pbonecontroller->start) + pbonecontroller->start;
 }
 
 
@@ -396,9 +396,9 @@ float SetBlending( void *pmodel, entvars_t *pev, int iBlender, float flValue )
 		// does the controller not wrap?
 		if (pseqdesc->blendstart[iBlender] + 359.0 >= pseqdesc->blendend[iBlender])
 		{
-			if (flValue > ((pseqdesc->blendstart[iBlender] + pseqdesc->blendend[iBlender]) / 2.0) + 180)
+			if (flValue > ((pseqdesc->blendstart[iBlender] + pseqdesc->blendend[iBlender]) / 2.0f) + 180)
 				flValue = flValue - 360;
-			if (flValue < ((pseqdesc->blendstart[iBlender] + pseqdesc->blendend[iBlender]) / 2.0) - 180)
+			if (flValue < ((pseqdesc->blendstart[iBlender] + pseqdesc->blendend[iBlender]) / 2.0f) - 180)
 				flValue = flValue + 360;
 		}
 	}
@@ -410,7 +410,7 @@ float SetBlending( void *pmodel, entvars_t *pev, int iBlender, float flValue )
 
 	pev->blending[iBlender] = setting;
 
-	return setting * (1.0 / 255.0) * (pseqdesc->blendend[iBlender] - pseqdesc->blendstart[iBlender]) + pseqdesc->blendstart[iBlender];
+	return setting * (1.0f / 255.0f) * (pseqdesc->blendend[iBlender] - pseqdesc->blendstart[iBlender]) + pseqdesc->blendstart[iBlender];
 }
 
 

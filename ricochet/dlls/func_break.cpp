@@ -438,7 +438,7 @@ void CBreakable::BreakTouch( CBaseEntity *pOther )
 
 	if ( FBitSet ( pev->spawnflags, SF_BREAK_TOUCH ) )
 	{// can be broken when run into 
-		flDamage = pevToucher->velocity.Length() * 0.01;
+		flDamage = pevToucher->velocity.Length() * 0.01f;
 
 		if (flDamage >= pev->health)
 		{
@@ -741,7 +741,7 @@ void CBreakable::Die()
 	SUB_UseTargets(nullptr, USE_TOGGLE, 0 );
 
 	SetThink( &CBreakable::SUB_Remove );
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 	if ( m_iszSpawnObject )
 		CBaseEntity::Create( (char *)STRING(m_iszSpawnObject), VecBModelOrigin(pev), pev->angles, edict() );
 

@@ -107,15 +107,15 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 
 	switch ( RANDOM_LONG( 0, 2 ) )
 	{
-		case 0:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55, ATTN_NORM);	break;
-		case 1:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55, ATTN_NORM);	break;
-		case 2:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55, ATTN_NORM);	break;
+		case 0:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris1.wav", 0.55f, ATTN_NORM);	break;
+		case 1:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris2.wav", 0.55f, ATTN_NORM);	break;
+		case 2:	EMIT_SOUND(ENT(pev), CHAN_VOICE, "weapons/debris3.wav", 0.55f, ATTN_NORM);	break;
 	}
 
 	pev->effects |= EF_NODRAW;
 	SetThink( &CGrenade::Smoke );
 	pev->velocity = g_vecZero;
-	pev->nextthink = gpGlobals->time + 0.3;
+	pev->nextthink = gpGlobals->time + 0.3f;
 
 	if (iContents != CONTENTS_WATER)
 	{
@@ -233,7 +233,7 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 			pOther->TraceAttack(pevOwner, 1, gpGlobals->v_forward, &tr, DMG_CLUB ); 
 			ApplyMultiDamage( pev, pevOwner);
 		}
-		m_flNextAttack = gpGlobals->time + 1.0; // debounce
+		m_flNextAttack = gpGlobals->time + 1.0f; // debounce
 	}
 
 	Vector vecTestVelocity;
@@ -253,14 +253,14 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 		// go ahead and emit the danger sound.
 		
 		// register a radius louder than the explosion, so we make sure everyone gets out of the way
-		CSoundEnt::InsertSound ( bits_SOUND_DANGER, pev->origin, pev->dmg / 0.4, 0.3 );
+		CSoundEnt::InsertSound ( bits_SOUND_DANGER, pev->origin, pev->dmg / 0.4, 0.3f );
 		m_fRegisteredSound = TRUE;
 	}
 
 	if (pev->flags & FL_ONGROUND)
 	{
 		// add a bit of static friction
-		pev->velocity = pev->velocity * 0.8;
+		pev->velocity = pev->velocity * 0.8f;
 
 		pev->sequence = RANDOM_LONG( 1, 1 );
 	}
@@ -269,7 +269,7 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 		// play bounce sound
 		BounceSound();
 	}
-	pev->framerate = pev->velocity.Length() / 200.0;
+	pev->framerate = pev->velocity.Length() / 200.0f;
 	if (pev->framerate > 1.0)
 		pev->framerate = 1;
 	else if (pev->framerate < 0.5)
@@ -322,7 +322,7 @@ void CGrenade :: TumbleThink()
 	}
 
 	StudioFrameAdvance( );
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 
 	if (pev->dmgtime - 1 < gpGlobals->time)
 	{
@@ -336,7 +336,7 @@ void CGrenade :: TumbleThink()
 	if (pev->waterlevel != 0)
 	{
 		pev->velocity = pev->velocity * 0.5;
-		pev->framerate = 0.2;
+		pev->framerate = 0.2f;
 	}
 }
 
@@ -400,21 +400,21 @@ CGrenade * CGrenade:: ShootTimed( entvars_t *pevOwner, Vector vecStart, Vector v
 
 	pGrenade->pev->dmgtime = gpGlobals->time + time;
 	pGrenade->SetThink( &CGrenade::TumbleThink );
-	pGrenade->pev->nextthink = gpGlobals->time + 0.1;
-	if (time < 0.1)
+	pGrenade->pev->nextthink = gpGlobals->time + 0.1f;
+	if (time < 0.1f)
 	{
 		pGrenade->pev->nextthink = gpGlobals->time;
 		pGrenade->pev->velocity = Vector( 0, 0, 0 );
 	}
 		
 	pGrenade->pev->sequence = RANDOM_LONG( 3, 6 );
-	pGrenade->pev->framerate = 1.0;
+	pGrenade->pev->framerate = 1.0f;
 
 	// Tumble through the air
 	// pGrenade->pev->avelocity.x = -400;
 
-	pGrenade->pev->gravity = 0.5;
-	pGrenade->pev->friction = 0.8;
+	pGrenade->pev->gravity = 0.5f;
+	pGrenade->pev->friction = 0.8f;
 
 	SET_MODEL(ENT(pGrenade->pev), "models/w_grenade.mdl");
 	pGrenade->pev->dmg = 100;

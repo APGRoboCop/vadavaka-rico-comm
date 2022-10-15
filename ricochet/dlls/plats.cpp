@@ -678,7 +678,7 @@ void CFuncTrain :: Blocked( CBaseEntity *pOther )
 	if ( gpGlobals->time < m_flActivateFinished)
 		return;
 
-	m_flActivateFinished = gpGlobals->time + 0.5;
+	m_flActivateFinished = gpGlobals->time + 0.5f;
 	
 	pOther->TakeDamage(pev, pev, pev->dmg, DMG_CRUSH);
 }
@@ -823,7 +823,7 @@ void CFuncTrain :: Activate()
 		
 		if ( FStringNull(pev->targetname) )
 		{	// not triggered, so start immediately
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 			SetThink( &CFuncTrain :: Next );
 		}
 		else
@@ -921,7 +921,7 @@ void CFuncTrain::OverrideReset()
 		else	// Keep moving for 0.1 secs, then find path_corner again and restart
 		{
 			SetThink( &CFuncTrain :: Next );
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 		}
 	}
 }
@@ -1054,7 +1054,7 @@ void CFuncTrackTrain :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	{
 		float delta = value;
 
-		delta = ((int)(pev->speed * 4) / (int)m_speed)*0.25 + 0.25 * delta;
+		delta = ((int)(pev->speed * 4) / (int)m_speed) * 0.25f + 0.25f * delta;
 		if ( delta > 1 )
 			delta = 1;
 		else if ( delta < -1 )
@@ -1184,7 +1184,7 @@ void CFuncTrackTrain :: Next()
 	Vector nextPos = pev->origin;
 
 	nextPos.z -= m_height;
-	CPathTrack *pnext = m_ppath->LookAhead( &nextPos, pev->speed * 0.1, 1 );
+	CPathTrack *pnext = m_ppath->LookAhead( &nextPos, pev->speed * 0.1f, 1 );
 	nextPos.z += m_height;
 
 	pev->velocity = (nextPos - pev->origin) * 10;
@@ -1847,7 +1847,7 @@ void CFuncTrackChange :: UpdateTrain( Vector &dest )
 	local.z = DotProduct( offset, gpGlobals->v_up );
 
 	local = local - offset;
-	m_train->pev->velocity = pev->velocity + (local * (1.0/time));
+	m_train->pev->velocity = pev->velocity + (local * (1.0f / time));
 }
 
 void CFuncTrackChange :: GoDown()

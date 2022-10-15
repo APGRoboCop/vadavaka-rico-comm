@@ -433,7 +433,7 @@ void CFuncRotating :: Spawn( )
 	if ( FBitSet( pev->spawnflags, SF_BRUSH_ROTATE_INSTANT) )
 	{		
 		SetThink( &CFuncRotating :: SUB_CallUseToggle );
-		pev->nextthink = pev->ltime + 1.5;	// leave a magic delay for client to start up
+		pev->nextthink = pev->ltime + 1.5f;	// leave a magic delay for client to start up
 	}	
 	// can this brush inflict pain?
 	if ( FBitSet (pev->spawnflags, SF_BRUSH_HURT) )
@@ -506,10 +506,9 @@ void CFuncRotating :: Precache()
 		// make sure we restart the sound.  1.5 sec delay is magic number. KDB
 
 		SetThink ( &CFuncRotating :: SpinUp );
-		pev->nextthink = pev->ltime + 1.5;
+		pev->nextthink = pev->ltime + 1.5f;
 	}
 }
-
 
 
 //
@@ -618,7 +617,7 @@ void CFuncRotating :: SpinDown()
 	Vector	vecAVel;//rotational velocity
 	vec_t vecdir;
 
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 
 	pev->avelocity = pev->avelocity - ( pev->movedir * ( pev->speed * m_flFanFriction ) );//spin down slower than spinup
 
@@ -671,7 +670,7 @@ void CFuncRotating :: RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 			//EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, (char *)STRING(pev->noiseStop), 
 			//	m_flVolume, m_flAttenuation, 0, m_pitch);
 
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 		}
 		else// fan is not moving, so start it
 		{
@@ -679,7 +678,7 @@ void CFuncRotating :: RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 
 				0.01, m_flAttenuation, 0, FANPITCHMIN);
 
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 		}
 	}
 	else if ( !FBitSet ( pev->spawnflags, SF_BRUSH_ACCDCC ) )//this is a normal start/stop brush.
@@ -692,7 +691,7 @@ void CFuncRotating :: RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 			// EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, (char *)STRING(pev->noiseStop), 
 			//	m_flVolume, m_flAttenuation, 0, m_pitch);
 			
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 			// pev->avelocity = g_vecZero;
 		}
 		else

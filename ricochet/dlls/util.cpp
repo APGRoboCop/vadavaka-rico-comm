@@ -138,7 +138,7 @@ float UTIL_SharedRandomFloat( unsigned int seed, float low, float high )
 
 		tensixrand = U_Random() & 65535;
 
-		offset = (float)tensixrand / 65536.0;
+		offset = (float)tensixrand / 65536.0f;
 
 		return (low + offset * range );
 	}
@@ -489,7 +489,7 @@ int UTIL_MonstersInSphere( CBaseEntity **pList, int listMax, const Vector &cente
 			continue;
 
 		// Now Z
-		delta = center.z - (pEdict->v.absmin.z + pEdict->v.absmax.z)*0.5;
+		delta = center.z - (pEdict->v.absmin.z + pEdict->v.absmax.z) * 0.5f;
 		delta *= delta;
 
 		distance += delta;

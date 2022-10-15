@@ -275,13 +275,13 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 				if ( m_iPowerupFlags & POW_FREEZE && ((CBasePlayer*)pOther)->m_iFrozen == FALSE )
 				{
 					// Freeze the player and make them glow blue
-					EMIT_SOUND_DYN( pOther->edict(), CHAN_WEAPON, "weapons/electro5.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
+					EMIT_SOUND_DYN( pOther->edict(), CHAN_WEAPON, "weapons/electro5.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
 					((CBasePlayer*)pOther)->Freeze();
 
 					// If it's not a decap, return now. If it's a decap, continue to shatter
 					if ( !m_bDecapitate )
 					{
-						m_fDontTouchEnemies = gpGlobals->time + 2.0;
+						m_fDontTouchEnemies = gpGlobals->time + 2.0f;
 						return;
 					}
 				}
@@ -294,7 +294,7 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 						((CBasePlayer*)pOther)->m_flLastDiscHitTeleport = gpGlobals->time;
 					((CBasePlayer*)pOther)->Decapitate( ((CBaseEntity*)m_hOwner)->pev );
 
-					m_fDontTouchEnemies = gpGlobals->time + 0.5;
+					m_fDontTouchEnemies = gpGlobals->time + 0.5f;
 				}
 				else 
 				{
@@ -331,7 +331,7 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 					if ( m_bTeleported )
 						((CBasePlayer*)pOther)->m_flLastDiscHitTeleport = gpGlobals->time;
 
-					m_fDontTouchEnemies = gpGlobals->time + 2.0;
+					m_fDontTouchEnemies = gpGlobals->time + 2.0f;
 				}
 			}
 		}
@@ -465,7 +465,7 @@ void CDisc::DiscThink()
 			Vector vecDir = ( m_hOwner->pev->origin - pev->origin );
 			vecDir = vecDir.Normalize();
 			pev->velocity = vecDir * DISC_VELOCITY;
-			pev->nextthink = gpGlobals->time + 0.1;
+			pev->nextthink = gpGlobals->time + 0.1f;
 		}
 		else
 		{
@@ -477,7 +477,7 @@ void CDisc::DiscThink()
 	if ( pev->velocity == g_vecZero )
 		ReturnToThrower();
 
-	pev->nextthink = gpGlobals->time + 0.1;
+	pev->nextthink = gpGlobals->time + 0.1f;
 }
 
 CDisc *CDisc::CreateDisc( Vector vecOrigin, Vector vecAngles, CBaseEntity *pOwner, CDiscWeapon *pLauncher, bool bDecapitator, int iPowerupFlags )
@@ -580,7 +580,7 @@ void CDiscWeapon::Holster( int skiplocal /* = 0 */ )
 		// no more grenades!
 		m_pPlayer->pev->weapons &= ~(1<<WEAPON_DISC);
 		SetThink( &CDiscWeapon::DestroyItem );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
@@ -765,7 +765,7 @@ void CDiscWeapon::WeaponIdle()
 			// Calculate rebound angle
 			Vector vecOut;
 			Vector vecIn = tr.vecEndPos - (tr.vecEndPos - (gpGlobals->v_forward * 5));
-			float backoff = DotProduct( vecIn, tr.vecPlaneNormal ) * 2.0;
+			float backoff = DotProduct( vecIn, tr.vecPlaneNormal ) * 2.0f;
 			for (int i=0 ; i<3 ; i++)
 			{
 				float change = tr.vecPlaneNormal[i] * backoff;
@@ -796,7 +796,7 @@ void CDiscWeapon::WeaponIdle()
 		else 
 		{
 			iAnim = DISC_FIDGET;
-			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 75.0 / 30.0;
+			m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 75.0f / 30.0f;
 		}
 
 		SendWeaponAnim( iAnim, 1 );

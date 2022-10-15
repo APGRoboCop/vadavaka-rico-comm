@@ -117,7 +117,7 @@ public:
 
 //===============================================================================
 // Brush that toggles between gone/there
-#define PLAT_FADE_TIME		2.0
+#define PLAT_FADE_TIME		2.0f
 class CPlatToggleRemove : public CBaseEntity
 {
 public:

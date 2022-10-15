@@ -69,7 +69,7 @@ public:
 	virtual int	ObjectCaps() { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 
 	BOOL IsActive() { return (pev->spawnflags & SF_TANK_ACTIVE)?TRUE:FALSE; }
-	void TankActivate() { pev->spawnflags |= SF_TANK_ACTIVE; pev->nextthink = pev->ltime + 0.1; m_fireLast = 0; }
+	void TankActivate() { pev->spawnflags |= SF_TANK_ACTIVE; pev->nextthink = pev->ltime + 0.1f; m_fireLast = 0; }
 	void TankDeactivate() { pev->spawnflags &= ~SF_TANK_ACTIVE; m_fireLast = 0; StopRotSound(); }
 	BOOL CanFire() { return (gpGlobals->time - m_lastSightTime) < m_persist; }
 	BOOL		InRange( float range );
@@ -189,7 +189,7 @@ void CFuncTank :: Spawn()
 	m_pitchCenter = pev->angles.x;
 
 	if ( IsActive() )
-		pev->nextthink = pev->ltime + 1.0;
+		pev->nextthink = pev->ltime + 1.0f;
 
 	m_sightOrigin = BarrelPosition(); // Point at the end of the barrel
 
@@ -367,7 +367,7 @@ BOOL CFuncTank :: StartControl( CBasePlayer *pController )
 	m_pController->m_iHideHUD |= HIDEHUD_WEAPONS;
 	m_vecControllerUsePos = m_pController->pev->origin;
 	
-	pev->nextthink = pev->ltime + 0.1;
+	pev->nextthink = pev->ltime + 0.1f;
 	
 	return TRUE;
 }
@@ -389,7 +389,7 @@ void CFuncTank :: StopControl()
 	m_pController = nullptr;
 
 	if ( IsActive() )
-		pev->nextthink = pev->ltime + 1.0;
+		pev->nextthink = pev->ltime + 1.0f;
 }
 
 // Called each frame by the player's ItemPostFrame
@@ -405,7 +405,7 @@ void CFuncTank :: ControllerPostFrame()
 		Vector vecForward;
 		UTIL_MakeVectorsPrivate( pev->angles, vecForward, nullptr, nullptr);
 
-		m_fireLast = gpGlobals->time - (1/m_fireRate) - 0.01;  // to make sure the gun doesn't fire too many bullets
+		m_fireLast = gpGlobals->time - (1/m_fireRate) - 0.01f;  // to make sure the gun doesn't fire too many bullets
 
 		Fire( BarrelPosition(), vecForward, m_pController->pev );
 		
@@ -497,12 +497,12 @@ void CFuncTank::TrackTarget()
 		// Tanks attempt to mirror the player's angles
 		angles = m_pController->pev->v_angle;
 		angles[0] = 0 - angles[0];
-		pev->nextthink = pev->ltime + 0.05;
+		pev->nextthink = pev->ltime + 0.05f;
 	}
 	else
 	{
 		if ( IsActive() )
-			pev->nextthink = pev->ltime + 0.1;
+			pev->nextthink = pev->ltime + 0.1f;
 		else
 			return;
 
@@ -866,7 +866,7 @@ void CFuncTankLaser::Fire( const Vector &barrelEnd, const Vector &forward, entva
 				
 				m_laserTime = gpGlobals->time;
 				m_pLaser->TurnOn();
-				m_pLaser->pev->dmgtime = gpGlobals->time - 1.0;
+				m_pLaser->pev->dmgtime = gpGlobals->time - 1.0f;
 				m_pLaser->FireAtPoint( tr );
 				m_pLaser->pev->nextthink = 0;
 			}

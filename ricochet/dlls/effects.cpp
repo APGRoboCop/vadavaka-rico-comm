@@ -153,7 +153,7 @@ void CBubbling::FizzThink()
 	if ( m_frequency > 19 )
 		pev->nextthink = gpGlobals->time + 0.5f;
 	else
-		pev->nextthink = gpGlobals->time + 2.5f - (0.1 * m_frequency);
+		pev->nextthink = gpGlobals->time + 2.5f - (0.1f * m_frequency);
 }
 
 // --------------------------------------------------
@@ -2045,7 +2045,7 @@ void CMessage::KeyValue( KeyValueData *pkvd )
 	}
 	else if (FStrEq(pkvd->szKeyName, "messagevolume"))
 	{
-		pev->scale = atof(pkvd->szValue) * 0.1;
+		pev->scale = atof(pkvd->szValue) * 0.1f;
 		pkvd->fHandled = TRUE;
 	}
 	else if (FStrEq(pkvd->szKeyName, "messageattenuation"))

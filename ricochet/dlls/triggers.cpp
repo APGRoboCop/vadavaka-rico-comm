@@ -863,8 +863,8 @@ void CTriggerHurt :: RadiationThink()
 
 		// get range to player;
 
-		vecSpot1 = (pev->absmin + pev->absmax) * 0.5;
-		vecSpot2 = (pevTarget->absmin + pevTarget->absmax) * 0.5;
+		vecSpot1 = (pev->absmin + pev->absmax) * 0.5f;
+		vecSpot2 = (pevTarget->absmin + pevTarget->absmax) * 0.5f;
 		
 		vecRange = vecSpot1 - vecSpot2;
 		flRange = vecRange.Length();
@@ -877,7 +877,7 @@ void CTriggerHurt :: RadiationThink()
 			pPlayer->m_flgeigerRange = flRange;
 	}
 
-	pev->nextthink = gpGlobals->time + 0.25;
+	pev->nextthink = gpGlobals->time + 0.25f;
 }
 
 //
@@ -972,7 +972,7 @@ void CBaseTrigger :: HurtTouch ( CBaseEntity *pOther )
 	// while touching the trigger.  Player continues taking damage for a while after
 	// leaving the trigger
 
-	fldmg = pev->dmg * 0.5;	// 0.5 seconds worth of damage, pev->dmg is damage/second
+	fldmg = pev->dmg * 0.5f;	// 0.5 seconds worth of damage, pev->dmg is damage/second
 
 
 	// JAY: Cut this because it wasn't fully realized.  Damage is simpler now.
@@ -999,7 +999,7 @@ void CBaseTrigger :: HurtTouch ( CBaseEntity *pOther )
 	pev->pain_finished = gpGlobals->time;
 
 	// Apply damage every half second
-	pev->dmgtime = gpGlobals->time + 0.5;// half second delay until this trigger can hurt toucher again
+	pev->dmgtime = gpGlobals->time + 0.5f;// half second delay until this trigger can hurt toucher again
 
   
 	
@@ -1174,7 +1174,7 @@ void CBaseTrigger :: ActivateMultiTrigger( CBaseEntity *pActivator )
 		// we can't just remove (self) here, because this is a touch function
 		// called while C code is looping through area links...
 		SetTouch( NULL );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 		SetThink(  &CBaseTrigger :: SUB_Remove );
 	}
 }
@@ -1722,10 +1722,9 @@ void NextLevel()
 	if (pChange->pev->nextthink < gpGlobals->time)
 	{
 		pChange->SetThink( &CChangeLevel::ExecuteChangeLevel );
-		pChange->pev->nextthink = gpGlobals->time + 0.1;
+		pChange->pev->nextthink = gpGlobals->time + 0.1f;
 	}
 }
-
 
 // ============================== LADDER =======================================
 
@@ -2576,7 +2575,7 @@ void CPlatToggleRemove::PlatToggleRemoveUse( CBaseEntity *pActivator, CBaseEntit
 	{
 		// Make it fade out
 		SetThink( &CPlatToggleRemove::PlatRemoveThink );
-		pev->nextthink = pev->ltime + 0.1;
+		pev->nextthink = pev->ltime + 0.1f;
 		m_flRemoveAt = gpGlobals->time + PLAT_FADE_TIME;
 
 		pev->rendermode = kRenderTransAdd;
@@ -2597,7 +2596,7 @@ void CPlatToggleRemove::PlatRemoveThink()
 	{
 		float flPercent = flTimeLeft / PLAT_FADE_TIME;
 		pev->renderamt = 250 * flPercent;
-		pev->nextthink = pev->ltime + 0.1;
+		pev->nextthink = pev->ltime + 0.1f;
 	}
 	else
 	{
@@ -2682,12 +2681,12 @@ void CTriggerJump::JumpTouch( CBaseEntity *pOther )
 	// Don't touch again immediately
 	if ( pOther->m_flTouchedByJumpPad > gpGlobals->time )
 	{
-		m_flTouchedByJumpPad = gpGlobals->time + 0.1;
+		m_flTouchedByJumpPad = gpGlobals->time + 0.1f;
 		return;
 	}
 
 	// get a rough idea of how high to launch
-	Vector vecMidPoint = pOther->pev->origin + (m_vecTargetOrg - pOther->pev->origin) * 0.5;
+	Vector vecMidPoint = pOther->pev->origin + (m_vecTargetOrg - pOther->pev->origin) * 0.5f;
 	UTIL_TraceLine(vecMidPoint, vecMidPoint + Vector(0,0,m_flHeight), ignore_monsters, ENT(pev), &tr);
 	vecMidPoint = tr.vecEndPos;
 	// (subtract 15 so we don't hit the ceiling)
@@ -2698,9 +2697,9 @@ void CTriggerJump::JumpTouch( CBaseEntity *pOther )
 	float distance2 = (vecMidPoint.z - m_vecTargetOrg.z);
 
 	// How long will it take to travel this distance
-	float time1 = sqrt( distance1 / (0.5 * flGravity) );
-	float time2 = sqrt( distance2 / (0.5 * flGravity) );
-	if (time1 < 0.1)
+	float time1 = sqrt( distance1 / (0.5f * flGravity) );
+	float time2 = sqrt( distance2 / (0.5f * flGravity) );
+	if (time1 < 0.1f)
 		return;
 
 	// how hard to launch to get there in time.
@@ -2708,7 +2707,7 @@ void CTriggerJump::JumpTouch( CBaseEntity *pOther )
 	vecTargetVel.z = flGravity * time1;
 
 	// don't affect the player again for a bit
-	pOther->m_flTouchedByJumpPad = gpGlobals->time + 0.2;
+	pOther->m_flTouchedByJumpPad = gpGlobals->time + 0.2f;
 	pOther->pev->velocity = vecTargetVel;
 	if ( pOther->IsPlayer() )
 		((CBasePlayer*)pOther)->SetAnimation( PLAYER_SUPERJUMP );

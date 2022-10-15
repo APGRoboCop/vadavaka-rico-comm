@@ -246,7 +246,7 @@ void CBasePlayer::Observer_HandleButtons()
 		else
 			Observer_SetMode( OBS_ROAMING );
 
-		m_flNextObserverInput = gpGlobals->time + 0.2;
+		m_flNextObserverInput = gpGlobals->time + 0.2f;
 	}
 
 	// Attack moves to the next player
@@ -254,7 +254,7 @@ void CBasePlayer::Observer_HandleButtons()
 	{
 		Observer_FindNextPlayer( false );
 
-		m_flNextObserverInput = gpGlobals->time + 0.2;
+		m_flNextObserverInput = gpGlobals->time + 0.2f;
 	}
 
 	// Attack2 moves to the prev player
@@ -262,7 +262,7 @@ void CBasePlayer::Observer_HandleButtons()
 	{
 		Observer_FindNextPlayer( true );
 
-		m_flNextObserverInput = gpGlobals->time + 0.2;
+		m_flNextObserverInput = gpGlobals->time + 0.2f;
 	}
 }
 
@@ -297,7 +297,7 @@ void CBasePlayer::Observer_SetMode( int iMode )
 
 			pev->iuser1 = OBS_LOCKEDVIEW;
 
-			m_flChangeAngles = gpGlobals->time + 0.1;
+			m_flChangeAngles = gpGlobals->time + 0.1f;
 			m_vecHitVelocity = pSpot->pev->v_angle;
 			pev->iuser2 = 0;
 			pev->maxspeed = 1;

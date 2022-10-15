@@ -197,7 +197,7 @@ void CAmbientGeneric :: Spawn()
 	if ( FStringNull( pev->message ) || strlen( szSoundFile ) < 1 )
 	{
 		ALERT( at_error, "EMPTY AMBIENT AT: %f, %f, %f\n", pev->origin.x, pev->origin.y, pev->origin.z );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 		SetThink( &CAmbientGeneric :: SUB_Remove );
 		return;
 	}
@@ -246,9 +246,9 @@ void CAmbientGeneric :: Precache()
 	if ( m_fActive )
 	{
 		UTIL_EmitAmbientSound ( ENT(pev), pev->origin, szSoundFile, 
-				(m_dpv.vol * 0.01), m_flAttenuation, SND_SPAWNING, m_dpv.pitch);
+				(m_dpv.vol * 0.01f), m_flAttenuation, SND_SPAWNING, m_dpv.pitch);
 
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 }
 
@@ -439,7 +439,7 @@ void CAmbientGeneric :: RampThink()
 			pitch = PITCH_NORM + 1; // don't send 'no pitch' !
 
 		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 
-				(vol * 0.01), m_flAttenuation, flags, pitch);
+				(vol * 0.01f), m_flAttenuation, flags, pitch);
 	}
 
 	// update ramps at 5hz
@@ -591,7 +591,7 @@ void CAmbientGeneric :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCalle
 				m_dpv.pitchrun = m_dpv.pitchstart + pitchinc * m_dpv.cspincount;
 				if (m_dpv.pitchrun > 255) m_dpv.pitchrun = 255;
 
-				pev->nextthink = gpGlobals->time + 0.1;
+				pev->nextthink = gpGlobals->time + 0.1f;
 			}
 			
 		}
@@ -610,7 +610,7 @@ void CAmbientGeneric :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCalle
 
 				m_dpv.fadeout = m_dpv.fadeoutsav;
 				m_dpv.fadein = 0;
-				pev->nextthink = gpGlobals->time + 0.1;
+				pev->nextthink = gpGlobals->time + 0.1f;
 			}
 			else
 				UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 
@@ -637,9 +637,9 @@ void CAmbientGeneric :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCalle
 		InitModulationParms();
 
 		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 
-				(m_dpv.vol * 0.01), m_flAttenuation, 0, m_dpv.pitch);
+				(m_dpv.vol * 0.01f), m_flAttenuation, 0, m_dpv.pitch);
 		
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 
 	} 
 }
@@ -971,11 +971,11 @@ void CEnvSound :: Think()
 	// not in range. do nothing, fall through to think_fast...
 
 env_sound_Think_fast:
-	pev->nextthink = gpGlobals->time + 0.25;
+	pev->nextthink = gpGlobals->time + 0.25f;
 	return;
 
 env_sound_Think_slow:
-	pev->nextthink = gpGlobals->time + 0.75;
+	pev->nextthink = gpGlobals->time + 0.75f;
 	return;
 }
 
@@ -1628,7 +1628,7 @@ char TEXTURETYPE_Find(char *name)
 // original traceline endpoints used by the attacker, iBulletType is the type of bullet that hit the texture.
 // returns volume of strike instrument (crowbar) to play
 
-float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int iBulletType)
+float TEXTURETYPE_PlaySound(TraceResult *ptr, Vector vecSrc, Vector vecEnd, int iBulletType)
 {
 // hit the world, try to play sound based on texture material type
 	
@@ -1644,7 +1644,7 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 	float fattn = ATTN_NORM;
 
 	if ( !g_pGameRules->PlayTextureSounds() )
-		return 0.0;
+		return 0.0f;
 
 	CBaseEntity *pEntity = CBaseEntity::Instance(ptr->pHit);
 
@@ -1692,47 +1692,47 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 	switch (chTextureType)
 	{
 	default:
-	case CHAR_TEX_CONCRETE: fvol = 0.9;	fvolbar = 0.6;
+	case CHAR_TEX_CONCRETE: fvol = 0.9f;	fvolbar = 0.6f;
 		rgsz[0] = "player/pl_step1.wav";
 		rgsz[1] = "player/pl_step2.wav";
 		cnt = 2;
 		break;
-	case CHAR_TEX_METAL: fvol = 0.9; fvolbar = 0.3;
+	case CHAR_TEX_METAL: fvol = 0.9f; fvolbar = 0.3f;
 		rgsz[0] = "player/pl_metal1.wav";
 		rgsz[1] = "player/pl_metal2.wav";
 		cnt = 2;
 		break;
-	case CHAR_TEX_DIRT:	fvol = 0.9; fvolbar = 0.1;
+	case CHAR_TEX_DIRT:	fvol = 0.9f; fvolbar = 0.1f;
 		rgsz[0] = "player/pl_dirt1.wav";
 		rgsz[1] = "player/pl_dirt2.wav";
 		rgsz[2] = "player/pl_dirt3.wav";
 		cnt = 3;
 		break;
-	case CHAR_TEX_VENT:	fvol = 0.5; fvolbar = 0.3;
+	case CHAR_TEX_VENT:	fvol = 0.5f; fvolbar = 0.3f;
 		rgsz[0] = "player/pl_duct1.wav";
 		rgsz[1] = "player/pl_duct1.wav";
 		cnt = 2;
 		break;
-	case CHAR_TEX_GRATE: fvol = 0.9; fvolbar = 0.5;
+	case CHAR_TEX_GRATE: fvol = 0.9f; fvolbar = 0.5f;
 		rgsz[0] = "player/pl_grate1.wav";
 		rgsz[1] = "player/pl_grate4.wav";
 		cnt = 2;
 		break;
-	case CHAR_TEX_TILE:	fvol = 0.8; fvolbar = 0.2;
+	case CHAR_TEX_TILE:	fvol = 0.8f; fvolbar = 0.2f;
 		rgsz[0] = "player/pl_tile1.wav";
 		rgsz[1] = "player/pl_tile3.wav";
 		rgsz[2] = "player/pl_tile2.wav";
 		rgsz[3] = "player/pl_tile4.wav";
 		cnt = 4;
 		break;
-	case CHAR_TEX_SLOSH: fvol = 0.9; fvolbar = 0.0;
+	case CHAR_TEX_SLOSH: fvol = 0.9f; fvolbar = 0.0f;
 		rgsz[0] = "player/pl_slosh1.wav";
 		rgsz[1] = "player/pl_slosh3.wav";
 		rgsz[2] = "player/pl_slosh2.wav";
 		rgsz[3] = "player/pl_slosh4.wav";
 		cnt = 4;
 		break;
-	case CHAR_TEX_WOOD: fvol = 0.9; fvolbar = 0.2;
+	case CHAR_TEX_WOOD: fvol = 0.9f; fvolbar = 0.2f;
 		rgsz[0] = "debris/wood1.wav";
 		rgsz[1] = "debris/wood2.wav";
 		rgsz[2] = "debris/wood3.wav";
@@ -1740,7 +1740,7 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 		break;
 	case CHAR_TEX_GLASS:
 	case CHAR_TEX_COMPUTER:
-		fvol = 0.8; fvolbar = 0.2;
+		fvol = 0.8f; fvolbar = 0.2f;
 		rgsz[0] = "debris/glass1.wav";
 		rgsz[1] = "debris/glass2.wav";
 		rgsz[2] = "debris/glass3.wav";
@@ -1748,11 +1748,11 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 		break;
 	case CHAR_TEX_FLESH:
 		if (iBulletType == BULLET_PLAYER_CROWBAR)
-			return 0.0; // crowbar already makes this sound
-		fvol = 1.0;	fvolbar = 0.2;
+			return 0.0f; // crowbar already makes this sound
+		fvol = 1.0f;	fvolbar = 0.2f;
 		rgsz[0] = "weapons/bullet_hit1.wav";
 		rgsz[1] = "weapons/bullet_hit2.wav";
-		fattn = 1.0;
+		fattn = 1.0f;
 		cnt = 2;
 		break;
 	}
@@ -1762,18 +1762,18 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr,  Vector vecSrc, Vector vecEnd, int
 	if (pEntity && FClassnameIs(pEntity->pev, "func_breakable"))
 	{
 		// drop volumes, the object will already play a damaged sound
-		fvol /= 1.5;
-		fvolbar /= 2.0;	
+		fvol /= 1.5f;
+		fvolbar /= 2.0f;	
 	}
 	else if (chTextureType == CHAR_TEX_COMPUTER)
 	{
 		// play random spark if computer
 
-		if ( ptr->flFraction != 1.0 && RANDOM_LONG(0,1))
+		if ( ptr->flFraction != 1.0f && RANDOM_LONG(0,1))
 		{
 			UTIL_Sparks( ptr->vecEndPos );
 
-			float flVolume = RANDOM_FLOAT ( 0.7 , 1.0 );//random volume range
+			float flVolume = RANDOM_FLOAT ( 0.7f , 1.0f );//random volume range
 			switch ( RANDOM_LONG(0,1) )
 			{
 				case 0: UTIL_EmitAmbientSound(ENT(0), ptr->vecEndPos, "buttons/spark5.wav", flVolume, ATTN_NORM, 0, 100); break;
@@ -1832,7 +1832,7 @@ void CSpeaker :: Spawn()
 	if ( !m_preset && (FStringNull( pev->message ) || strlen( szSoundFile ) < 1 ))
 	{
 		ALERT( at_error, "SPEAKER with no Level/Sentence! at: %f, %f, %f\n", pev->origin.x, pev->origin.y, pev->origin.z );
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 		SetThink( &CSpeaker :: SUB_Remove );
 		return;
 	}
@@ -1850,8 +1850,8 @@ void CSpeaker :: Spawn()
 	Precache( );
 }
 
-#define ANNOUNCE_MINUTES_MIN	0.25	 
-#define ANNOUNCE_MINUTES_MAX	2.25
+#define ANNOUNCE_MINUTES_MIN	0.25f	 
+#define ANNOUNCE_MINUTES_MAX	2.25f
 
 void CSpeaker :: Precache()
 {
@@ -1862,8 +1862,8 @@ void CSpeaker :: Precache()
 void CSpeaker :: SpeakerThink()
 {
 	char* szSoundFile;
-	float flvolume = pev->health * 0.1;
-	float flattenuation = 0.3;
+	float flvolume = pev->health * 0.1f;
+	float flattenuation = 0.3f;
 	int flags = 0;
 	int pitch = 100;
 
@@ -1914,7 +1914,7 @@ void CSpeaker :: SpeakerThink()
 
 		// set next announcement time for random 5 to 10 minute delay
 		pev->nextthink = gpGlobals->time + 
-						RANDOM_FLOAT(ANNOUNCE_MINUTES_MIN * 60.0, ANNOUNCE_MINUTES_MAX * 60.0);
+						RANDOM_FLOAT(ANNOUNCE_MINUTES_MIN * 60.0f, ANNOUNCE_MINUTES_MAX * 60.0f);
 
 		CTalkMonster::g_talkWaitTime = gpGlobals->time + 5;		// time delay until it's ok to speak: used so that two NPCs don't talk at once
 	}
@@ -1943,14 +1943,14 @@ void CSpeaker :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	if ( useType == USE_ON )
 	{
 		// turn on announcements
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 		return;
 	}
 
 	if ( useType == USE_OFF )
 	{
 		// turn off announcements
-		pev->nextthink = 0.0;
+		pev->nextthink = 0.0f;
 		return;
 	
 	}
@@ -1961,12 +1961,12 @@ void CSpeaker :: ToggleUse ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 	if ( fActive )
 	{
 		// turn off announcements
-		pev->nextthink = 0.0;
+		pev->nextthink = 0.0f;
 	}
 	else 
 	{
 		// turn on announcements
-		pev->nextthink = gpGlobals->time + 0.1;
+		pev->nextthink = gpGlobals->time + 0.1f;
 	} 
 }
 
