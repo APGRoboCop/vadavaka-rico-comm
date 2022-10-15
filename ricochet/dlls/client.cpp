@@ -66,8 +66,8 @@ extern void AddClientToArena( CBasePlayer *pPlayer );
 
 int GetHueFromRGB( float r, float g, float b )
 {
-	float fMax = max( max( r, g ) , b );
-	float fMin = min( min( r, g ) , b );
+	float fMax = std::max( std::max( r, g ) , b );
+	float fMin = std::min( std::min( r, g ) , b );
 	float fSaturation = 0;
 
 	if ( fMax != 0 )
