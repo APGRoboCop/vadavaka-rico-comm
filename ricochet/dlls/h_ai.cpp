@@ -52,7 +52,7 @@ BOOL FBoxVisible ( entvars_t *pevLooker, entvars_t *pevTarget, Vector &vecTarget
 		return FALSE;
 
 	TraceResult tr;
-	Vector	vecLookerOrigin = pevLooker->origin + pevLooker->view_ofs;//look through the monster's 'eyes'
+	const Vector	vecLookerOrigin = pevLooker->origin + pevLooker->view_ofs;//look through the monster's 'eyes'
 	for (int i = 0; i < 5; i++)
 	{
 		Vector vecTarget = pevTarget->origin;
@@ -62,7 +62,7 @@ BOOL FBoxVisible ( entvars_t *pevLooker, entvars_t *pevTarget, Vector &vecTarget
 
 		UTIL_TraceLine(vecLookerOrigin, vecTarget, ignore_monsters, ignore_glass, ENT(pevLooker)/*pentIgnore*/, &tr);
 		
-		if (tr.flFraction == 1.0)
+		if (tr.flFraction == 1.0f)
 		{
 			vecTargetOrigin = vecTarget;
 			return TRUE;// line of sight is valid.
@@ -78,12 +78,11 @@ BOOL FBoxVisible ( entvars_t *pevLooker, entvars_t *pevTarget, Vector &vecTarget
 Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, float flGravityAdj )
 {
 	TraceResult		tr;
-	Vector			vecMidPoint;// halfway point between Spot1 and Spot2
-	Vector			vecApex;// highest point 
+	// halfway point between Spot1 and Spot2
+	// highest point 
 	Vector			vecScale;
-	Vector			vecGrenadeVel;
 	Vector			vecTemp;
-	float			flGravity = CVAR_GET_FLOAT( "sv_gravity" ) * flGravityAdj;
+	const float			flGravity = CVAR_GET_FLOAT( "sv_gravity" ) * flGravityAdj;
 
 	if (vecSpot2.z - vecSpot1.z > 500)
 	{
@@ -103,7 +102,7 @@ Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, f
 	// How much time does it take to get there?
 
 	// get a rough idea of how high it can be thrown
-	vecMidPoint = vecSpot1 + (vecSpot2 - vecSpot1) * 0.5;
+	Vector vecMidPoint = vecSpot1 + (vecSpot2 - vecSpot1) * 0.5;
 	UTIL_TraceLine(vecMidPoint, vecMidPoint + Vector(0,0,500), ignore_monsters, ENT(pev), &tr);
 	vecMidPoint = tr.vecEndPos;
 	// (subtract 15 so the grenade doesn't hit the ceiling)
@@ -116,12 +115,12 @@ Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, f
 	}
 
 	// How high should the grenade travel to reach the apex
-	float distance1 = (vecMidPoint.z - vecSpot1.z);
-	float distance2 = (vecMidPoint.z - vecSpot2.z);
+	const float distance1 = vecMidPoint.z - vecSpot1.z;
+	const float distance2 = vecMidPoint.z - vecSpot2.z;
 
 	// How long will it take for the grenade to travel this distance
-	float time1 = sqrt( distance1 / (0.5f * flGravity) );
-	float time2 = sqrt( distance2 / (0.5f * flGravity) );
+	const float time1 = sqrt( distance1 / (0.5f * flGravity) );
+	const float time2 = sqrt( distance2 / (0.5f * flGravity) );
 
 	if (time1 < 0.1f)
 	{
@@ -130,16 +129,16 @@ Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, f
 	}
 
 	// how hard to throw sideways to get there in time.
-	vecGrenadeVel = (vecSpot2 - vecSpot1) / (time1 + time2);
+	Vector vecGrenadeVel = (vecSpot2 - vecSpot1) / (time1 + time2);
 	// how hard upwards to reach the apex at the right time.
 	vecGrenadeVel.z = flGravity * time1;
 
 	// find the apex
-	vecApex  = vecSpot1 + vecGrenadeVel * time1;
+	Vector vecApex = vecSpot1 + vecGrenadeVel * time1;
 	vecApex.z = vecMidPoint.z;
 
 	UTIL_TraceLine(vecSpot1, vecApex, dont_ignore_monsters, ENT(pev), &tr);
-	if (tr.flFraction != 1.0)
+	if (tr.flFraction != 1.0f)
 	{
 		// fail!
 		return g_vecZero;
@@ -147,7 +146,7 @@ Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, f
 
 	// UNDONE: either ignore monsters or change it to not care if we hit our enemy
 	UTIL_TraceLine(vecSpot2, vecApex, ignore_monsters, ENT(pev), &tr); 
-	if (tr.flFraction != 1.0)
+	if (tr.flFraction != 1.0f)
 	{
 		// fail!
 		return g_vecZero;
@@ -163,12 +162,12 @@ Vector VecCheckToss ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, f
 // 
 Vector VecCheckThrow ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, float flSpeed, float flGravityAdj )
 {
-	float			flGravity = CVAR_GET_FLOAT( "sv_gravity" ) * flGravityAdj;
+	const float			flGravity = CVAR_GET_FLOAT( "sv_gravity" ) * flGravityAdj;
 
-	Vector vecGrenadeVel = (vecSpot2 - vecSpot1);
+	Vector vecGrenadeVel = vecSpot2 - vecSpot1;
 
 	// throw at a constant time
-	float time = vecGrenadeVel.Length( ) / flSpeed;
+	const float time = vecGrenadeVel.Length( ) / flSpeed;
 	vecGrenadeVel = vecGrenadeVel * (1.0f / time);
 
 	// adjust upward toss to compensate for gravity loss
@@ -179,14 +178,14 @@ Vector VecCheckThrow ( entvars_t *pev, const Vector &vecSpot1, Vector vecSpot2, 
 	
 	TraceResult tr;
 	UTIL_TraceLine(vecSpot1, vecApex, dont_ignore_monsters, ENT(pev), &tr);
-	if (tr.flFraction != 1.0)
+	if (tr.flFraction != 1.0f)
 	{
 		// fail!
 		return g_vecZero;
 	}
 
 	UTIL_TraceLine(vecSpot2, vecApex, ignore_monsters, ENT(pev), &tr);
-	if (tr.flFraction != 1.0)
+	if (tr.flFraction != 1.0f)
 	{
 		// fail!
 		return g_vecZero;

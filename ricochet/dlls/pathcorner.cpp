@@ -25,12 +25,12 @@
 class CPathCorner : public CPointEntity
 {
 public:
-	void Spawn( );
-	void KeyValue( KeyValueData* pkvd );
-	float GetDelay() { return m_flWait; }
+	void Spawn( ) override;
+	void KeyValue( KeyValueData* pkvd ) override;
+	float GetDelay() override { return m_flWait; }
 //	void Touch( CBaseEntity *pOther );
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -184,7 +184,7 @@ void CPathTrack :: Link()
 		pentTarget = FIND_ENTITY_BY_TARGETNAME(nullptr, STRING(pev->target) );
 		if ( !FNullEnt(pentTarget) )
 		{
-			m_pnext = CPathTrack::Instance( pentTarget );
+			m_pnext = Instance( pentTarget );
 
 			if ( m_pnext )		// If no next pointer, this is the end of a path
 			{
@@ -201,7 +201,7 @@ void CPathTrack :: Link()
 		pentTarget = FIND_ENTITY_BY_TARGETNAME(nullptr, STRING(m_altName) );
 		if ( !FNullEnt(pentTarget) )
 		{
-			m_paltpath = CPathTrack::Instance( pentTarget );
+			m_paltpath = Instance( pentTarget );
 
 			if ( m_paltpath )		// If no next pointer, this is the end of a path
 			{
@@ -249,7 +249,7 @@ void CPathTrack :: Project( CPathTrack *pstart, CPathTrack *pend, Vector *origin
 {
 	if ( pstart && pend )
 	{
-		Vector dir = (pend->pev->origin - pstart->pev->origin);
+		Vector dir = pend->pev->origin - pstart->pev->origin;
 		dir = dir.Normalize();
 		*origin = pend->pev->origin + dir * dist;
 	}
@@ -286,10 +286,9 @@ void CPathTrack::SetPrevious( CPathTrack *pprev )
 // Assumes this is ALWAYS enabled
 CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 {
-	CPathTrack *pcurrent;
-	float originalDist = dist;
+	const float originalDist = dist;
 	
-	pcurrent = this;
+	CPathTrack* pcurrent = this;
 	Vector currentPos = *origin;
 
 	if ( dist < 0 )		// Travelling backwards through path
@@ -298,7 +297,7 @@ CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 		while ( dist > 0 )
 		{
 			Vector dir = pcurrent->pev->origin - currentPos;
-			float length = dir.Length();
+			const float length = dir.Length();
 			if ( !length )
 			{
 				if ( !ValidPath(pcurrent->GetPrevious(), move) ) 	// If there is no previous node, or it's disabled, return now.
@@ -311,7 +310,7 @@ CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 			}
 			else if ( length > dist )	// enough left in this path to move
 			{
-				*origin = currentPos + (dir * (dist / length));
+				*origin = currentPos + dir * (dist / length);
 				return pcurrent;
 			}
 			else
@@ -339,7 +338,7 @@ CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 				return nullptr;
 			}
 			Vector dir = pcurrent->GetNext()->pev->origin - currentPos;
-			float length = dir.Length();
+			const float length = dir.Length();
 			if ( !length  && !ValidPath( pcurrent->GetNext()->GetNext(), move ) )
 			{
 				if ( dist == originalDist ) // HACK -- up against a dead end
@@ -348,7 +347,7 @@ CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 			}
 			if ( length > dist )	// enough left in this path to move
 			{
-				*origin = currentPos + (dir * (dist / length));
+				*origin = currentPos + dir * (dist / length);
 				return pcurrent;
 			}
 			else
@@ -369,20 +368,14 @@ CPathTrack *CPathTrack :: LookAhead( Vector *origin, float dist, int move )
 // Assumes this is ALWAYS enabled
 CPathTrack *CPathTrack :: Nearest( Vector origin )
 {
-	int			deadCount;
-	float		minDist, dist;
-	Vector		delta;
-	CPathTrack	*ppath, *pnearest;
-
-
-	delta = origin - pev->origin;
+	Vector delta = origin - pev->origin;
 	delta.z = 0;
-	minDist = delta.Length();
-	pnearest = this;
-	ppath = GetNext();
+	float minDist = delta.Length();
+	CPathTrack* pnearest = this;
+	CPathTrack* ppath = GetNext();
 
 	// Hey, I could use the old 2 racing pointers solution to this, but I'm lazy :)
-	deadCount = 0;
+	int deadCount = 0;
 	while ( ppath && ppath != this )
 	{
 		deadCount++;
@@ -393,7 +386,7 @@ CPathTrack *CPathTrack :: Nearest( Vector origin )
 		}
 		delta = origin - ppath->pev->origin;
 		delta.z = 0;
-		dist = delta.Length();
+		const float dist = delta.Length();
 		if ( dist < minDist )
 		{
 			minDist = dist;

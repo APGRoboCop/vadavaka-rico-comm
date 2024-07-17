@@ -34,8 +34,8 @@ extern int gmsgItemPickup;
 class CWorldItem : public CBaseEntity
 {
 public:
-	void	KeyValue(KeyValueData *pkvd ); 
-	void	Spawn();
+	void	KeyValue(KeyValueData *pkvd ) override; 
+	void	Spawn() override;
 	int		m_iType;
 };
 
@@ -54,21 +54,21 @@ void CWorldItem::KeyValue(KeyValueData *pkvd)
 
 void CWorldItem::Spawn()
 {
-	CBaseEntity *pEntity = nullptr;
+	const CBaseEntity *pEntity = nullptr;
 
 	switch (m_iType) 
 	{
 	case 44: // ITEM_BATTERY:
-		pEntity = CBaseEntity::Create( "item_battery", pev->origin, pev->angles );
+		pEntity = Create( "item_battery", pev->origin, pev->angles );
 		break;
 	case 42: // ITEM_ANTIDOTE:
-		pEntity = CBaseEntity::Create( "item_antidote", pev->origin, pev->angles );
+		pEntity = Create( "item_antidote", pev->origin, pev->angles );
 		break;
 	case 43: // ITEM_SECURITY:
-		pEntity = CBaseEntity::Create( "item_security", pev->origin, pev->angles );
+		pEntity = Create( "item_security", pev->origin, pev->angles );
 		break;
 	case 45: // ITEM_SUIT:
-		pEntity = CBaseEntity::Create( "item_suit", pev->origin, pev->angles );
+		pEntity = Create( "item_suit", pev->origin, pev->angles );
 		break;
 	}
 
@@ -173,19 +173,19 @@ void CItem::Materialize()
 
 class CItemSuit : public CItem
 {
-	void Spawn()
+	void Spawn() override
 	{ 
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_suit.mdl");
 		CItem::Spawn( );
 	}
-	void Precache()
+	void Precache() override
 	{
 		PRECACHE_MODEL ("models/w_suit.mdl");
 	}
-	BOOL MyTouch( CBasePlayer *pPlayer )
+	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
-		if ( pPlayer->pev->weapons & (1<<WEAPON_SUIT) )
+		if ( pPlayer->pev->weapons & 1<<WEAPON_SUIT )
 			return FALSE;
 
 		if ( pev->spawnflags & SF_SUIT_SHORTLOGON )
@@ -193,7 +193,7 @@ class CItemSuit : public CItem
 		else
 			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_AAx");	// long version of suit logon
 
-		pPlayer->pev->weapons |= (1<<WEAPON_SUIT);
+		pPlayer->pev->weapons |= 1<<WEAPON_SUIT;
 		return TRUE;
 	}
 };
@@ -204,23 +204,22 @@ LINK_ENTITY_TO_CLASS(item_suit, CItemSuit);
 
 class CItemBattery : public CItem
 {
-	void Spawn()
+	void Spawn() override
 	{ 
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_battery.mdl");
 		CItem::Spawn( );
 	}
-	void Precache()
+	void Precache() override
 	{
 		PRECACHE_MODEL ("models/w_battery.mdl");
 		PRECACHE_SOUND( "items/gunpickup2.wav" );
 	}
-	BOOL MyTouch( CBasePlayer *pPlayer )
+	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
-		if ((pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY) &&
-			(pPlayer->pev->weapons & (1<<WEAPON_SUIT)))
+		if (pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY &&
+			pPlayer->pev->weapons & 1<<WEAPON_SUIT)
 		{
-			int pct;
 			char szcharge[64];
 
 			pPlayer->pev->armorvalue += gSkillData.batteryCapacity;
@@ -235,12 +234,12 @@ class CItemBattery : public CItem
 			
 			// Suit reports new power level
 			// For some reason this wasn't working in release build -- round it.
-			pct = (int)( (float)(pPlayer->pev->armorvalue * 100.0) * (1.0/MAX_NORMAL_BATTERY) + 0.5);
-			pct = (pct / 5);
+			int pct = (int)(pPlayer->pev->armorvalue * 100.0f * (1.0f / MAX_NORMAL_BATTERY) + 0.5f);
+			pct = pct / 5;
 			if (pct > 0)
 				pct--;
 		
-			sprintf( szcharge,"!HEV_%1dP", pct );
+			snprintf(szcharge, sizeof(szcharge), "!HEV_%1dP", pct);
 			
 			//EMIT_SOUND_SUIT(ENT(pev), szcharge);
 			pPlayer->SetSuitUpdate(szcharge, FALSE, SUIT_NEXT_IN_30SEC);
@@ -255,17 +254,17 @@ LINK_ENTITY_TO_CLASS(item_battery, CItemBattery);
 
 class CItemAntidote : public CItem
 {
-	void Spawn()
+	void Spawn() override
 	{ 
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_antidote.mdl");
 		CItem::Spawn( );
 	}
-	void Precache()
+	void Precache() override
 	{
 		PRECACHE_MODEL ("models/w_antidote.mdl");
 	}
-	BOOL MyTouch( CBasePlayer *pPlayer )
+	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
 		pPlayer->SetSuitUpdate("!HEV_DET4", FALSE, SUIT_NEXT_IN_1MIN);
 		
@@ -279,17 +278,17 @@ LINK_ENTITY_TO_CLASS(item_antidote, CItemAntidote);
 
 class CItemSecurity : public CItem
 {
-	void Spawn()
+	void Spawn() override
 	{ 
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_security.mdl");
 		CItem::Spawn( );
 	}
-	void Precache()
+	void Precache() override
 	{
 		PRECACHE_MODEL ("models/w_security.mdl");
 	}
-	BOOL MyTouch( CBasePlayer *pPlayer )
+	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
 		pPlayer->m_rgItems[ITEM_SECURITY] += 1;
 		return TRUE;
@@ -300,24 +299,24 @@ LINK_ENTITY_TO_CLASS(item_security, CItemSecurity);
 
 class CItemLongJump : public CItem
 {
-	void Spawn()
+	void Spawn() override
 	{ 
 		Precache( );
 		SET_MODEL(ENT(pev), "models/w_longjump.mdl");
 		CItem::Spawn( );
 	}
-	void Precache()
+	void Precache() override
 	{
 		PRECACHE_MODEL ("models/w_longjump.mdl");
 	}
-	BOOL MyTouch( CBasePlayer *pPlayer )
+	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
 		if ( pPlayer->m_fLongJump )
 		{
 			return FALSE;
 		}
 
-		if ( ( pPlayer->pev->weapons & (1<<WEAPON_SUIT) ) )
+		if ( pPlayer->pev->weapons & 1<<WEAPON_SUIT )
 		{
 			pPlayer->m_fLongJump = TRUE;// player now has longjump module
 

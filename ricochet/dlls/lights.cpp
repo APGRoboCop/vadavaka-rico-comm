@@ -29,12 +29,12 @@
 class CLight : public CPointEntity
 {
 public:
-	virtual void	KeyValue( KeyValueData* pkvd ); 
-	virtual void	Spawn();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void	KeyValue( KeyValueData* pkvd ) override;
+	void	Spawn() override;
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -100,7 +100,7 @@ void CLight :: Spawn()
 		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
 			LIGHT_STYLE(m_iStyle, "a");
 		else if (m_iszPattern)
-			LIGHT_STYLE(m_iStyle, (char *)STRING( m_iszPattern ));
+			LIGHT_STYLE(m_iStyle, const_cast<char*>(STRING(m_iszPattern)));
 		else
 			LIGHT_STYLE(m_iStyle, "m");
 	}
@@ -117,7 +117,7 @@ void CLight :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useT
 		if (FBitSet(pev->spawnflags, SF_LIGHT_START_OFF))
 		{
 			if (m_iszPattern)
-				LIGHT_STYLE(m_iStyle, (char *)STRING( m_iszPattern ));
+				LIGHT_STYLE(m_iStyle, const_cast<char*>(STRING(m_iszPattern)));
 			else
 				LIGHT_STYLE(m_iStyle, "m");
 			ClearBits(pev->spawnflags, SF_LIGHT_START_OFF);
@@ -139,8 +139,8 @@ LINK_ENTITY_TO_CLASS( light_spot, CLight );
 class CEnvLight : public CLight
 {
 public:
-	void	KeyValue( KeyValueData* pkvd ); 
-	void	Spawn();
+	void	KeyValue( KeyValueData* pkvd ) override; 
+	void	Spawn() override;
 };
 
 LINK_ENTITY_TO_CLASS( light_environment, CEnvLight );
@@ -149,32 +149,32 @@ void CEnvLight::KeyValue( KeyValueData* pkvd )
 {
 	if (FStrEq(pkvd->szKeyName, "_light"))
 	{
-		int r, g, b, v, j;
+		int r, g, b, v;
 		char szColor[64];
-		j = sscanf( pkvd->szValue, "%d %d %d %d\n", &r, &g, &b, &v );
+		const int j = sscanf(pkvd->szValue, "%d %d %d %d\n", &r, &g, &b, &v);
 		if (j == 1)
 		{
 			g = b = r;
 		}
 		else if (j == 4)
 		{
-			r = r * (v / 255.0);
-			g = g * (v / 255.0);
-			b = b * (v / 255.0);
+			r = r * (v / 255.0f);
+			g = g * (v / 255.0f);
+			b = b * (v / 255.0f);
 		}
 
 		// simulate qrad direct, ambient,and gamma adjustments, as well as engine scaling
-		r = pow( r / 114.0, 0.6 ) * 264;
-		g = pow( g / 114.0, 0.6 ) * 264;
-		b = pow( b / 114.0, 0.6 ) * 264;
+		r = pow( r / 114.0f, 0.6f ) * 264;
+		g = pow( g / 114.0f, 0.6f ) * 264;
+		b = pow( b / 114.0f, 0.6f ) * 264;
 
 		pkvd->fHandled = TRUE;
-		sprintf( szColor, "%d", r );
-		CVAR_SET_STRING( "sv_skycolor_r", szColor );
-		sprintf( szColor, "%d", g );
-		CVAR_SET_STRING( "sv_skycolor_g", szColor );
-		sprintf( szColor, "%d", b );
-		CVAR_SET_STRING( "sv_skycolor_b", szColor );
+		snprintf(szColor, sizeof(szColor), "%d", r);
+		CVAR_SET_STRING("sv_skycolor_r", szColor);
+		snprintf(szColor, sizeof(szColor), "%d", g);
+		CVAR_SET_STRING("sv_skycolor_g", szColor);
+		snprintf(szColor, sizeof(szColor), "%d", b);
+		CVAR_SET_STRING("sv_skycolor_b", szColor);
 	}
 	else
 	{
@@ -188,12 +188,12 @@ void CEnvLight :: Spawn()
 	char szVector[64];
 	UTIL_MakeAimVectors( pev->angles );
 
-	sprintf( szVector, "%f", gpGlobals->v_forward.x );
-	CVAR_SET_STRING( "sv_skyvec_x", szVector );
-	sprintf( szVector, "%f", gpGlobals->v_forward.y );
-	CVAR_SET_STRING( "sv_skyvec_y", szVector );
-	sprintf( szVector, "%f", gpGlobals->v_forward.z );
-	CVAR_SET_STRING( "sv_skyvec_z", szVector );
+	snprintf(szVector, sizeof(szVector), "%f", gpGlobals->v_forward.x);
+	CVAR_SET_STRING("sv_skyvec_x", szVector);
+	snprintf(szVector, sizeof(szVector), "%f", gpGlobals->v_forward.y);
+	CVAR_SET_STRING("sv_skyvec_y", szVector);
+	snprintf(szVector, sizeof(szVector), "%f", gpGlobals->v_forward.z);
+	CVAR_SET_STRING("sv_skyvec_z", szVector);
 
 	CLight::Spawn( );
 }

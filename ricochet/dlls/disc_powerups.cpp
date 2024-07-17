@@ -74,9 +74,7 @@ void CDiscwarPowerup::Activate()
 			// Create a powerup for each of the other arenas
 			for (int i = 1; i < MAX_ARENAS; i++)
 			{
-				CBaseEntity * pPowerup;
-
-				pPowerup = CBaseEntity::Create( "item_powerup", pev->origin, pev->angles );
+				const CBaseEntity* pPowerup = Create("item_powerup", pev->origin, pev->angles);
 				pPowerup->pev->groupinfo = g_pArenaList[i]->pev->groupinfo;
 			}
 		}
@@ -123,7 +121,7 @@ void CDiscwarPowerup::PowerupTouch( CBaseEntity *pOther )
 	pev->nextthink = gpGlobals->time + DISC_POWERUP_RESPAWN_TIME;
 
 	// Play the powerup sound
-	EMIT_SOUND_DYN( pOther->edict(), CHAN_STATIC, "powerup.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
+	EMIT_SOUND_DYN( pOther->edict(), CHAN_STATIC, "powerup.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
 }
 
 // Disappear and don't appear again until enabled
@@ -140,15 +138,15 @@ void CDiscwarPowerup::Enable()
 {
 	// Pick a powerup 
 	SetThink( &CDiscwarPowerup::ChoosePowerupThink );
-	pev->nextthink = gpGlobals->time + (DISC_POWERUP_RESPAWN_TIME / 2);
+	pev->nextthink = gpGlobals->time + DISC_POWERUP_RESPAWN_TIME / 2;
 }
 
 //=========================================================
 // Randomly decide what powerup to be
 void CDiscwarPowerup::ChoosePowerupThink()
 {
-	int iPowerup = RANDOM_LONG(0, NUM_POWERUPS-1);
-	m_iPowerupType = (1 << iPowerup);
+	const int iPowerup = RANDOM_LONG(0, NUM_POWERUPS-1);
+	m_iPowerupType = 1 << iPowerup;
 
 	SET_MODEL( ENT(pev), szPowerupModels[iPowerup] );
 	pev->effects &= ~EF_NODRAW;

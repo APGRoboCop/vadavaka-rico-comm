@@ -22,7 +22,7 @@
 class Vector2D
 {
 public:
-	Vector2D()									{ }
+	Vector2D() = default;
 	Vector2D(float X, float Y)						{ x = X; y = Y; }
 	Vector2D operator+(const Vector2D& v)	const	{ return Vector2D(x+v.x, y+v.y);	}
 	Vector2D operator-(const Vector2D& v)	const	{ return Vector2D(x-v.x, y-v.y);	}
@@ -33,10 +33,10 @@ public:
 
 	Vector2D Normalize () const
 	{
-		Vector2D vec2;
+		//Vector2D vec2;
 
 		float flLen = Length();
-		if ( flLen == 0 )
+		if ( flLen == 0.0f )
 		{
 			return Vector2D( 0, 0 );
 		}
@@ -50,7 +50,7 @@ public:
 	vec_t	x, y;
 };
 
-inline float DotProduct(const Vector2D& a, const Vector2D& b) { return( a.x*b.x + a.y*b.y ); }
+inline float DotProduct(const Vector2D& a, const Vector2D& b) { return a.x*b.x + a.y*b.y; }
 inline Vector2D operator*(float fl, const Vector2D& v)	{ return v * fl; }
 
 //=========================================================
@@ -60,7 +60,7 @@ class Vector						// same data-layout as engine's vec3_t,
 {								//		which is a vec_t[3]
 public:
 	// Construction/destruction
-	Vector()								{ }
+	Vector() = default;
 	Vector(float X, float Y, float Z)		{ x = X; y = Y; z = Z;						}
 	//inline Vector(double X, double Y, double Z)		{ x = (float)X; y = (float)Y; z = (float)Z;	}
 	//inline Vector(int X, int Y, int Z)				{ x = (float)X; y = (float)Y; z = (float)Z;	}
@@ -84,7 +84,7 @@ public:
 	Vector Normalize() const
 	{
 		float flLen = Length();
-		if (flLen == 0) return Vector(0,0,1); // ????
+		if (flLen == 0.0f) return Vector(0,0,1); // ????
 		flLen = 1 / flLen;
 		return Vector(x * flLen, y * flLen, z * flLen);
 	}
@@ -105,7 +105,7 @@ public:
 	vec_t x, y, z;
 };
 inline Vector operator*(float fl, const Vector& v)	{ return v * fl; }
-inline float DotProduct(const Vector& a, const Vector& b) { return(a.x*b.x+a.y*b.y+a.z*b.z); }
+inline float DotProduct(const Vector& a, const Vector& b) { return a.x*b.x+a.y*b.y+a.z*b.z; }
 inline Vector CrossProduct(const Vector& a, const Vector& b) { return Vector( a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x ); }
 
 

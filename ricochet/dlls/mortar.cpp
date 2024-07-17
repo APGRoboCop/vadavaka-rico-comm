@@ -31,15 +31,15 @@
 class CFuncMortarField : public CBaseToggle
 {
 public:
-	void Spawn();
-	void Precache();
-	void KeyValue( KeyValueData *pkvd );
+	void Spawn() override;
+	void Precache() override;
+	void KeyValue( KeyValueData *pkvd ) override;
 
 	// Bmodels don't go across transitions
-	virtual int	ObjectCaps() { return CBaseToggle :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	int	ObjectCaps() override { return CBaseToggle :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 
-	virtual int	Save( CSave &save );
-	virtual int	Restore( CRestore &restore );
+	int	Save( CSave &save ) override;
+	int	Restore( CRestore &restore ) override;
 
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -147,7 +147,7 @@ void CFuncMortarField :: FieldUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 				pController = UTIL_FindEntityByTargetname(nullptr, STRING(m_iszXController));
 				if (pController != nullptr)
 				{
-					vecStart.x = pev->mins.x + pController->pev->ideal_yaw * (pev->size.x);
+					vecStart.x = pev->mins.x + pController->pev->ideal_yaw * pev->size.x;
 				}
 			}
 			if (!FStringNull(m_iszYController))
@@ -155,16 +155,16 @@ void CFuncMortarField :: FieldUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 				pController = UTIL_FindEntityByTargetname(nullptr, STRING(m_iszYController));
 				if (pController != nullptr)
 				{
-					vecStart.y = pev->mins.y + pController->pev->ideal_yaw * (pev->size.y);
+					vecStart.y = pev->mins.y + pController->pev->ideal_yaw * pev->size.y;
 				}
 			}
 		}
 		break;
 	}
 
-	int pitch = RANDOM_LONG(95,124);
+	const int pitch = RANDOM_LONG(95,124);
 
-	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "weapons/mortar.wav", 1.0, ATTN_NONE, 0, pitch);	
+	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "weapons/mortar.wav", 1.0f, ATTN_NONE, 0, pitch);	
 
 	float t = 2.5;
 	for (int i = 0; i < m_iCount; i++)
@@ -179,7 +179,7 @@ void CFuncMortarField :: FieldUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 		edict_t *pentOwner = nullptr;
 		if (pActivator)	pentOwner = pActivator->edict();
 
-		CBaseEntity *pMortar = Create("monster_mortar", tr.vecEndPos, Vector( 0, 0, 0 ), pentOwner );
+		const CBaseEntity *pMortar = Create("monster_mortar", tr.vecEndPos, Vector( 0, 0, 0 ), pentOwner );
 		pMortar->pev->nextthink = gpGlobals->time + t;
 		t += RANDOM_FLOAT( 0.2, 0.5 );
 
@@ -192,8 +192,8 @@ void CFuncMortarField :: FieldUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 class CMortar : public CGrenade
 {
 public:
-	void Spawn();
-	void Precache();
+	void Spawn() override;
+	void Precache() override;
 
 	void EXPORT MortarExplode();
 
@@ -277,11 +277,11 @@ void CMortar::MortarExplode()
 	UTIL_TraceLine( pev->origin + Vector( 0, 0, 1024 ), pev->origin - Vector( 0, 0, 1024 ), dont_ignore_monsters, ENT(pev), &tr );
 
 	Explode( &tr, DMG_BLAST | DMG_MORTAR );
-	UTIL_ScreenShake( tr.vecEndPos, 25.0, 150.0, 1.0, 750 );
+	UTIL_ScreenShake( tr.vecEndPos, 25.0f, 150.0f, 1.0f, 750 );
 
 #if 0
 	int pitch = RANDOM_LONG(95,124);
-	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "weapons/mortarhit.wav", 1.0, 0.55, 0, pitch);
+	EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "weapons/mortarhit.wav", 1.0f, 0.55f, 0, pitch);
 
 	// ForceSound( SNDRADIUS_MP5, bits_SOUND_COMBAT );
 

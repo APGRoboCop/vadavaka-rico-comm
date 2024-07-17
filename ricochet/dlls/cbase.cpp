@@ -281,7 +281,7 @@ void DispatchSave( edict_t *pent, SAVERESTOREDATA *pSaveData )
 		// These don't use ltime & nextthink as times really, but we'll fudge around it.
 		if ( pEntity->pev->movetype == MOVETYPE_PUSH )
 		{
-			float delta = pEntity->pev->nextthink - pEntity->pev->ltime;
+			const float delta = pEntity->pev->nextthink - pEntity->pev->ltime;
 			pEntity->pev->ltime = gpGlobals->time;
 			pEntity->pev->nextthink = pEntity->pev->ltime + delta;
 		}
@@ -362,7 +362,7 @@ int DispatchRestore( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity
 //				ALERT( at_console, "Overlay %s with %s\n", STRING(pNewEntity->pev->classname), STRING(tmpVars.classname) );
 				// Tell the restore code we're overlaying a global entity from another level
 				restoreHelper.SetGlobalMode( 1 );	// Don't overwrite global fields
-				pSaveData->vecLandmarkOffset = (pSaveData->vecLandmarkOffset - pNewEntity->pev->mins) + tmpVars.mins;
+				pSaveData->vecLandmarkOffset = pSaveData->vecLandmarkOffset - pNewEntity->pev->mins + tmpVars.mins;
 				pEntity = pNewEntity;// we're going to restore this data OVER the old entity
 				pent = ENT( pEntity->pev );
 				// Update the global table to say that the global definition of this entity should come from this level
@@ -548,12 +548,12 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 	// (that is, no actual entity projectile was involved in the attack so use the shooter's origin). 
 	if ( pevAttacker == pevInflictor )	
 	{
-		vecTemp = pevInflictor->origin - ( VecBModelOrigin(pev) );
+		vecTemp = pevInflictor->origin - VecBModelOrigin(pev);
 	}
 	else
 	// an actual missile was involved.
 	{
-		vecTemp = pevInflictor->origin - ( VecBModelOrigin(pev) );
+		vecTemp = pevInflictor->origin - VecBModelOrigin(pev);
 	}
 
 // this global is still used for glass and other non-monster killables, along with decals.
@@ -562,15 +562,15 @@ int CBaseEntity :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, 
 // save damage based on the target's armor level
 
 // figure momentum add (don't let hurt brushes or other triggers move player)
-	if ((!FNullEnt(pevInflictor)) && (pev->movetype == MOVETYPE_WALK || pev->movetype == MOVETYPE_STEP) && (pevAttacker->solid != SOLID_TRIGGER) )
+	if (!FNullEnt(pevInflictor) && (pev->movetype == MOVETYPE_WALK || pev->movetype == MOVETYPE_STEP) && pevAttacker->solid != SOLID_TRIGGER )
 	{
 		Vector vecDir = pev->origin - (pevInflictor->absmin + pevInflictor->absmax) * 0.5;
 		vecDir = vecDir.Normalize();
 
-		float flForce = flDamage * ((32 * 32 * 72.0f) / (pev->size.x * pev->size.y * pev->size.z)) * 5;
+		float flForce = flDamage * (32 * 32 * 72.0f / (pev->size.x * pev->size.y * pev->size.z)) * 5;
 		
-		if (flForce > 1000.0) 
-			flForce = 1000.0;
+		if (flForce > 1000.0f) 
+			flForce = 1000.0f;
 		pev->velocity = pev->velocity + vecDir * flForce;
 	}
 
@@ -627,20 +627,17 @@ int CBaseEntity::Save( CSave &save )
 
 int CBaseEntity::Restore( CRestore &restore )
 {
-	int status;
-
-	status = restore.ReadEntVars( "ENTVARS", pev );
+	int status = restore.ReadEntVars("ENTVARS", pev);
 	if ( status )
 		status = restore.ReadFields( "BASE", this, m_SaveData, ARRAYSIZE(m_SaveData) );
 
     if ( pev->modelindex != 0 && !FStringNull(pev->model) )
 	{
-		Vector mins, maxs;
-		mins = pev->mins;	// Set model is about to destroy these
-		maxs = pev->maxs;
+		const Vector mins = pev->mins;	// Set model is about to destroy these
+		const Vector maxs = pev->maxs;
 
 
-		PRECACHE_MODEL( (char *)STRING(pev->model) );
+		PRECACHE_MODEL( const_cast<char*>(STRING(pev->model)) );
 		SET_MODEL(ENT(pev), STRING(pev->model));
 		UTIL_SetSize(pev, mins, maxs);	// Reset them
 	}
@@ -652,16 +649,15 @@ int CBaseEntity::Restore( CRestore &restore )
 // Initialize absmin & absmax to the appropriate box
 void SetObjectCollisionBox( entvars_t *pev )
 {
-	if ( (pev->solid == SOLID_BSP) && 
+	if ( pev->solid == SOLID_BSP && 
 		 (pev->angles.x || pev->angles.y|| pev->angles.z) )
 	{	// expand for rotation
-		float		max, v;
 		int			i;
 
-		max = 0;
+		float max = 0;
 		for (i=0 ; i<3 ; i++)
 		{
-			v = fabs( pev->mins[i]);
+			float v = fabs(pev->mins[i]);
 			if (v > max)
 				max = v;
 			v = fabs( pev->maxs[i]);
@@ -776,16 +772,13 @@ int	CBaseEntity :: DamageDecal( int bitsDamageType )
 // will keep a pointer to it after this call.
 CBaseEntity * CBaseEntity::Create( char *szName, const Vector &vecOrigin, const Vector &vecAngles, edict_t *pentOwner )
 {
-	edict_t	*pent;
-	CBaseEntity *pEntity;
-
-	pent = CREATE_NAMED_ENTITY( MAKE_STRING( szName ));
+	edict_t* pent = CREATE_NAMED_ENTITY(MAKE_STRING(szName));
 	if ( FNullEnt( pent ) )
 	{
 		ALERT ( at_console, "NULL Ent in Create!\n" );
 		return nullptr;
 	}
-	pEntity = Instance( pent );
+	CBaseEntity* pEntity = Instance(pent);
 	pEntity->pev->owner = pentOwner;
 	pEntity->pev->origin = vecOrigin;
 	pEntity->pev->angles = vecAngles;

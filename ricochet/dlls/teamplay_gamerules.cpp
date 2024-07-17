@@ -48,7 +48,7 @@ CHalfLifeTeamplay :: CHalfLifeTeamplay()
 	// Cache this because the team code doesn't want to deal with changing this in the middle of a game
 	strncpy( m_szTeamList, teamlist.string, TEAMPLAY_TEAMLISTLENGTH );
 
-	edict_t *pWorld = INDEXENT(0);
+	const edict_t *pWorld = INDEXENT(0);
 	if ( pWorld && pWorld->v.team )
 	{
 		if ( teamoverride.value )
@@ -81,7 +81,6 @@ void CHalfLifeTeamplay :: Think ()
 	static int last_time;
 
 	int frags_remaining = 0;
-	int time_remaining = 0;
 
 	g_VoiceGameMgr.Update(gpGlobals->frametime);
 
@@ -91,9 +90,9 @@ void CHalfLifeTeamplay :: Think ()
 		return;
 	}
 
-	float flTimeLimit = CVAR_GET_FLOAT("mp_timelimit") * 60;
-	
-	time_remaining = (int)(flTimeLimit ? ( flTimeLimit - gpGlobals->time ) : 0);
+	const float flTimeLimit = CVAR_GET_FLOAT("mp_timelimit") * 60;
+
+	const int time_remaining = static_cast<int>(flTimeLimit ? flTimeLimit - gpGlobals->time : 0);
 
 	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit )
 	{
@@ -101,11 +100,10 @@ void CHalfLifeTeamplay :: Think ()
 		return;
 	}
 
-	float flFragLimit = fraglimit.value;
+	const float flFragLimit = fraglimit.value;
 	if ( flFragLimit )
 	{
 		int bestfrags = 9999;
-		int remain;
 
 		// check if any team is over the frag limit
 		for ( int i = 0; i < num_teams; i++ )
@@ -116,7 +114,7 @@ void CHalfLifeTeamplay :: Think ()
 				return;
 			}
 
-			remain = flFragLimit - team_scores[i];
+			const int remain = flFragLimit - team_scores[i];
 			if ( remain < bestfrags )
 			{
 				bestfrags = remain;
@@ -183,7 +181,7 @@ const char *CHalfLifeTeamplay::SetDefaultPlayerTeam( CBasePlayer *pPlayer )
 {
 	// copy out the team name from the model
 	// Miagi changed team from model
-	char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
+	const char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
 	strncpy( pPlayer->m_szTeamName, mdls, TEAM_NAME_LENGTH );
 
 	RecountTeams();
@@ -218,19 +216,18 @@ void CHalfLifeTeamplay::InitHUD( CBasePlayer *pPlayer )
 
 	RecountTeams();
 	//Miagi
-	char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
+	const char *mdls = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
 	// update the current player of the team he is joining
 	char text[1024];
 	if ( !strcmp( mdls, pPlayer->m_szTeamName ) )
 	{
-		sprintf( text, "* you are on team \'%s\'\n", pPlayer->m_szTeamName );
+		snprintf(text, sizeof(text), "* you are on team \'%s\'\n", pPlayer->m_szTeamName);
 	}
 	else
 	{
-		const char *pTeamName = nullptr;
-		pTeamName = TeamWithFewestPlayers();
+		const char* pTeamName = TeamWithFewestPlayers();
 		strncpy( pPlayer->m_szTeamName, pTeamName, TEAM_NAME_LENGTH );
-		sprintf( text, "* assigned to team %s\n", pPlayer->m_szTeamName );
+		snprintf(text, sizeof(text), "* assigned to team %s\n", pPlayer->m_szTeamName);
 	}
 
 	ChangePlayerTeam( pPlayer, pPlayer->m_szTeamName, FALSE, FALSE );
@@ -256,7 +253,7 @@ void CHalfLifeTeamplay::InitHUD( CBasePlayer *pPlayer )
 void CHalfLifeTeamplay::ChangePlayerTeam( CBasePlayer *pPlayer, const char *pTeamName, BOOL bKill, BOOL bGib )
 {
 	int damageFlags = DMG_GENERIC;
-	int clientIndex = pPlayer->entindex();
+	const int clientIndex = pPlayer->entindex();
 
 	if ( !bGib )
 	{
@@ -332,29 +329,29 @@ void CHalfLifeTeamplay::ClientUserInfoChanged( CBasePlayer *pPlayer, char *infob
 
 	if ( defaultteam.value )
 	{
-		int clientIndex = pPlayer->entindex();
+		const int clientIndex = pPlayer->entindex();
 		//Miagi
 		//g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", pPlayer->m_szTeamName );
 		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->m_szTeamName );
-		sprintf( text, "* Not allowed to change teams in this game!\n" );
+		snprintf(text, sizeof(text), "* Not allowed to change teams in this game!\n");
 		UTIL_SayText( text, pPlayer );
 		return;
 	}
 
 	if ( defaultteam.value || !IsValidTeam( mdls ) )
 	{
-		int clientIndex = pPlayer->entindex();
+		const int clientIndex = pPlayer->entindex();
 
 		g_engfuncs.pfnSetClientKeyValue( clientIndex, g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team", pPlayer->m_szTeamName );
-		sprintf( text, "* Can't change team to \'%s\'\n", mdls );
+		snprintf(text, sizeof(text), "* Can't change team to \'%s\'\n", mdls);
 		UTIL_SayText( text, pPlayer );
-		sprintf( text, "* Server limits teams to \'%s\'\n", m_szTeamList );
+		snprintf(text, sizeof(text), "* Server limits teams to \'%s\'\n", m_szTeamList);
 		UTIL_SayText( text, pPlayer );
 		return;
 	}
 	
 	// notify everyone of the team change
-	sprintf( text, "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls );
+	snprintf(text, sizeof(text), "* %s has changed to team \'%s\'\n", STRING(pPlayer->pev->netname), mdls);
 	UTIL_SayTextAll( text, pPlayer );
 
 	UTIL_LogPrintf( "\"%s<%i><%s><%s>\" joined team \"%s\"\n", 
@@ -385,7 +382,7 @@ void CHalfLifeTeamplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, e
 
 		if ( pk )
 		{
-			if ( (pk != pVictim) && (PlayerRelationship( pVictim, pk ) == GR_TEAMMATE) )
+			if ( pk != pVictim && PlayerRelationship( pVictim, pk ) == GR_TEAMMATE )
 			{
 				MESSAGE_BEGIN( MSG_ALL, gmsgDeathMsg );
 					WRITE_BYTE( ENTINDEX(ENT(pKiller)) );		// the killer
@@ -425,7 +422,7 @@ BOOL CHalfLifeTeamplay::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity 
 	if ( pAttacker && PlayerRelationship( pPlayer, pAttacker ) == GR_TEAMMATE )
 	{
 		// my teammate hit me.
-		if ( (CVAR_GET_FLOAT("mp_friendlyfire") == 0) && (pAttacker != pPlayer) )
+		if (CVAR_GET_FLOAT("mp_friendlyfire") == 0 && pAttacker != pPlayer )
 		{
 			// friendly fire is off, and this hit came from someone other than myself,  then don't get hurt
 			return FALSE;
@@ -444,7 +441,7 @@ int CHalfLifeTeamplay::PlayerRelationship( CBaseEntity *pPlayer, CBaseEntity *pT
 	if ( !pPlayer || !pTarget || !pTarget->IsPlayer() )
 		return GR_NOTTEAMMATE;
 
-	if ( (*GetTeamID(pPlayer) != '\0') && (*GetTeamID(pTarget) != '\0') && !stricmp( GetTeamID(pPlayer), GetTeamID(pTarget) ) )
+	if ( *GetTeamID(pPlayer) != '\0' && *GetTeamID(pTarget) != '\0' && !stricmp( GetTeamID(pPlayer), GetTeamID(pTarget) ) )
 	{
 		return GR_TEAMMATE;
 	}
@@ -525,7 +522,7 @@ BOOL CHalfLifeTeamplay::IsValidTeam( const char *pTeamName )
 	if ( !m_teamLimit )	// Any team is valid if the teamlist isn't set
 		return TRUE;
 
-	return ( GetTeamIndex( pTeamName ) != -1 ) ? TRUE : FALSE;
+	return GetTeamIndex( pTeamName ) != -1 ? TRUE : FALSE;
 }
 
 const char *CHalfLifeTeamplay::TeamWithFewestPlayers()
@@ -533,7 +530,7 @@ const char *CHalfLifeTeamplay::TeamWithFewestPlayers()
 	int i;
 	int minPlayers = MAX_TEAMS;
 	int teamCount[ MAX_TEAMS ];
-	char *pTeamName = nullptr;
+	const char *pTeamName = nullptr;
 
 	memset( teamCount, 0, MAX_TEAMS * sizeof(int) );
 	
@@ -544,7 +541,7 @@ const char *CHalfLifeTeamplay::TeamWithFewestPlayers()
 
 		if ( plr )
 		{
-			int team = GetTeamIndex( plr->TeamID() );
+			const int team = GetTeamIndex( plr->TeamID() );
 			if ( team >= 0 )
 				teamCount[team] ++;
 		}
@@ -568,7 +565,6 @@ const char *CHalfLifeTeamplay::TeamWithFewestPlayers()
 //=========================================================
 void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 {
-	char	*pName;
 	char	teamlist[TEAMPLAY_TEAMLISTLENGTH];
 
 	// loop through all teams, recounting everything
@@ -577,7 +573,7 @@ void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 	// Copy all of the teams from the teamlist
 	// make a copy because strtok is destructive
 	strcpy( teamlist, m_szTeamList );
-	pName = teamlist;
+	char* pName = teamlist;
 	pName = strtok( pName, ";" );
 	while ( pName != nullptr && *pName )
 	{

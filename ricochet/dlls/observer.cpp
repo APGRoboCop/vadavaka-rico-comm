@@ -66,7 +66,7 @@ void CBasePlayer::StartObserver( Vector vecPosition, Vector vecViewAngle )
 	MESSAGE_END();
 
 	// Setup flags
-	m_iHideHUD = (HIDEHUD_HEALTH | HIDEHUD_WEAPONS);
+	m_iHideHUD = HIDEHUD_HEALTH | HIDEHUD_WEAPONS;
 	m_afPhysicsFlags |= PFLAG_OBSERVER;
 	pev->effects = EF_NODRAW;
 	pev->view_ofs = g_vecZero;
@@ -146,7 +146,7 @@ void CBasePlayer::Observer_FindNextPlayer( bool bReverse )
 		iStart = ENTINDEX( edict() );
 	int	    iCurrent = iStart;
 	m_hObserverTarget = nullptr;
-	int iDir = bReverse ? -1 : 1; 
+	const int iDir = bReverse ? -1 : 1; 
 
 	do
 	{
@@ -164,7 +164,7 @@ void CBasePlayer::Observer_FindNextPlayer( bool bReverse )
 		if ( pEnt == this )
 			continue;
 		// Don't spec observers or invisible players
-		if ( ((CBasePlayer*)pEnt)->IsObserver() || (pEnt->pev->effects & EF_NODRAW) )
+		if ( ((CBasePlayer*)pEnt)->IsObserver() || pEnt->pev->effects & EF_NODRAW )
 			continue;
 
 		// MOD AUTHORS: Add checks on target here.
@@ -288,7 +288,7 @@ void CBasePlayer::Observer_SetMode( int iMode )
 	if ( iMode == OBS_LOCKEDVIEW )
 	{
 		// Find the spectator spawn position
-		CBaseEntity *pSpot = UTIL_FindEntityByClassname(nullptr, "info_player_spectator");
+		const CBaseEntity *pSpot = UTIL_FindEntityByClassname(nullptr, "info_player_spectator");
 		
 		if ( pSpot )
 		{

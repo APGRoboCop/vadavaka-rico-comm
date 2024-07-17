@@ -154,7 +154,7 @@ void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage)
 int DamageDecal( CBaseEntity *pEntity, int bitsDamageType )
 {
 	if ( !pEntity )
-		return (DECAL_GUNSHOT1 + RANDOM_LONG(0,4));
+		return DECAL_GUNSHOT1 + RANDOM_LONG(0,4);
 	
 	return pEntity->DamageDecal( bitsDamageType );
 }
@@ -268,9 +268,7 @@ void AddAmmoNameToAmmoRegistry( const char *szAmmoname )
 // Precaches the weapon and queues the weapon info for sending to clients
 void UTIL_PrecacheOtherWeapon( const char *szClassname )
 {
-	edict_t	*pent;
-
-	pent = CREATE_NAMED_ENTITY( MAKE_STRING( szClassname ) );
+	edict_t* pent = CREATE_NAMED_ENTITY(MAKE_STRING(szClassname));
 	if ( FNullEnt( pent ) )
 	{
 		ALERT ( at_console, "NULL Ent in UTIL_PrecacheOtherWeapon\n" );
@@ -389,7 +387,7 @@ void CBasePlayerItem::FallThink ()
 		// don't clatter if the gun is waiting to respawn (if it's waiting, it is invisible!)
 		if ( !FNullEnt( pev->owner ) )
 		{
-			int pitch = 95 + RANDOM_LONG(0,29);
+			const int pitch = 95 + RANDOM_LONG(0,29);
 			EMIT_SOUND_DYN(ENT(pev), CHAN_VOICE, "items/weapondrop1.wav", 1, ATTN_NORM, 0, pitch);	
 		}
 
@@ -428,7 +426,7 @@ void CBasePlayerItem::Materialize()
 //=========================================================
 void CBasePlayerItem::AttemptToMaterialize()
 {
-	float time = g_pGameRules->FlWeaponTryRespawn( this );
+	const float time = g_pGameRules->FlWeaponTryRespawn( this );
 
 	if ( time == 0 )
 	{
@@ -464,7 +462,7 @@ CBaseEntity* CBasePlayerItem::Respawn()
 {
 	// make a copy of this weapon that is invisible and inaccessible to players (no touch function). The weapon spawn/respawn code
 	// will decide when to make the weapon visible and touchable.
-	CBaseEntity *pNewWeapon = CBaseEntity::Create( (char *)STRING( pev->classname ), g_pGameRules->VecWeaponRespawnSpot( this ), pev->angles, pev->owner );
+	CBaseEntity *pNewWeapon = Create( const_cast<char*>(STRING(pev->classname)), g_pGameRules->VecWeaponRespawnSpot( this ), pev->angles, pev->owner );
 
 	if ( pNewWeapon )
 	{
@@ -517,20 +515,20 @@ BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 {
 	if ( !isPredicted )
 	{
-		return ( attack_time <= curtime ) ? TRUE : FALSE;
+		return attack_time <= curtime ? TRUE : FALSE;
 	}
 	else
 	{
-		return ( attack_time <= 0.0 ) ? TRUE : FALSE;
+		return attack_time <= 0.0f ? TRUE : FALSE;
 	}
 }
 
 void CBasePlayerWeapon::ItemPostFrame()
 {
-	if ((m_fInReload) && ( m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() ) )
+	if (m_fInReload && m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() )
 	{
 		// complete the reload. 
-		int j = fmin( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
+		const int j = fmin( iMaxClip() - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
 
 		// Add them to the clip
 		m_iClip += j;
@@ -539,7 +537,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		m_fInReload = FALSE;
 	}
 
-	if ((m_pPlayer->pev->button & IN_ATTACK2) && CanAttack( m_flNextSecondaryAttack, gpGlobals->time, UseDecrement() ) )
+	if (m_pPlayer->pev->button & IN_ATTACK2 && CanAttack( m_flNextSecondaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
 		if ( pszAmmo2() && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()] )
 		{
@@ -549,7 +547,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		SecondaryAttack();
 		m_pPlayer->pev->button &= ~IN_ATTACK2;
 	}
-	else if ((m_pPlayer->pev->button & IN_ATTACK) && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
+	else if (m_pPlayer->pev->button & IN_ATTACK && CanAttack( m_flNextPrimaryAttack, gpGlobals->time, UseDecrement() ) )
 	{
 		if ( (m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()] ) )
 		{
@@ -569,7 +567,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 
 		m_fFireOnEmpty = FALSE;
 
-		if ( !IsUseable() && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0 : gpGlobals->time ) ) 
+		if ( !IsUseable() && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0f : gpGlobals->time ) ) 
 		{
 			// weapon isn't useable, switch.
 			if ( !(iFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) && g_pGameRules->GetNextBestWeapon( m_pPlayer, this ) )
@@ -581,7 +579,7 @@ void CBasePlayerWeapon::ItemPostFrame()
 		else
 		{
 			// weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
-			if ( m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0 : gpGlobals->time ) )
+			if ( m_iClip == 0 && !(iFlags() & ITEM_FLAG_NOAUTORELOAD) && m_flNextPrimaryAttack < ( UseDecrement() ? 0.0f : gpGlobals->time ) )
 			{
 				Reload();
 				return;
@@ -667,9 +665,9 @@ int CBasePlayerWeapon::AddDuplicate( CBasePlayerItem *pOriginal )
 
 int CBasePlayerWeapon::AddToPlayer( CBasePlayer *pPlayer )
 {
-	int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
+	const int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
 
-	pPlayer->pev->weapons |= (1<<m_iId);
+	pPlayer->pev->weapons |= 1<<m_iId;
 
 	if ( !m_iPrimaryAmmoType )
 	{
@@ -763,8 +761,7 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 	}
 	else if (m_iClip == 0)
 	{
-		int i;
-		i = fmin( m_iClip + iCount, iMaxClip ) - m_iClip;
+		const int i = fmin(m_iClip + iCount, iMaxClip) - m_iClip;
 		m_iClip += i;
 		iIdAmmo = m_pPlayer->GiveAmmo( iCount - i, szName, iMaxCarry );
 	}
@@ -792,9 +789,7 @@ BOOL CBasePlayerWeapon :: AddPrimaryAmmo( int iCount, char *szName, int iMaxClip
 
 BOOL CBasePlayerWeapon :: AddSecondaryAmmo( int iCount, char *szName, int iMax )
 {
-	int iIdAmmo;
-
-	iIdAmmo = m_pPlayer->GiveAmmo( iCount, szName, iMax );
+	const int iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName, iMax);
 
 	//m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = iMax; // hack for testing
 
@@ -838,11 +833,11 @@ BOOL CBasePlayerWeapon :: CanDeploy()
 
 	if ( pszAmmo1() )
 	{
-		bHasAmmo |= (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] != 0);
+		bHasAmmo |= m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] != 0;
 	}
 	if ( pszAmmo2() )
 	{
-		bHasAmmo |= (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] != 0);
+		bHasAmmo |= m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] != 0;
 	}
 	if (m_iClip > 0)
 	{
@@ -878,7 +873,7 @@ BOOL CBasePlayerWeapon :: DefaultReload( int iClipSize, int iAnim, float fDelay 
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
 
-	int j = fmin(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
+	const int j = fmin(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);	
 
 	if (j == 0)
 		return FALSE;
@@ -1012,13 +1007,13 @@ int CBasePlayerWeapon::ExtractAmmo( CBasePlayerWeapon *pWeapon )
 	{
 		// blindly call with m_iDefaultAmmo. It's either going to be a value or zero. If it is zero,
 		// we only get the ammo in the weapon's clip, which is what we want. 
-		iReturn = pWeapon->AddPrimaryAmmo( m_iDefaultAmmo, (char *)pszAmmo1(), iMaxClip(), iMaxAmmo1() );
+		iReturn = pWeapon->AddPrimaryAmmo( m_iDefaultAmmo, const_cast<char*>(pszAmmo1()), iMaxClip(), iMaxAmmo1() );
 		m_iDefaultAmmo = 0;
 	}
 
 	if ( pszAmmo2() != nullptr)
 	{
-		iReturn = pWeapon->AddSecondaryAmmo( 0, (char *)pszAmmo2(), iMaxAmmo2() );
+		iReturn = pWeapon->AddSecondaryAmmo( 0, const_cast<char*>(pszAmmo2()), iMaxAmmo2() );
 	}
 
 	return iReturn;
@@ -1040,7 +1035,7 @@ int CBasePlayerWeapon::ExtractClipAmmo( CBasePlayerWeapon *pWeapon )
 		iAmmo = m_iClip;
 	}
 	
-	return pWeapon->m_pPlayer->GiveAmmo( iAmmo, (char *)pszAmmo1(), iMaxAmmo1() ); // , &m_iPrimaryAmmoType
+	return pWeapon->m_pPlayer->GiveAmmo( iAmmo, const_cast<char*>(pszAmmo1()), iMaxAmmo1() ); // , &m_iPrimaryAmmoType
 }
 	
 //=========================================================

@@ -66,17 +66,17 @@ extern void AddClientToArena( CBasePlayer *pPlayer );
 
 int GetHueFromRGB( float r, float g, float b )
 {
-	float fMax = max( max( r, g ) , b );
-	float fMin = min( min( r, g ) , b );
+	const float fMax = fmax( fmax( r, g ) , b );
+	const float fMin = fmin( fmin( r, g ) , b );
 	float fSaturation = 0;
 
-	if ( fMax != 0 )
+	if ( fMax != 0.0f )
 		fSaturation = (fMax - fMin) / fMax;
 
-	if ( fSaturation == 0 )
+	if ( fSaturation == 0.0f )
 		return 0;
 
-	float fDelta = fMax - fMin;
+	const float fDelta = fMax - fMin;
 	float fHue = 0;
 
 	if ( r == fMax )
@@ -92,7 +92,7 @@ int GetHueFromRGB( float r, float g, float b )
 
 	// Map it to 0-255
 	fHue = fHue / 360;
-	fHue = (255 * fHue);
+	fHue = 255 * fHue;
 
 	return fHue;
 }
@@ -162,8 +162,7 @@ void ClientDisconnect( edict_t *pEntity )
 	// notify other clients the player has left
 	UTIL_ClientPrintAll( HUD_PRINTNOTIFY, "#Game_disconnected", STRING(pEntity->v.netname) );
 
-	CSound *pSound;
-	pSound = CSoundEnt::SoundPointerForIndex( CSoundEnt::ClientSoundIndex( pEntity ) );
+	CSound* pSound = CSoundEnt::SoundPointerForIndex(CSoundEnt::ClientSoundIndex(pEntity));
 	{
 		// since this client isn't around to think anymore, reset their sound. 
 		if ( pSound )
@@ -244,11 +243,9 @@ called when the player is first put in the server
 */
 void ClientPutInServer( edict_t *pEntity )
 {
-	CBasePlayer *pPlayer;
-
 	entvars_t *pev = &pEntity->v;
 
-	pPlayer = GetClassPtr((CBasePlayer *)pev);
+	CBasePlayer* pPlayer = GetClassPtr((CBasePlayer*)pev);
 	pPlayer->SetCustomDecalFrames(-1); // Assume none;
 
 	// Allocate a CBasePlayer for pev, and call spawn
@@ -269,7 +266,7 @@ void ClientPutInServer( edict_t *pEntity )
 	}
 	else if ( g_pGameRules->IsTeamplay() )//Miagi
 	{
-		char *teaminfo = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
+		const char *teaminfo = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "team" );
 		if ( !stricmp( teaminfo, "red" ) )
 		{ 
 		pPlayer->pev->team = 1;
@@ -285,19 +282,18 @@ void ClientPutInServer( edict_t *pEntity )
 		}
 		else
 		{
-		int i;
-		char *pTeamName = nullptr;
+			char *pTeamName = nullptr;
 		int redteam = 1;
 		int blueteam = 1;
 		
-	for ( i = 1; i <= gpGlobals->maxClients; i++ )
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-	CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
-	if ( pPlayer && ( pPlayer->pev->team == 1 ) )
+		const CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+	if ( pPlayer && pPlayer->pev->team == 1 )
 	{
 		redteam++;
 	}
-	else if ( pPlayer && ( pPlayer->pev->team == 2 ) )
+	else if ( pPlayer && pPlayer->pev->team == 2 )
 	{
 		blueteam++;
 	}
@@ -337,7 +333,7 @@ void ClientPutInServer( edict_t *pEntity )
 		pPlayer->pev->iuser4 = pPlayer->pev->team;
 
 		// Set colors
-		int iHue = GetHueFromRGB( g_iaDiscColors[ pPlayer->pev->team][0] / 255, g_iaDiscColors[pPlayer->pev->team][1] / 255, g_iaDiscColors[pPlayer->pev->team][2] / 255 );
+		const int iHue = GetHueFromRGB( g_iaDiscColors[ pPlayer->pev->team][0] / 255, g_iaDiscColors[pPlayer->pev->team][1] / 255, g_iaDiscColors[pPlayer->pev->team][2] / 255 );
 		g_engfuncs.pfnSetClientKeyValue( ENTINDEX( pEntity ), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "topcolor", UTIL_VarArgs("%d", iHue) );
 		g_engfuncs.pfnSetClientKeyValue( ENTINDEX( pEntity ), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "bottomcolor", UTIL_VarArgs("%d", iHue - 10) );
 	}
@@ -368,11 +364,8 @@ extern CVoiceGameMgr g_VoiceGameMgr;
 //
 void Host_Say( edict_t *pEntity, int teamonly )
 {
-	CBasePlayer *client;
-	int		j;
 	char	*p;
 	char	text[128];
-	char    szTemp[256];
 	const char *cpSay = "say";
 	const char *cpSayTeam = "say_team";
 	const char *pcmd = CMD_ARGV(0);
@@ -398,14 +391,15 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	}
 	else  // Raw text, need to prepend argv[0]
 	{
+		char szTemp[256];
 		if ( CMD_ARGC() >= 2 )
 		{
-			sprintf( szTemp, "%s %s", ( char * )pcmd, (char *)CMD_ARGS() );
+			snprintf(szTemp, sizeof(szTemp), "%s %s", const_cast<char*>(pcmd), const_cast<char*>(CMD_ARGS()));
 		}
 		else
 		{
 			// Just a one word command, use the first word...sigh
-			sprintf( szTemp, "%s", ( char * )pcmd );
+			snprintf(szTemp, sizeof(szTemp), "%s", const_cast<char*>(pcmd));
 		}
 		p = szTemp;
 	}
@@ -436,11 +430,11 @@ void Host_Say( edict_t *pEntity, int teamonly )
 
 // turn on color set 2  (color on,  no sound)
 	if ( teamonly )
-		sprintf( text, "%c(TEAM) %s: ", 2, STRING( pEntity->v.netname ) );
+		snprintf(text, sizeof(text), "%c(TEAM) %s: ", 2, STRING(pEntity->v.netname));
 	else
-		sprintf( text, "%c%s: ", 2, STRING( pEntity->v.netname ) );
+		snprintf(text, sizeof(text), "%c%s: ", 2, STRING(pEntity->v.netname));
 
-	j = sizeof(text) - 2 - strlen(text);  // -2 for /n and null terminator
+	const int j = sizeof(text) - 2 - strlen(text);  // -2 for /n and null terminator
 	if ( (int)strlen(p) > j )
 		p[j] = 0;
 
@@ -452,8 +446,8 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	// This may return the world in single player if the client types something between levels or during spawn
 	// so check it, or it will infinite loop
 
-	client = nullptr;
-	while ( ((client = (CBasePlayer*)UTIL_FindEntityByClassname( client, "player" )) != nullptr) && (!FNullEnt(client->edict())) ) 
+	CBasePlayer* client = nullptr;
+	while ( (client = (CBasePlayer*)UTIL_FindEntityByClassname( client, "player" )) != nullptr && !FNullEnt(client->edict()) ) 
 	{
 		if ( !client->pev )
 			continue;
@@ -461,7 +455,7 @@ void Host_Say( edict_t *pEntity, int teamonly )
 		if ( client->edict() == pEntity )
 			continue;
 
-		if ( !(client->IsNetClient()) )	// Not a client ? (should never be true)
+		if ( !client->IsNetClient() )	// Not a client ? (should never be true)
 			continue;
 
 		// can the receiver hear the sender? or has he muted him?
@@ -530,7 +524,7 @@ void ClientCommand( edict_t *pEntity )
 		Host_Say( pEntity, 1 );
 	}
 	//Miagi prevent pressing spectate in arena, it only causes hassles
-	else if ( ( FStrEq(pcmd, "spectate" ) ) && ( InArenaMode() == FALSE ) )
+	else if ( FStrEq(pcmd, "spectate" ) && InArenaMode() == FALSE )
 	{
 		// Prevent this is the cvar is set
 		if ( allow_spectators.value )
@@ -566,9 +560,9 @@ void ClientCommand( edict_t *pEntity )
 
 	else if ( FStrEq(pcmd, "give" ) )
 	{
-		if ( g_flWeaponCheat != 0.0)
+		if ( g_flWeaponCheat != 0.0f)
 		{
-			int iszItem = ALLOC_STRING( CMD_ARGV(1) );	// Make a copy of the classname
+			const int iszItem = ALLOC_STRING( CMD_ARGV(1) );	// Make a copy of the classname
 			GetClassPtr((CBasePlayer *)pev)->GiveNamedItem( STRING(iszItem) );
 		}
 	}
@@ -586,14 +580,14 @@ void ClientCommand( edict_t *pEntity )
 		}
 		else
 		{
-			CLIENT_PRINTF( pEntity, print_console, UTIL_VarArgs( "\"fov\" is \"%d\"\n", (int)GetClassPtr((CBasePlayer *)pev)->m_iFOV ) );
+			CLIENT_PRINTF( pEntity, print_console, UTIL_VarArgs( "\"fov\" is \"%d\"\n", GetClassPtr((CBasePlayer *)pev)->m_iFOV ) );
 		}
 	}
 	else if ( FStrEq(pcmd, "use" ) )
 	{
-		GetClassPtr((CBasePlayer *)pev)->SelectItem((char *)CMD_ARGV(1));
+		GetClassPtr((CBasePlayer *)pev)->SelectItem(CMD_ARGV(1));
 	}
-	else if (((pstr = strstr(pcmd, "weapon_")) != nullptr)  && (pstr == pcmd))
+	else if ((pstr = strstr(pcmd, "weapon_")) != nullptr  && pstr == pcmd)
 	{
 		GetClassPtr((CBasePlayer *)pev)->SelectItem(pcmd);
 	}
@@ -657,7 +651,7 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 	if ( pEntity->v.netname && STRING(pEntity->v.netname)[0] != nullptr && !FStrEq( STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue( infobuffer, "name" )) )
 	{
 		char sName[256];
-		char *pName = g_engfuncs.pfnInfoKeyValue( infobuffer, "name" );
+		const char *pName = g_engfuncs.pfnInfoKeyValue( infobuffer, "name" );
 		strncpy( sName, pName, sizeof(sName) - 1 );
 		sName[ sizeof(sName) - 1 ] = '\0';
 
@@ -673,7 +667,7 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 		g_engfuncs.pfnSetClientKeyValue( ENTINDEX(pEntity), infobuffer, "name", sName );
 
 		char text[256];
-		sprintf( text, "* %s changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue( infobuffer, "name" ) );
+		snprintf(text, sizeof(text), "* %s changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
 		MESSAGE_BEGIN( MSG_ALL, gmsgSayText, nullptr);
 			WRITE_BYTE( ENTINDEX(pEntity) );
 			WRITE_STRING( text );
@@ -690,16 +684,14 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 	g_pGameRules->ClientUserInfoChanged( GetClassPtr((CBasePlayer *)&pEntity->v), infobuffer );
 
 	//Routine to ensure only rico models are used - desNotes 05/25/03
-	const int model_maxlength = 64;
-	char rico_model[model_maxlength] = {0};
+	constexpr int model_maxlength = 64;
+	char rico_model[model_maxlength] = {};
 
-	int model_index;
-	int model_len;
 	char modelSub[] = "xxxx";
 
-//	UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "0. checking modelSub = %s \n", modelSub));
-	model_len = strlen(g_engfuncs.pfnInfoKeyValue( infobuffer, "model" ));
-	model_index = model_len - 4;
+	//UTIL_ClientPrintAll( HUD_PRINTNOTIFY, UTIL_VarArgs( "0. checking modelSub = %s \n", modelSub));
+	const int model_len = strlen(g_engfuncs.pfnInfoKeyValue(infobuffer, "model"));
+	int model_index = model_len - 4;
 	if(model_index < 0) {
 		model_index = 0;
 	}
@@ -747,7 +739,7 @@ void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 
 */
 	// Set colors
-	int iHue = GetHueFromRGB( g_iaDiscColors[ pEntity->v.team][0] / 255, g_iaDiscColors[pEntity->v.team][1] / 255, g_iaDiscColors[pEntity->v.team][2] / 255 );
+	const int iHue = GetHueFromRGB( g_iaDiscColors[ pEntity->v.team][0] / 255, g_iaDiscColors[pEntity->v.team][1] / 255, g_iaDiscColors[pEntity->v.team][2] / 255 );
 	g_engfuncs.pfnSetClientKeyValue( ENTINDEX( pEntity ), infobuffer, "topcolor", UTIL_VarArgs("%d", iHue) );
 	g_engfuncs.pfnSetClientKeyValue( ENTINDEX( pEntity ), infobuffer, "bottomcolor", UTIL_VarArgs("%d", iHue - 10) );
 }
@@ -771,14 +763,11 @@ void ServerDeactivate()
 
 void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 {
-	int				i;
-	CBaseEntity		*pClass;
-
 	// Every call to ServerActivate should be matched by a call to ServerDeactivate
 	g_serveractive = 1;
 
 	// Clients have not been initialized yet
-	for ( i = 0; i < edictCount; i++ )
+	for ( int i = 0; i < edictCount; i++ )
 	{
 		if ( pEdictList[i].free )
 			continue;
@@ -787,7 +776,7 @@ void ServerActivate( edict_t *pEdictList, int edictCount, int clientMax )
 		if ( i < clientMax || !pEdictList[i].pvPrivateData )
 			continue;
 
-		pClass = CBaseEntity::Instance( &pEdictList[i] );
+		CBaseEntity* pClass = CBaseEntity::Instance(&pEdictList[i]);
 		// Activate this entity if it's got a class & isn't dormant
 		if ( pClass && !(pClass->pev->flags & FL_DORMANT) )
 		{
@@ -1131,7 +1120,7 @@ NOTE:  Do not cache the values of pas and pvs, as they depend on reusable memory
 void SetupVisibility( edict_t *pViewEntity, edict_t *pClient, unsigned char **pvs, unsigned char **pas )
 {
 	Vector org;
-	edict_t *pView = pClient;
+	const edict_t *pView = pClient;
 
 	// Find the client's PVS
 	if ( pViewEntity )
@@ -1141,7 +1130,7 @@ void SetupVisibility( edict_t *pViewEntity, edict_t *pClient, unsigned char **pv
 
 	// Tracking Spectators use the visibility of their target
 	CBasePlayer *pPlayer = (CBasePlayer *)CBaseEntity::Instance( pClient );
-	if ( (pPlayer->pev->iuser2 != 0) && (pPlayer->m_hObserverTarget != NULL) )
+	if ( pPlayer->pev->iuser2 != 0 && pPlayer->m_hObserverTarget != NULL )
 	{
 		pView = pPlayer->m_hObserverTarget->edict();
 	}
@@ -1176,8 +1165,8 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 	int					i;
 
 	// don't send if flagged for NODRAW and it's not the host getting the message
-	if ( ( ent->v.effects == EF_NODRAW ) &&
-		 ( ent != host ) )
+	if ( ent->v.effects == EF_NODRAW &&
+		 ent != host )
 		return 0;
 
 	// Ignore ents without valid / visible models
@@ -1185,7 +1174,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 		return 0;
 
 	// Don't send spectators to other players
-	if ( ( ent->v.flags & FL_SPECTATOR ) && ( ent != host ) )
+	if ( ent->v.flags & FL_SPECTATOR && ent != host )
 	{
 		return 0;
 	}
@@ -1204,7 +1193,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 	// Don't send entity to local client if the client says it's predicting the entity itself.
 	if ( ent->v.flags & FL_SKIPLOCALHOST )
 	{
-		if ( ( hostflags & 1 ) && ( ent->v.owner == host ) )
+		if ( hostflags & 1 && ent->v.owner == host )
 			return 0;
 	}
 	
@@ -1248,7 +1237,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 	//
 
 	// Round animtime to nearest millisecond
-	state->animtime   = (int)(1000.0f * ent->v.animtime ) / 1000.0f;
+	state->animtime   = static_cast<int>(1000.0f * ent->v.animtime) / 1000.0f;
 
 	memcpy( state->origin, ent->v.origin, 3 * sizeof( float ) );
 	memcpy( state->angles, ent->v.angles, 3 * sizeof( float ) );
@@ -1313,7 +1302,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 	state->owner = 0;
 	if ( ent->v.owner )
 	{
-		int owner = ENTINDEX( ent->v.owner );
+		const int owner = ENTINDEX( ent->v.owner );
 		
 		// Only care if owned by a player
 		if ( owner >= 1 && owner <= gpGlobals->maxClients )
@@ -1335,7 +1324,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 		state->gravity      = ent->v.gravity;
 		state->team			= ent->v.team;
 		state->playerclass  = ent->v.playerclass;
-		state->usehull      = ( ent->v.flags & FL_DUCKING ) ? 1 : 0;
+		state->usehull      = ent->v.flags & FL_DUCKING ? 1 : 0;
 		state->health		= ent->v.health;
 	}
 
@@ -1443,9 +1432,6 @@ FIXME:  Move to script
 */
 void Entity_Encode( struct delta_s *pFields, const unsigned char *from, const unsigned char *to )
 {
-	entity_state_t *f, *t;
-
-	int localplayer = 0;
 	static int initialized = 0;
 
 	if ( !initialized )
@@ -1454,11 +1440,11 @@ void Entity_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		initialized = 1;
 	}
 
-	f = (entity_state_t *)from;
-	t = (entity_state_t *)to;
+	const entity_state_t* f = (entity_state_t*)from;
+	const entity_state_t* t = (entity_state_t*)to;
 
 	// Never send origin to local player, it's sent with more resolution in clientdata_t structure
-	localplayer =  ( t->number - 1 ) == ENGINE_CURRENT_PLAYER();
+	const int localplayer = t->number - 1 == ENGINE_CURRENT_PLAYER();
 	if ( localplayer )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
@@ -1466,7 +1452,7 @@ void Entity_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN2 ].field );
 	}
 
-	if ( ( t->impacttime != 0 ) && ( t->starttime != 0 ) )
+	if ( t->impacttime != 0 && t->starttime != 0 )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN1 ].field );
@@ -1477,8 +1463,8 @@ void Entity_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ANGLES2 ].field );
 	}
 
-	if ( ( t->movetype == MOVETYPE_FOLLOW ) &&
-		 ( t->aiment != 0 ) )
+	if ( t->movetype == MOVETYPE_FOLLOW &&
+		 t->aiment != 0 )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN1 ].field );
@@ -1515,8 +1501,6 @@ Callback for sending entity_state_t for players info over network.
 */
 void Player_Encode( struct delta_s *pFields, const unsigned char *from, const unsigned char *to )
 {
-	entity_state_t *f, *t;
-	int localplayer = 0;
 	static int initialized = 0;
 
 	if ( !initialized )
@@ -1525,11 +1509,11 @@ void Player_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		initialized = 1;
 	}
 
-	f = (entity_state_t *)from;
-	t = (entity_state_t *)to;
+	const entity_state_t* f = (entity_state_t*)from;
+	const entity_state_t* t = (entity_state_t*)to;
 
 	// Never send origin to local player, it's sent with more resolution in clientdata_t structure
-	localplayer =  ( t->number - 1 ) == ENGINE_CURRENT_PLAYER();
+	const int localplayer = t->number - 1 == ENGINE_CURRENT_PLAYER();
 	if ( localplayer )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
@@ -1537,8 +1521,8 @@ void Player_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN2 ].field );
 	}
 
-	if ( ( t->movetype == MOVETYPE_FOLLOW ) &&
-		 ( t->aiment != 0 ) )
+	if ( t->movetype == MOVETYPE_FOLLOW &&
+		 t->aiment != 0 )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN1 ].field );
@@ -1598,8 +1582,6 @@ FIXME:  Move to script
 */
 void Custom_Encode( struct delta_s *pFields, const unsigned char *from, const unsigned char *to )
 {
-	entity_state_t *f, *t;
-	int beamType;
 	static int initialized = 0;
 
 	if ( !initialized )
@@ -1608,10 +1590,10 @@ void Custom_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		initialized = 1;
 	}
 
-	f = (entity_state_t *)from;
-	t = (entity_state_t *)to;
+	const entity_state_t* f = (entity_state_t*)from;
+	const entity_state_t* t = (entity_state_t*)to;
 
-	beamType = t->rendermode & 0x0f;
+	const int beamType = t->rendermode & 0x0f;
 		
 	if ( beamType != BEAM_POINTS && beamType != BEAM_ENTPOINT )
 	{
@@ -1657,12 +1639,9 @@ void RegisterEncoders()
 
 int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 {
-	int i;
-	weapon_data_t *item;
 	entvars_t *pev = &player->v;
-	CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
-	CBasePlayerWeapon *gun;
-	
+	const CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
+
 	ItemInfo II;
 
 	memset( info, 0, 32 * sizeof( weapon_data_t ) );
@@ -1671,7 +1650,7 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 		return 1;
 
 	// go through all of the weapons and make a list of the ones to pack
-	for ( i = 0 ; i < MAX_ITEM_TYPES ; i++ )
+	for ( int i = 0 ; i < MAX_ITEM_TYPES ; i++ )
 	{
 		if ( pl->m_rgpPlayerItems[ i ] )
 		{
@@ -1680,7 +1659,7 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 
 			while ( pPlayerItem )
 			{
-				gun = (CBasePlayerWeapon *)pPlayerItem->GetWeaponPtr();
+				CBasePlayerWeapon* gun = (CBasePlayerWeapon*)pPlayerItem->GetWeaponPtr();
 				if ( gun && gun->UseDecrement() )
 				{
 					// Get The ID.
@@ -1689,15 +1668,15 @@ int GetWeaponData( struct edict_s *player, struct weapon_data_s *info )
 
 					if ( II.iId >= 0 && II.iId < 32 )
 					{
-						item = &info[ II.iId ];
+						weapon_data_t* item = &info[II.iId];
 						
 						item->m_iId						= II.iId;
 						item->m_iClip					= pl->m_rgAmmo[gun->m_iPrimaryAmmoType];//gun->m_iClip;
 
                         //Rogue codes? [APG]RoboCop[CL]
-						item->m_flTimeWeaponIdle		= fmax( gun->m_flTimeWeaponIdle, -0.001 );
-						item->m_flNextPrimaryAttack		= fmax( gun->m_flNextPrimaryAttack, -0.001 );
-						item->m_flNextSecondaryAttack	= fmax( gun->m_flNextSecondaryAttack, -0.001 );
+						item->m_flTimeWeaponIdle		= fmax( gun->m_flTimeWeaponIdle, -0.001f );
+						item->m_flNextPrimaryAttack		= fmax( gun->m_flNextPrimaryAttack, -0.001f );
+						item->m_flNextSecondaryAttack	= fmax( gun->m_flNextSecondaryAttack, -0.001f );
 						item->m_fInReload				= gun->m_fInReload;
 					}
 				}
@@ -1753,7 +1732,7 @@ void UpdateClientData ( const struct edict_s *ent, int sendweapons, struct clien
 	if ( sendweapons )
 	{
 		entvars_t *pev = (entvars_t *)&ent->v;
-		CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
+		const CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
 
 		if ( pl )
 		{
@@ -1761,8 +1740,7 @@ void UpdateClientData ( const struct edict_s *ent, int sendweapons, struct clien
 
 			if ( pl->m_pActiveItem )
 			{
-				CBasePlayerWeapon *gun;
-				gun = (CBasePlayerWeapon *)pl->m_pActiveItem->GetWeaponPtr();
+				CBasePlayerWeapon* gun = (CBasePlayerWeapon*)pl->m_pActiveItem->GetWeaponPtr();
 				if ( gun && gun->UseDecrement() )
 				{
 					ItemInfo II;
@@ -1810,7 +1788,7 @@ Each cmdstart is exactly matched with a cmd end, clean up any group trace flags,
 void CmdEnd ( const edict_t *player )
 {
 	entvars_t *pev = (entvars_t *)&player->v;
-	CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
+	const CBasePlayer *pl = ( CBasePlayer *) CBasePlayer::Instance( pev );
 
 	if( !pl )
 		return;

@@ -108,8 +108,8 @@ BODY QUE
 class CDecal : public CBaseEntity
 {
 public:
-	void	Spawn();
-	void	KeyValue( KeyValueData *pkvd );
+	void	Spawn() override;
+	void	KeyValue( KeyValueData *pkvd ) override;
 	void	EXPORT StaticDecal();
 	void	EXPORT TriggerDecal( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 };
@@ -144,7 +144,6 @@ void CDecal :: TriggerDecal ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE
 	// this is set up as a USE function for infodecals that have targetnames, so that the
 	// decal doesn't get applied until it is fired. (usually by a scripted sequence)
 	TraceResult trace;
-	int			entityIndex;
 
 	UTIL_TraceLine( pev->origin - Vector(5,5,5), pev->origin + Vector(5,5,5),  ignore_monsters, ENT(pev), &trace );
 
@@ -153,11 +152,11 @@ void CDecal :: TriggerDecal ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE
 		WRITE_COORD( pev->origin.x );
 		WRITE_COORD( pev->origin.y );
 		WRITE_COORD( pev->origin.z );
-		WRITE_SHORT( (int)pev->skin );
-		entityIndex = (short)ENTINDEX(trace.pHit);
+		WRITE_SHORT( pev->skin );
+	const int entityIndex = (short)ENTINDEX(trace.pHit);
 		WRITE_SHORT( entityIndex );
 		if ( entityIndex )
-			WRITE_SHORT( (int)VARS(trace.pHit)->modelindex );
+			WRITE_SHORT( VARS(trace.pHit)->modelindex );
 	MESSAGE_END();
 
 	SetThink( &CDecal :: SUB_Remove );
@@ -168,17 +167,17 @@ void CDecal :: TriggerDecal ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE
 void CDecal :: StaticDecal()
 {
 	TraceResult trace;
-	int			entityIndex, modelIndex;
+	int modelIndex;
 
 	UTIL_TraceLine( pev->origin - Vector(5,5,5), pev->origin + Vector(5,5,5),  ignore_monsters, ENT(pev), &trace );
 
-	entityIndex = (short)ENTINDEX(trace.pHit);
+	const int entityIndex = (short)ENTINDEX(trace.pHit);
 	if ( entityIndex )
-		modelIndex = (int)VARS(trace.pHit)->modelindex;
+		modelIndex = VARS(trace.pHit)->modelindex;
 	else
 		modelIndex = 0;
 
-	g_engfuncs.pfnStaticDecal( pev->origin, (int)pev->skin, entityIndex, modelIndex );
+	g_engfuncs.pfnStaticDecal( pev->origin, pev->skin, entityIndex, modelIndex );
 
 	SUB_Remove();
 }
@@ -203,14 +202,14 @@ void CDecal :: KeyValue( KeyValueData *pkvd )
 // Body queue class here.... It's really just CBaseEntity
 class CCorpse : public CBaseEntity
 {
-	virtual int ObjectCaps() { return FCAP_DONT_SAVE; }	
+	int ObjectCaps() override { return FCAP_DONT_SAVE; }	
 };
 
 LINK_ENTITY_TO_CLASS( bodyque, CCorpse );
 
 static void InitBodyQue()
 {
-	string_t	istrClassname = MAKE_STRING("bodyque");
+	const string_t	istrClassname = MAKE_STRING("bodyque");
 
 	g_pBodyQueueHead = CREATE_NAMED_ENTITY( istrClassname );
 	entvars_t *pev = VARS(g_pBodyQueueHead);
@@ -283,11 +282,10 @@ globalentity_t *CGlobalState :: Find( string_t globalname )
 	if ( !globalname )
 		return nullptr;
 
-	globalentity_t *pTest;
 	const char *pEntityName = STRING(globalname);
 
 	
-	pTest = m_pList;
+	globalentity_t* pTest = m_pList;
 	while ( pTest )
 	{
 		if ( FStrEq( pEntityName, pTest->name ) )
@@ -305,10 +303,9 @@ globalentity_t *CGlobalState :: Find( string_t globalname )
 void CGlobalState :: DumpGlobals()
 {
 	static char *estates[] = { "Off", "On", "Dead" };
-	globalentity_t *pTest;
 
 	ALERT( at_console, "-- Globals --\n" );
-	pTest = m_pList;
+	globalentity_t* pTest = m_pList;
 	while ( pTest )
 	{
 		ALERT( at_console, "%s: %s (%s)\n", pTest->name, pTest->levelName, estates[pTest->state] );
@@ -344,7 +341,7 @@ void CGlobalState :: EntitySetState( string_t globalname, GLOBALESTATE state )
 
 const globalentity_t *CGlobalState :: EntityFromTable( string_t globalname )
 {
-	globalentity_t *pEnt = Find( globalname );
+	const globalentity_t *pEnt = Find( globalname );
 
 	return pEnt;
 }
@@ -352,7 +349,7 @@ const globalentity_t *CGlobalState :: EntityFromTable( string_t globalname )
 
 GLOBALESTATE CGlobalState :: EntityGetState( string_t globalname )
 {
-	globalentity_t *pEnt = Find( globalname );
+	const globalentity_t *pEnt = Find( globalname );
 	if ( pEnt )
 		return pEnt->state;
 
@@ -377,14 +374,11 @@ TYPEDESCRIPTION	gGlobalEntitySaveData[] =
 
 int CGlobalState::Save( CSave &save )
 {
-	int i;
-	globalentity_t *pEntity;
-
 	if ( !save.WriteFields( "GLOBAL", this, m_SaveData, ARRAYSIZE(m_SaveData) ) )
 		return 0;
 	
-	pEntity = m_pList;
-	for ( i = 0; i < m_listCount && pEntity; i++ )
+	globalentity_t* pEntity = m_pList;
+	for ( int i = 0; i < m_listCount && pEntity; i++ )
 	{
 		if ( !save.WriteFields( "GENT", pEntity, gGlobalEntitySaveData, ARRAYSIZE(gGlobalEntitySaveData) ) )
 			return 0;
@@ -397,18 +391,17 @@ int CGlobalState::Save( CSave &save )
 
 int CGlobalState::Restore( CRestore &restore )
 {
-	int i, listCount;
 	globalentity_t tmpEntity;
 
 
 	ClearStates();
 	if ( !restore.ReadFields( "GLOBAL", this, m_SaveData, ARRAYSIZE(m_SaveData) ) )
 		return 0;
-	
-	listCount = m_listCount;	// Get new list count
+
+	const int listCount = m_listCount;	// Get new list count
 	m_listCount = 0;				// Clear loaded data
 
-	for ( i = 0; i < listCount; i++ )
+	for ( int i = 0; i < listCount; i++ )
 	{
 		if ( !restore.ReadFields( "GENT", &tmpEntity, gGlobalEntitySaveData, ARRAYSIZE(gGlobalEntitySaveData) ) )
 			return 0;
@@ -636,13 +629,13 @@ void CWorld :: Precache()
 	WorldGraph.InitGraph();
 
 // make sure the .NOD file is newer than the .BSP file.
-	if ( !WorldGraph.CheckNODFile ( ( char * )STRING( gpGlobals->mapname ) ) )
+	if ( !WorldGraph.CheckNODFile ( const_cast<char*>(STRING(gpGlobals->mapname)) ) )
 	{// NOD file is not present, or is older than the BSP file.
 		WorldGraph.AllocNodes ();
 	}
 	else
 	{// Load the node graph for this level
-		if ( !WorldGraph.FLoadGraph ( (char *)STRING( gpGlobals->mapname ) ) )
+		if ( !WorldGraph.FLoadGraph ( const_cast<char*>(STRING(gpGlobals->mapname)) ) )
 		{// couldn't load, so alloc and prepare to build a graph.
 			ALERT ( at_console, "*Error opening .NOD file\n" );
 			WorldGraph.AllocNodes ();
@@ -661,7 +654,7 @@ void CWorld :: Precache()
 	if ( pev->netname )
 	{
 		ALERT( at_aiconsole, "Chapter title: %s\n", STRING(pev->netname) );
-		CBaseEntity *pEntity = CBaseEntity::Create( "env_message", g_vecZero, g_vecZero, nullptr);
+		CBaseEntity *pEntity = Create( "env_message", g_vecZero, g_vecZero, nullptr);
 		if ( pEntity )
 		{
 			pEntity->SetThink( &CWorld :: SUB_CallUseToggle );
@@ -716,7 +709,7 @@ void CWorld :: KeyValue( KeyValueData *pkvd )
 	else if ( FStrEq(pkvd->szKeyName, "WaveHeight") )
 	{
 		// Sent over net now.
-		pev->scale = atof(pkvd->szValue) * (1.0/8.0);
+		pev->scale = atof(pkvd->szValue) * (1.0f/8.0f);
 		pkvd->fHandled = TRUE;
 		CVAR_SET_FLOAT( "sv_wateramp", pev->scale );
 	}
@@ -734,7 +727,7 @@ void CWorld :: KeyValue( KeyValueData *pkvd )
 	{
 		// UNDONE: This is a gross hack!!! The CVAR is NOT sent over the client/sever link
 		// but it will work for single player
-		int flag = atoi(pkvd->szValue);
+		const int flag = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 		if ( flag )
 			pev->spawnflags |= SF_WORLD_DARK;

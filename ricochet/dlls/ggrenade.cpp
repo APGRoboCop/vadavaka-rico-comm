@@ -50,7 +50,7 @@ void CGrenade::Explode( Vector vecSrc, Vector vecAim )
 // UNDONE: temporary scorching for PreAlpha - find a less sleazy permenant solution.
 void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 {
-	float		flRndSound;// sound randomizer
+	// sound randomizer
 
 	pev->model = iStringNull;//invisible
 	pev->solid = SOLID_NOT;// intangible
@@ -58,12 +58,12 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 	pev->takedamage = DAMAGE_NO;
 
 	// Pull out of the wall a bit
-	if ( pTrace->flFraction != 1.0 )
+	if ( pTrace->flFraction != 1.0f )
 	{
-		pev->origin = pTrace->vecEndPos + (pTrace->vecPlaneNormal * (pev->dmg - 24) * 0.6);
+		pev->origin = pTrace->vecEndPos + pTrace->vecPlaneNormal * (pev->dmg - 24) * 0.6f;
 	}
 
-	int iContents = UTIL_PointContents ( pev->origin );
+	const int iContents = UTIL_PointContents ( pev->origin );
 	
 	MESSAGE_BEGIN( MSG_PAS, SVC_TEMPENTITY, pev->origin );
 		WRITE_BYTE( TE_EXPLOSION );		// This makes a dynamic light and the explosion sprites/sound
@@ -83,7 +83,7 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 		WRITE_BYTE( TE_EXPLFLAG_NONE );
 	MESSAGE_END();
 
-	CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0 );
+	CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0f );
 	entvars_t *pevOwner;
 	if ( pev->owner )
 		pevOwner = VARS( pev->owner );
@@ -94,7 +94,7 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 
 	RadiusDamage ( pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType );
 
-	if ( RANDOM_FLOAT( 0 , 1 ) < 0.5 )
+	if ( RANDOM_FLOAT( 0 , 1 ) < 0.5f )
 	{
 		UTIL_DecalTrace( pTrace, DECAL_SCORCH1 );
 	}
@@ -103,7 +103,7 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 		UTIL_DecalTrace( pTrace, DECAL_SCORCH2 );
 	}
 
-	flRndSound = RANDOM_FLOAT( 0 , 1 );
+	float flRndSound = RANDOM_FLOAT(0, 1);
 
 	switch ( RANDOM_LONG( 0, 2 ) )
 	{
@@ -119,7 +119,7 @@ void CGrenade::Explode( TraceResult *pTrace, int bitsDamageType )
 
 	if (iContents != CONTENTS_WATER)
 	{
-		int sparkCount = RANDOM_LONG(0,3);
+		const int sparkCount = RANDOM_LONG(0,3);
 		for ( int i = 0; i < sparkCount; i++ )
 			Create( "spark_shower", pev->origin, pTrace->vecPlaneNormal, nullptr);
 	}
@@ -172,9 +172,9 @@ void CGrenade::PreDetonate()
 void CGrenade::Detonate()
 {
 	TraceResult tr;
-	Vector		vecSpot;// trace starts here!
+	// trace starts here!
 
-	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	const Vector vecSpot = pev->origin + Vector(0, 0, 8);
 	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
 
 	Explode( &tr, DMG_BLAST );
@@ -187,11 +187,11 @@ void CGrenade::Detonate()
 void CGrenade::ExplodeTouch( CBaseEntity *pOther )
 {
 	TraceResult tr;
-	Vector		vecSpot;// trace starts here!
+	// trace starts here!
 
 	pev->enemy = pOther->edict();
 
-	vecSpot = pev->origin - pev->velocity.Normalize() * 32;
+	const Vector vecSpot = pev->origin - pev->velocity.Normalize() * 32;
 	UTIL_TraceLine( vecSpot, vecSpot + pev->velocity.Normalize() * 64, ignore_monsters, ENT(pev), &tr );
 
 	Explode( &tr, DMG_BLAST );
@@ -236,13 +236,12 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 		m_flNextAttack = gpGlobals->time + 1.0f; // debounce
 	}
 
-	Vector vecTestVelocity;
 	// pev->avelocity = Vector (300, 300, 300);
 
 	// this is my heuristic for modulating the grenade velocity because grenades dropped purely vertical
 	// or thrown very far tend to slow down too quickly for me to always catch just by testing velocity. 
 	// trimming the Z velocity a bit seems to help quite a bit.
-	vecTestVelocity = pev->velocity; 
+	Vector vecTestVelocity = pev->velocity; 
 	vecTestVelocity.z *= 0.45;
 
 	if ( !m_fRegisteredSound && vecTestVelocity.Length() <= 60 )
@@ -270,9 +269,9 @@ void CGrenade::BounceTouch( CBaseEntity *pOther )
 		BounceSound();
 	}
 	pev->framerate = pev->velocity.Length() / 200.0f;
-	if (pev->framerate > 1.0)
+	if (pev->framerate > 1.0f)
 		pev->framerate = 1;
-	else if (pev->framerate < 0.5)
+	else if (pev->framerate < 0.5f)
 		pev->framerate = 0;
 
 }
@@ -456,17 +455,14 @@ CGrenade * CGrenade :: ShootSatchelCharge( entvars_t *pevOwner, Vector vecStart,
 
 void CGrenade :: UseSatchelCharges( entvars_t *pevOwner, SATCHELCODE code )
 {
-	edict_t *pentFind;
-	edict_t *pentOwner;
-
 	if ( !pevOwner )
 		return;
 
-	CBaseEntity	*pOwner = CBaseEntity::Instance( pevOwner );
+	CBaseEntity	*pOwner = Instance( pevOwner );
 
-	pentOwner = pOwner->edict();
+	const edict_t* pentOwner = pOwner->edict();
 
-	pentFind = FIND_ENTITY_BY_CLASSNAME(nullptr, "grenade" );
+	edict_t* pentFind = FIND_ENTITY_BY_CLASSNAME(nullptr, "grenade");
 	while ( !FNullEnt( pentFind ) )
 	{
 		CBaseEntity *pEnt = Instance( pentFind );

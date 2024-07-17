@@ -62,7 +62,7 @@ int InArenaMode()
 	if ( g_iMapTurnedOffArena )
 		return FALSE;
 
-	if ( gpGlobals->maxClients == 1 || (CVAR_GET_FLOAT("rc_arena") == 0) )
+	if ( gpGlobals->maxClients == 1 || CVAR_GET_FLOAT("rc_arena") == 0 )
 		return FALSE;
 
 	return TRUE;
@@ -76,7 +76,7 @@ LINK_ENTITY_TO_CLASS( disc_arena, CDiscArena );
 // positions of the players in the queue.
 void CDiscArena::Spawn()
 {
-	pev->groupinfo = 1 << (g_iNextArenaGroupInfo++);
+	pev->groupinfo = 1 << g_iNextArenaGroupInfo++;
 	Reset();
 
 	// Initialize
@@ -92,7 +92,7 @@ void CDiscArena::Reset()
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-		if (pPlayer && (pPlayer->m_pCurrentArena == this) && pPlayer->m_bHasDisconnected != TRUE )
+		if (pPlayer && pPlayer->m_pCurrentArena == this && pPlayer->m_bHasDisconnected != TRUE )
 		{
 			RemoveClient( pPlayer );
 
@@ -126,12 +126,12 @@ void CDiscArena::StartBattle()
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-		if (pPlayer && (pPlayer->m_pCurrentArena == this) && pPlayer->m_bHasDisconnected != TRUE )
+		if (pPlayer && pPlayer->m_pCurrentArena == this && pPlayer->m_bHasDisconnected != TRUE )
 			pPlayer->m_iLastGameResult = GAME_DIDNTPLAY;
 	}
 
 	// Get the players in the battle
-	for ( i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+	for ( i = 0; i < m_iPlayersPerTeam * 2; i++ )
 	{
 		CBasePlayer *pCurr;
 
@@ -160,7 +160,7 @@ void CDiscArena::StartBattle()
 		pCurr->pev->iuser4 = pCurr->pev->team;
 
 		char sz[128];
-		sprintf(sz, "Arena %d", pev->groupinfo );
+		snprintf(sz, sizeof(sz), "Arena %d", pev->groupinfo);
 		MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
 			WRITE_BYTE( pCurr->entindex() );
 			WRITE_STRING( sz );
@@ -195,18 +195,18 @@ void CDiscArena::StartRound()
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( iPlayerNum );
 
-		if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && (pPlayer->m_bHasDisconnected != TRUE) )
+		if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE )
 		{
 			MESSAGE_BEGIN( MSG_ONE, gmsgStartRnd, nullptr, pPlayer->edict() );
 				WRITE_BYTE( m_iCurrRound );
 				WRITE_BYTE( m_iSecondsTillStart );
-				WRITE_BYTE( (m_iPlayersPerTeam * 2) );
+				WRITE_BYTE( m_iPlayersPerTeam * 2 );
 
 				// Send down all the players in the round
-				for ( int j = 0; j < (m_iPlayersPerTeam * 2); j++ )
+				for ( int j = 0; j < m_iPlayersPerTeam * 2; j++ )
 				{
 					if (m_hCombatants[j])
-						WRITE_SHORT( ((CBaseEntity*)m_hCombatants[j])->entindex() );
+						WRITE_SHORT( m_hCombatants[j]->entindex() );
 				}
 
 			MESSAGE_END();
@@ -217,9 +217,9 @@ void CDiscArena::StartRound()
 	}
 
 	// Spawn all the players in the round
-	for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+	for ( int i = 0; i < m_iPlayersPerTeam * 2; i++ )
 	{
-		CBasePlayer *pPlayer = ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i]);
+		CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 
 		if ( pPlayer )
 		{
@@ -251,9 +251,9 @@ void CDiscArena::StartRound()
 //-----------------------------------------------------------------------------
 int CDiscArena::ValidateCombatants()
 {
-	for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+	for ( int i = 0; i < m_iPlayersPerTeam * 2; i++ )
 	{
-		CBasePlayer *pPlayer = ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i]);
+		const CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 
 		if ( !pPlayer )
 			return FALSE;
@@ -288,7 +288,7 @@ void CDiscArena::RestoreWorldObjects()
 
 void CDiscArena::BattleThink()
 {
-	if ( gpGlobals->time >= m_flTimeLimitOver - 1.0 )
+	if ( gpGlobals->time >= m_flTimeLimitOver - 1.0f )
 	{
 		pev->nextthink = gpGlobals->time + 1.0f;
 		SetThink( &CDiscArena::TimeOver );
@@ -309,9 +309,9 @@ void CDiscArena::CountDownThink()
 	// Freeze everyone until there's 3 seconds to go
 	if ( m_iSecondsTillStart == 3 )
 	{
-		for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+		for ( int i = 0; i < m_iPlayersPerTeam * 2; i++ )
 		{
-			CBasePlayer *pPlayer = ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i]);
+			CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 	
 			/* Miagi - I don't think we need this anymore since I found the true white disc.
 			//.ASM : white disc haxxx...
@@ -335,14 +335,14 @@ void CDiscArena::CountDownThink()
 
 
 				//miagi for 2v2
-				if ( pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && pPlayer->m_bHasDisconnected != TRUE && m_hCombatants[i] != NULL )
+				if ( pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE && m_hCombatants[i] != NULL )
 				{
 				// Get the players in the battle
 
 				// Set scoreboard
 		
 				char sz[128];
-				sprintf(sz, "Arena %d", pev->groupinfo );
+				snprintf(sz, sizeof(sz), "Arena %d", pev->groupinfo);
 				MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
 				WRITE_BYTE( pPlayer->entindex() );
 				WRITE_STRING( sz );
@@ -353,7 +353,7 @@ void CDiscArena::CountDownThink()
 				//end miagi
 
 			if (m_hCombatants[i])
-				((CBaseEntity*)m_hCombatants[i])->pev->maxspeed = 320;
+				m_hCombatants[i]->pev->maxspeed = 320;
 		}
 	}
 
@@ -363,7 +363,7 @@ void CDiscArena::CountDownThink()
 	if (m_iSecondsTillStart < 5)
 	{
 		// Speech
-		for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+		for ( int i = 0; i < m_iPlayersPerTeam * 2; i++ )
 		{
 			if (m_hCombatants[i])
 				((CBasePlayer*)(CBaseEntity*)m_hCombatants[i])->ClientHearVox( g_szCountDownVox[ m_iSecondsTillStart ] );
@@ -375,7 +375,7 @@ void CDiscArena::CountDownThink()
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-		if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && pPlayer->m_bHasDisconnected != TRUE)
+		if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE)
 		{
 			MESSAGE_BEGIN( MSG_ONE, gmsgStartRnd, nullptr, pPlayer->edict() );
 				WRITE_BYTE( m_iCurrRound );
@@ -439,7 +439,7 @@ void CDiscArena::PlayerRespawned( CBasePlayer *pPlayer )
 		int iNumPlayers = 0;
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
-			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			const CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 			if (pPlayer && pPlayer->m_bHasDisconnected != TRUE)
 				iNumPlayers++;
 		}
@@ -456,7 +456,7 @@ void CDiscArena::PlayerRespawned( CBasePlayer *pPlayer )
 void CDiscArena::MoveToSpectator( CBasePlayer *pPlayer )
 {
 	// Find the spectator spawn position
-	CBaseEntity *pSpot = UTIL_FindEntityByClassname(nullptr, "info_player_spectator");
+	const CBaseEntity *pSpot = UTIL_FindEntityByClassname(nullptr, "info_player_spectator");
 	if ( pSpot )
 	{
 		pPlayer->StartObserver( pSpot->pev->origin, pSpot->pev->angles);
@@ -501,9 +501,9 @@ void CDiscArena::TimeOver()
 
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
-			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			const CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-			if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && pPlayer->m_bHasDisconnected != TRUE)
+			if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE)
 				ClientPrint( pPlayer->pev, HUD_PRINTCENTER, "#Time_Warning" );
 		}
 
@@ -513,9 +513,9 @@ void CDiscArena::TimeOver()
 	{
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
-			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			const CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-			if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && (pPlayer->m_bHasDisconnected != TRUE) )
+			if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE )
 				ClientPrint( pPlayer->pev, HUD_PRINTCENTER, "#Time_Over" );
 		}
 
@@ -534,13 +534,13 @@ bool CDiscArena::CheckBattleOver()
 
 	// See if the battle is finished
 	int i;
-	for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+	for ( i = 0; i < m_iPlayersPerTeam * 2; i++ )
 	{
 		if ( m_hCombatants[i] != NULL && ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i])->IsAlive() )
 		{
-			if ( ((CBaseEntity*)m_hCombatants[i])->pev->team == 1 )
+			if ( m_hCombatants[i]->pev->team == 1 )
 				bTeamOneAlive = true;
-			else if ( ((CBaseEntity*)m_hCombatants[i])->pev->team == 2 )
+			else if ( m_hCombatants[i]->pev->team == 2 )
 				bTeamTwoAlive = true;
 		}
 	}
@@ -570,7 +570,7 @@ bool CDiscArena::CheckBattleOver()
 		{
 			CBasePlayer *pPlayer = (CBasePlayer*)UTIL_PlayerByIndex( iPlayerNum );
 
-			if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && (pPlayer->m_bHasDisconnected != TRUE) )
+			if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE )
 			{
 				MESSAGE_BEGIN( MSG_ONE, gmsgEndRnd, nullptr, pPlayer->edict() );
 					WRITE_BYTE( m_iCurrRound );
@@ -578,7 +578,7 @@ bool CDiscArena::CheckBattleOver()
 					WRITE_BYTE( m_iPlayersPerTeam );
 
 					// Send down the winners of this round
-					for (i = 0; i < (m_iPlayersPerTeam * 2); i++)
+					for (i = 0; i < m_iPlayersPerTeam * 2; i++)
 					{
 						CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 						if ( !pPlayer || pPlayer->pev->team != m_iWinningTeam )
@@ -598,13 +598,13 @@ bool CDiscArena::CheckBattleOver()
 					{
 						WRITE_BYTE( m_iPlayersPerTeam );
 						// Send down the winners of this round
-						for (i = 0; i < (m_iPlayersPerTeam * 2); i++)
+						for (i = 0; i < m_iPlayersPerTeam * 2; i++)
 						{
-							CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
+							const CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 							if ( !pPlayer || pPlayer->pev->team != iTeamInTheLead )
 								continue;
 
-							WRITE_SHORT( ((CBaseEntity*)m_hCombatants[i])->entindex() );
+							WRITE_SHORT( m_hCombatants[i]->entindex() );
 						}
 					}
 
@@ -677,7 +677,7 @@ void CDiscArena::FinishedThink()
 		{
 			CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-			if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && pPlayer->m_bHasDisconnected != TRUE)
+			if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE)
 			{
 				MESSAGE_BEGIN( MSG_ONE, gmsgEndRnd, nullptr, pPlayer->edict() );
 					WRITE_BYTE( m_iCurrRound );
@@ -691,7 +691,7 @@ void CDiscArena::FinishedThink()
 		if ( m_iTeamOneScore >= m_iMaxRounds || m_iTeamTwoScore >= m_iMaxRounds )
 		{
 			// Remove the losers from the combatants list
-			for (int i = 0; i < (m_iPlayersPerTeam * 2); i++)
+			for (int i = 0; i < m_iPlayersPerTeam * 2; i++)
 			{
 				CBasePlayer *pPlayer = (CBasePlayer*)(CBaseEntity*)m_hCombatants[i];
 				if (!pPlayer)
@@ -746,7 +746,7 @@ void CDiscArena::StartBattleThink()
 //-----------------------------------------------------------------------------
 bool CDiscArena::AllowedToFire()
 {
-	return ( m_iArenaState == ARENA_BATTLE_IN_PROGRESS );
+	return m_iArenaState == ARENA_BATTLE_IN_PROGRESS;
 }
 
 //-----------------------------------------------------------------------------
@@ -774,7 +774,7 @@ void CDiscArena::AddClient( CBasePlayer *pPlayer, BOOL bCheckStart )
 		//if ( (m_iPlayersPerTeam > 1) && (m_iPlayers > 1) && (m_iPlayers < (m_iPlayersPerTeam * 2)) )
 			//m_iPlayersPerTeam = 1;
 		// If we're in a battle, and the players-per-team isn't the map's setting, restart the battle
-		if ( (m_iArenaState == ARENA_WAITING_FOR_PLAYERS) && ( m_iPlayers >= (m_iPlayersPerTeam * 2) ) )
+		if ( m_iArenaState == ARENA_WAITING_FOR_PLAYERS && m_iPlayers >= m_iPlayersPerTeam * 2 )
 		{
 			// Start a battle in a second to let the clients learn about this new player
 			SetThink( &CDiscArena::StartBattleThink );
@@ -807,14 +807,14 @@ void CDiscArena::RemoveClient( CBasePlayer *pPlayer )
 	else if ( m_iArenaState != ARENA_WAITING_FOR_PLAYERS )
 	{
 		// This team loses
-		m_iWinningTeam = (pPlayer->pev->team == 1) ? 2 : 1;
+		m_iWinningTeam = pPlayer->pev->team == 1 ? 2 : 1;
 		if ( m_iWinningTeam == 1 )
 			m_iTeamOneScore = m_iMaxRounds - 1;		// -1 because we'll get 1 point for winning this round in CheckOverThink
 		else
 			m_iTeamTwoScore = m_iMaxRounds - 1;		// -1 because we'll get 1 point for winning this round in CheckOverThink
 
 		// Find the player in the combatant list
-		for ( int i = 0; i < (m_iPlayersPerTeam * 2); i++ )
+		for ( int i = 0; i < m_iPlayersPerTeam * 2; i++ )
 		{
 			// Check to see if this slot's already full
 			if ( m_hCombatants[ i ] == pPlayer )
@@ -913,7 +913,7 @@ CBasePlayer *CDiscArena::GetNextPlayer()
 // Returns TRUE if the Arena is full
 int CDiscArena::IsFull()
 {
-	if ( m_iPlayers < (m_iPlayersPerTeam * 2) )
+	if ( m_iPlayers < m_iPlayersPerTeam * 2 )
 		return FALSE;
 
 	return TRUE;
@@ -947,7 +947,6 @@ void AddClientToArena( CBasePlayer *pPlayer )
 
 			g_pArenaList[iArenaNumber]->AddClient( pPlayer, TRUE );
 
-			bool bFoundOne = TRUE;
 			// Now, if this arena's not full, try to find more player to join her
 			//Commented out - .asm 06/03/03
 		/*	while ( (g_pArenaList[iArenaNumber]->IsFull() == FALSE) && bFoundOne )
@@ -989,7 +988,7 @@ void AddClientToArena( CBasePlayer *pPlayer )
 			//Beginning of added code to prevent reconnectors - .asm 06/03/03
 			else
 			{
-		bFoundOne = FALSE;
+		bool bFoundOne = FALSE;
 
 		// Cycle through all the arenas and find a spare player
 		for (int j = 0; j < MAX_ARENAS; j++)
@@ -1022,7 +1021,7 @@ int AddPlayers( int iPlayers, int iArenaNum )
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-		if (pPlayer && (pPlayer->m_pCurrentArena == nullptr) && (pPlayer->m_bHasDisconnected != TRUE) )
+		if (pPlayer && pPlayer->m_pCurrentArena == nullptr && pPlayer->m_bHasDisconnected != TRUE )
 		{
 			if ( pPlayer->m_iLastGameResult != iPlayers )
 				continue;
@@ -1071,7 +1070,7 @@ void ShufflePlayers()
 				{
 					CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( j );
 
-					if (pPlayer && (pPlayer->m_pCurrentArena == g_pArenaList[i]) && (pPlayer->m_bHasDisconnected != TRUE) )
+					if (pPlayer && pPlayer->m_pCurrentArena == g_pArenaList[i] && pPlayer->m_bHasDisconnected != TRUE )
 					{
 						// Add to the first arena
 						g_pArenaList[0]->AddClient( pPlayer, TRUE );
@@ -1117,9 +1116,9 @@ void CDiscArena::PostBattle()
 	{
 		CBasePlayer *pPlayer = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
-		if (pPlayer && (pPlayer->pev->groupinfo & pev->groupinfo) && (pPlayer->m_bHasDisconnected != TRUE) )
+		if (pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE )
 		{
-			g_pArenaList[ iOtherGame ]->AddClient( (CBasePlayer*)pPlayer, TRUE );
+			g_pArenaList[ iOtherGame ]->AddClient( pPlayer, TRUE );
 		}
 	}
 

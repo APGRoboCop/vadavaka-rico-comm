@@ -45,7 +45,7 @@ void CPointEntity :: Spawn()
 class CNullEntity : public CBaseEntity
 {
 public:
-	void Spawn();
+	void Spawn() override;
 };
 
 
@@ -59,9 +59,9 @@ LINK_ENTITY_TO_CLASS(info_null,CNullEntity);
 class CBaseDMStart : public CPointEntity
 {
 public:
-	void		Spawn();
-	void		KeyValue( KeyValueData *pkvd );
-	BOOL		IsTriggered( CBaseEntity *pEntity );
+	void		Spawn() override;
+	void		KeyValue( KeyValueData *pkvd ) override;
+	BOOL		IsTriggered( CBaseEntity *pEntity ) override;
 
 private:
 	int			m_iPitch;
@@ -96,7 +96,7 @@ void CBaseDMStart::KeyValue( KeyValueData *pkvd )
 
 BOOL CBaseDMStart::IsTriggered( CBaseEntity *pEntity )
 {
-	BOOL master = UTIL_IsMasterTriggered( pev->netname, pEntity );
+	const BOOL master = UTIL_IsMasterTriggered( pev->netname, pEntity );
 
 	return master;
 }
@@ -104,13 +104,11 @@ BOOL CBaseDMStart::IsTriggered( CBaseEntity *pEntity )
 // This updates global tables that need to know about entities being removed
 void CBaseEntity::UpdateOnRemove()
 {
-	int	i;
-
 	if ( FBitSet( pev->flags, FL_GRAPHED ) )
 	{
 	// this entity was a LinkEnt in the world node graph, so we must remove it from
 	// the graph since we are removing it from the world.
-		for ( i = 0 ; i < WorldGraph.m_cLinks ; i++ )
+		for ( int i = 0 ; i < WorldGraph.m_cLinks ; i++ )
 		{
 			if ( WorldGraph.m_pLinkPool [ i ].m_pLinkEnt == pev )
 			{
@@ -284,13 +282,11 @@ void CBaseDelay :: SUB_UseTargets( CBaseEntity *pActivator, USE_TYPE useType, fl
 
 	if ( m_iszKillTarget )
 	{
-		edict_t *pentKillTarget = nullptr;
-
 		ALERT( at_aiconsole, "KillTarget: %s\n", STRING(m_iszKillTarget) );
-		pentKillTarget = FIND_ENTITY_BY_TARGETNAME(nullptr, STRING(m_iszKillTarget) );
+		edict_t* pentKillTarget = FIND_ENTITY_BY_TARGETNAME(nullptr, STRING(m_iszKillTarget));
 		while ( !FNullEnt(pentKillTarget) )
 		{
-			UTIL_Remove( CBaseEntity::Instance(pentKillTarget) );
+			UTIL_Remove( Instance(pentKillTarget) );
 
 			ALERT( at_aiconsole, "killing %s\n", STRING( pentKillTarget->v.classname ) );
 			pentKillTarget = FIND_ENTITY_BY_TARGETNAME( pentKillTarget, STRING(m_iszKillTarget) );
@@ -346,7 +342,7 @@ void CBaseDelay::DelayThink()
 
 	if ( pev->owner != nullptr)		// A player activated this on delay
 	{
-		pActivator = CBaseEntity::Instance( pev->owner );	
+		pActivator = Instance( pev->owner );	
 	}
 	// The use type is cached (and stashed) in pev->button
 	SUB_UseTargets( pActivator, (USE_TYPE)pev->button, 0 );
@@ -429,10 +425,10 @@ void CBaseToggle ::  LinearMove( Vector	vecDest, float flSpeed )
 	}
 		
 	// set destdelta to the vector needed to move
-	Vector vecDestDelta = vecDest - pev->origin;
+	const Vector vecDestDelta = vecDest - pev->origin;
 	
 	// divide vector length by speed to get time to reach dest
-	float flTravelTime = vecDestDelta.Length() / flSpeed;
+	const float flTravelTime = vecDestDelta.Length() / flSpeed;
 
 	// set nextthink to trigger a call to LinearMoveDone when dest is reached
 	pev->nextthink = pev->ltime + flTravelTime;
@@ -489,10 +485,10 @@ void CBaseToggle :: AngularMove( Vector vecDestAngle, float flSpeed )
 	}
 	
 	// set destdelta to the vector needed to move
-	Vector vecDestDelta = vecDestAngle - pev->angles;
+	const Vector vecDestDelta = vecDestAngle - pev->angles;
 	
 	// divide by speed to get time to reach dest
-	float flTravelTime = vecDestDelta.Length() / flSpeed;
+	const float flTravelTime = vecDestDelta.Length() / flSpeed;
 
 	// set nextthink to trigger a call to AngularMoveDone when dest is reached
 	pev->nextthink = pev->ltime + flTravelTime;
@@ -564,8 +560,8 @@ FEntIsVisible(
 	entvars_t*		pev,
 	entvars_t*		pevTarget)
 	{
-	Vector vecSpot1 = pev->origin + pev->view_ofs;
-	Vector vecSpot2 = pevTarget->origin + pevTarget->view_ofs;
+		const Vector vecSpot1 = pev->origin + pev->view_ofs;
+		const Vector vecSpot2 = pevTarget->origin + pevTarget->view_ofs;
 	TraceResult tr;
 
 	UTIL_TraceLine(vecSpot1, vecSpot2, ignore_monsters, ENT(pev), &tr);

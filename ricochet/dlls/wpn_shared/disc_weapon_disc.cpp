@@ -1,4 +1,3 @@
-
 //=========== (C) Copyright 1999 Valve, L.L.C. All rights reserved. ===========
 //
 // The copyright to the contents herein is the property of Valve, L.L.C.
@@ -157,7 +156,7 @@ void CDisc::Spawn()
 
 	// Fast powerup makes discs go faster
 	if ( m_iPowerupFlags & POW_FAST )
-		pev->velocity = gpGlobals->v_forward * DISC_VELOCITY * 1.5;
+		pev->velocity = gpGlobals->v_forward * DISC_VELOCITY * 1.5f;
 	else
 		pev->velocity = gpGlobals->v_forward * DISC_VELOCITY;
 
@@ -252,12 +251,12 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 		if ( pPlayer->IsSpawnProtected()  )
 			return; //End Spawn Protection
 
-		else if ( ((CBaseEntity*)m_hOwner) == pOther ) // Changed if to else-if
+		else if ( (CBaseEntity*)m_hOwner == pOther ) // Changed if to else-if
 		{
 			if (m_fDontTouchOwner < gpGlobals->time)
 			{
 				// Play catch sound
-				EMIT_SOUND_DYN( pOther->edict(), CHAN_WEAPON, "items/gunpickup2.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
+				EMIT_SOUND_DYN( pOther->edict(), CHAN_WEAPON, "items/gunpickup2.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
 
 				ReturnToThrower();
 			}
@@ -267,7 +266,7 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 		else if ( m_fDontTouchEnemies < gpGlobals->time)
 		{
 			// .ASM - netniV's solution to the "extra point" exploit // Wha? - AKA "double kill" in case anybody is looking for it by key word
-			if ( (pev->team != pOther->pev->team) && (pOther->IsAlive()) ) // end .ASM
+			if ( pev->team != pOther->pev->team && pOther->IsAlive() ) // end .ASM
 			{
 				((CBasePlayer*)pOther)->m_LastHitGroup = HITGROUP_GENERIC;
 
@@ -292,7 +291,7 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 					// Decapitate!
 					if ( m_bTeleported )
 						((CBasePlayer*)pOther)->m_flLastDiscHitTeleport = gpGlobals->time;
-					((CBasePlayer*)pOther)->Decapitate( ((CBaseEntity*)m_hOwner)->pev );
+					((CBasePlayer*)pOther)->Decapitate( m_hOwner->pev );
 
 					m_fDontTouchEnemies = gpGlobals->time + 0.5f;
 				}
@@ -302,18 +301,18 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 					switch( RANDOM_LONG(0,2) )
 					{
 					case 0:
-						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod1.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
+						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod1.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
 						break;
 					case 1:
-						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod2.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
+						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod2.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
 						break;
 					case 2:
-						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod3.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
+						EMIT_SOUND_DYN( pOther->edict(), CHAN_ITEM, "weapons/cbar_hitbod3.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3)); 
 						break;
 					}
 
 					// Push the player
-					Vector vecDir = pev->velocity.Normalize();
+					const Vector vecDir = pev->velocity.Normalize();
 					pOther->pev->flags &= ~FL_ONGROUND;
 					((CBasePlayer*)pOther)->m_vecHitVelocity = vecDir * DISC_PUSH_MULTIPLIER;
 
@@ -348,7 +347,7 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 			pSprite->AnimateAndDie( 60 );
 			pSprite->SetTransparency( kRenderTransAdd, 255, 255, 255, 255, kRenderFxNoDissipation );
 			pSprite->SetScale( 1 );
-			EMIT_SOUND_DYN( edict(), CHAN_ITEM, "dischit.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
+			EMIT_SOUND_DYN( edict(), CHAN_ITEM, "dischit.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
 
 			// Return both discs to their owners
 			((CDisc*)pOther)->ReturnToThrower();
@@ -365,8 +364,8 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 
 		switch ( RANDOM_LONG( 0, 1 ) )
 		{
-		case 0:	EMIT_SOUND_DYN( edict(), CHAN_ITEM, "weapons/xbow_hit1.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));  break;
-		case 1:	EMIT_SOUND_DYN( edict(), CHAN_ITEM, "weapons/xbow_hit2.wav", 1.0, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));  break;
+		case 0:	EMIT_SOUND_DYN( edict(), CHAN_ITEM, "weapons/xbow_hit1.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));  break;
+		case 1:	EMIT_SOUND_DYN( edict(), CHAN_ITEM, "weapons/xbow_hit2.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));  break;
 		}
 
 		UTIL_Sparks( pev->origin, edict() );
@@ -388,15 +387,15 @@ void CDisc::DiscThink()
 	//End miagi
 
 	// Make Freeze discs home towards any player ahead of them
-	if ( (m_iPowerupFlags & POW_FREEZE) && (m_iBounces == 0) )
+	if ( m_iPowerupFlags & POW_FREEZE && m_iBounces == 0 )
 	{
 		// Use an existing target if he's still in the view cone
 		if ( m_pLockTarget != NULL )
 		{
-			Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();
+			const Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();
 			UTIL_MakeVectors( pev->angles );
-			float flDot = DotProduct( gpGlobals->v_forward, vecDir );
-			if ( (flDot < 0.6) || (pev->iuser4 == m_pLockTarget->pev->team) ) // Wha? - Teamplay - It would be nice to have a condition in the main if
+			const float flDot = DotProduct( gpGlobals->v_forward, vecDir );
+			if ( flDot < 0.6f || pev->iuser4 == m_pLockTarget->pev->team ) // Wha? - Teamplay - It would be nice to have a condition in the main if
 				m_pLockTarget = nullptr;
 		}
 
@@ -409,20 +408,20 @@ void CDisc::DiscThink()
 			while ((pOther = UTIL_FindEntityByClassname( pOther, "player" )) != nullptr)
 			{
 				// Skip the guy who threw this
-				if ( ((CBaseEntity*)m_hOwner) == pOther )
+				if ( (CBaseEntity*)m_hOwner == pOther )
 					continue;
 				// Skip observers
 				if ( ((CBasePlayer*)pOther)->IsObserver() )
 					continue;
 				// Wha? - Teamplay - Skip teammates
-				if ( pev->iuser4 == ((CBasePlayer*)pOther)->pev->team )
+				if ( pev->iuser4 == pOther->pev->team )
 					continue;
 
 				// Make sure the enemy's in a cone ahead of us
 				Vector vecDir = (pOther->pev->origin - pev->origin).Normalize();
 				UTIL_MakeVectors( pev->angles );
-				float flDot = DotProduct( gpGlobals->v_forward, vecDir );
-				if ( flDot > 0.6 )
+				const float flDot = DotProduct( gpGlobals->v_forward, vecDir );
+				if ( flDot > 0.6f )
 				{
 					m_pLockTarget = pOther;
 					break;
@@ -434,8 +433,8 @@ void CDisc::DiscThink()
 		if ( m_pLockTarget != NULL )
 		{
 			// Calculate new velocity
-			Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();
-			pev->velocity = ( pev->velocity.Normalize() + (vecDir.Normalize() * 0.25)).Normalize();
+			const Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();
+			pev->velocity = ( pev->velocity.Normalize() + vecDir.Normalize() * 0.25f).Normalize();
 			pev->velocity = pev->velocity * DISC_VELOCITY;
 			pev->angles = UTIL_VecToAngles( pev->velocity );
 		}
@@ -462,7 +461,7 @@ void CDisc::DiscThink()
 		// Start heading for the player
 		if ( m_hOwner )
 		{
-			Vector vecDir = ( m_hOwner->pev->origin - pev->origin );
+			Vector vecDir = m_hOwner->pev->origin - pev->origin;
 			vecDir = vecDir.Normalize();
 			pev->velocity = vecDir * DISC_VELOCITY;
 			pev->nextthink = gpGlobals->time + 0.1f;
@@ -583,7 +582,7 @@ void CDiscWeapon::Holster( int skiplocal /* = 0 */ )
 		pev->nextthink = gpGlobals->time + 0.1f;
 	}
 
-	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);
+	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0f, ATTN_NORM);
 }
 
 CDisc *CDiscWeapon::FireDisc( bool bDecapitator )
@@ -598,7 +597,7 @@ CDisc *CDiscWeapon::FireDisc( bool bDecapitator )
 	Vector vecFireDir = g_vecZero;
 	vecFireDir[1] = m_pPlayer->pev->v_angle[1];
 	UTIL_MakeVectors( vecFireDir );
-	Vector vecSrc = m_pPlayer->pev->origin + (m_pPlayer->pev->view_ofs * 0.25) + gpGlobals->v_forward * 16;
+	Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs * 0.25f + gpGlobals->v_forward * 16;
 	CDisc *pDisc = CDisc::CreateDisc( vecSrc, vecFireDir, m_pPlayer, this, bDecapitator, m_pPlayer->m_iPowerups );
 	pReturnDisc = pDisc;
 
@@ -608,13 +607,13 @@ CDisc *CDiscWeapon::FireDisc( bool bDecapitator )
 		// The 2 extra discs from triple shot are removed after their 3rd bounce
 		vecFireDir[1] = m_pPlayer->pev->v_angle[1] - 7;
 		UTIL_MakeVectors( vecFireDir );
-		vecSrc = m_pPlayer->pev->origin + (m_pPlayer->pev->view_ofs * 0.25) + gpGlobals->v_forward * 16;
+		vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs * 0.25f + gpGlobals->v_forward * 16;
 		pDisc = CDisc::CreateDisc( vecSrc, vecFireDir, m_pPlayer, this, bDecapitator, POW_TRIPLE );
 		pDisc->m_bRemoveSelf = true;
 
 		vecFireDir[1] = m_pPlayer->pev->v_angle[1] + 7;
 		UTIL_MakeVectors( vecFireDir );
-		vecSrc = m_pPlayer->pev->origin + (m_pPlayer->pev->view_ofs * 0.25) + gpGlobals->v_forward * 16;
+		vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs * 0.25f + gpGlobals->v_forward * 16;
 		pDisc = CDisc::CreateDisc( vecSrc, vecFireDir, m_pPlayer, this, bDecapitator, POW_TRIPLE );
 		pDisc->m_bRemoveSelf = true;
 	}
@@ -622,9 +621,9 @@ CDisc *CDiscWeapon::FireDisc( bool bDecapitator )
 #endif
 
 	// Fast shot allows faster throwing
-	float flTimeToNextShot = 0.5;
+	float flTimeToNextShot = 0.5f;
 	if ( m_pPlayer->HasPowerup( POW_FAST ) )
-		flTimeToNextShot = 0.2;
+		flTimeToNextShot = 0.2f;
 
 	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + flTimeToNextShot;
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + flTimeToNextShot;
@@ -644,7 +643,7 @@ void CDiscWeapon::PrimaryAttack()
 
 	if ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] )
 	{
-		PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usFireDisc, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 0, 0 );
+		PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usFireDisc, 0.0f, (float *)&g_vecZero, (float *)&g_vecZero, 0.0f, 0.0f, 0, 0, 0, 0 );
 		CDisc *pDisc = FireDisc( false );
 		
 		// Fast powerup has a number of discs per 1 normal disc
@@ -685,9 +684,9 @@ void CDiscWeapon::SecondaryAttack()
 
 	// Fast powerup has a number of discs per 1 normal disc (so it can throw a decap when it has at least 1 real disc)
 	if ( (m_pPlayer->HasPowerup( POW_FAST ) && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0 ) ||
-		 ( m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == MAX_DISCS ) )
+		 m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] == MAX_DISCS )
 	{
-		PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usFireDisc, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, 0.0, 0.0, 0, 0, 1, 0 );
+		PLAYBACK_EVENT_FULL( FEV_NOTHOST, m_pPlayer->edict(), m_usFireDisc, 0.0f, (float *)&g_vecZero, (float *)&g_vecZero, 0.0f, 0.0f, 0, 0, 1, 0 );
 
 		FireDisc( true );
 
@@ -731,7 +730,7 @@ void CDiscWeapon::WeaponIdle()
 	if ( m_pPlayer->HasPowerup(POW_VISUALIZE_REBOUNDS) )
 	{
 		Vector vecFireDir = g_vecZero;
-		Vector vecSrc = m_pPlayer->pev->origin + (m_pPlayer->pev->view_ofs * 0.25);
+		Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs * 0.25f;
 		vecFireDir[1] = m_pPlayer->pev->v_angle[1];
 
 		// Draw beams to show where rebounds will go
@@ -739,7 +738,7 @@ void CDiscWeapon::WeaponIdle()
 		{
 			TraceResult	tr;
 			UTIL_MakeVectors( vecFireDir );
-			UTIL_TraceLine( vecSrc, (vecSrc + gpGlobals->v_forward * 2048), ignore_monsters, ENT(pev), &tr );
+			UTIL_TraceLine( vecSrc, vecSrc + gpGlobals->v_forward * 2048, ignore_monsters, ENT(pev), &tr );
 
 			MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
 				WRITE_BYTE( TE_BEAMPOINTS );
@@ -757,20 +756,20 @@ void CDiscWeapon::WeaponIdle()
 				WRITE_BYTE( 0 );   // noise
 				WRITE_BYTE( i * 50 );   // r, g, b
 				WRITE_BYTE( i * 50 );   // r, g, b
-				WRITE_BYTE( 200 - (i * 50));   // r, g, b
-				WRITE_BYTE( 128 - (i * 30) );   // r, g, b
+				WRITE_BYTE( 200 - i * 50);   // r, g, b
+				WRITE_BYTE( 128 - i * 30 );   // r, g, b
 				WRITE_BYTE( 0 );		// speed
 			MESSAGE_END();
 
 			// Calculate rebound angle
 			Vector vecOut;
-			Vector vecIn = tr.vecEndPos - (tr.vecEndPos - (gpGlobals->v_forward * 5));
-			float backoff = DotProduct( vecIn, tr.vecPlaneNormal ) * 2.0f;
+			Vector vecIn = tr.vecEndPos - (tr.vecEndPos - gpGlobals->v_forward * 5);
+			const float backoff = DotProduct( vecIn, tr.vecPlaneNormal ) * 2.0f;
 			for (int i=0 ; i<3 ; i++)
 			{
-				float change = tr.vecPlaneNormal[i] * backoff;
+				const float change = tr.vecPlaneNormal[i] * backoff;
 				vecOut[i] = vecIn[i] - change;
-				if (vecOut[i] > -0.1 && vecOut[i] < 0.1)
+				if (vecOut[i] > -0.1f && vecOut[i] < 0.1f)
 					vecOut[i] = 0;
 			}
 
@@ -787,7 +786,7 @@ void CDiscWeapon::WeaponIdle()
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 	{
 		int iAnim;
-		float flRand = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 0, 1 );
+		const float flRand = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 0, 1 );
 		if (flRand <= 0.75)
 		{
 			iAnim = DISC_IDLE;

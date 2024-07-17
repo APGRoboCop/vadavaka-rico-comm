@@ -54,7 +54,7 @@ int InArenaMode();
 class CMultiplayGameMgrHelper : public IVoiceGameMgrHelper
 {
 public:
-	virtual bool CanPlayerHearPlayer(CBasePlayer *pListener, CBasePlayer *pTalker)
+	bool CanPlayerHearPlayer(CBasePlayer *pListener, CBasePlayer *pTalker) override
 	{
 		//FFA
 		if ( InArenaMode() == FALSE )
@@ -78,8 +78,8 @@ static CMultiplayGameMgrHelper g_GameMgrHelper;
 CHalfLifeMultiplay :: CHalfLifeMultiplay()
 {
 	g_VoiceGameMgr.Init(&g_GameMgrHelper, gpGlobals->maxClients);
-	
-	RefreshSkillData();
+
+	CHalfLifeMultiplay::RefreshSkillData();
 	m_flIntermissionEndTime = 0;
 	
 	// 11/8/98
@@ -94,28 +94,28 @@ CHalfLifeMultiplay :: CHalfLifeMultiplay()
 	if ( IS_DEDICATED_SERVER() )
 	{
 		// dedicated server
-		char *servercfgfile = (char *)CVAR_GET_STRING( "servercfgfile" );
+		char *servercfgfile = const_cast<char*>(CVAR_GET_STRING("servercfgfile"));
 
 		if ( servercfgfile && servercfgfile[0] )
 		{
 			char szCommand[256];
 			
 			ALERT( at_console, "Executing dedicated server config file\n" );
-			sprintf( szCommand, "exec %s\n", servercfgfile );
+			snprintf(szCommand, sizeof(szCommand), "exec %s\n", servercfgfile);
 			SERVER_COMMAND( szCommand );
 		}
 	}
 	else
 	{
 		// listen server
-		char *lservercfgfile = (char *)CVAR_GET_STRING( "lservercfgfile" );
+		char *lservercfgfile = const_cast<char*>(CVAR_GET_STRING("lservercfgfile"));
 
 		if ( lservercfgfile && lservercfgfile[0] )
 		{
 			char szCommand[256];
 			
 			ALERT( at_console, "Executing listen server config file\n" );
-			sprintf( szCommand, "exec %s\n", lservercfgfile );
+			snprintf(szCommand, sizeof(szCommand), "exec %s\n", lservercfgfile);
 			SERVER_COMMAND( szCommand );
 		}
 	}
@@ -197,23 +197,22 @@ void CHalfLifeMultiplay :: Think ()
 	static int last_time;
 
 	int frags_remaining = 0;
-	int time_remaining = 0;
 
 	if ( g_fGameOver )   // someone else quit the game already
 	{
 		if ( m_flIntermissionEndTime < gpGlobals->time )
 		{
 			if ( m_iEndIntermissionButtonHit  // check that someone has pressed a key, or the max intermission time is over
-				|| ((m_flIntermissionEndTime + MAX_INTERMISSION_TIME) < gpGlobals->time) ) 
+				|| m_flIntermissionEndTime + MAX_INTERMISSION_TIME < gpGlobals->time ) 
 				ChangeLevel(); // intermission is over
 		}
 		return;
 	}
 
-	float flTimeLimit = timelimit.value * 60;
-	float flFragLimit = fraglimit.value;
-	
-	time_remaining = (int)(flTimeLimit ? ( flTimeLimit - gpGlobals->time ) : 0);
+	const float flTimeLimit = timelimit.value * 60;
+	const float flFragLimit = fraglimit.value;
+
+	const int time_remaining = static_cast<int>(flTimeLimit ? flTimeLimit - gpGlobals->time : 0);
 
 	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit )
 	{
@@ -224,12 +223,11 @@ void CHalfLifeMultiplay :: Think ()
 	if ( flFragLimit )
 	{
 		int bestfrags = 9999;
-		int remain;
 
 		// check if any player is over the frag limit
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
-			CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
+			const CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
 
 			if ( pPlayer && pPlayer->pev->frags >= flFragLimit )
 			{
@@ -240,7 +238,7 @@ void CHalfLifeMultiplay :: Think ()
 
 			if ( pPlayer )
 			{
-				remain = flFragLimit - pPlayer->pev->frags;
+				const int remain = flFragLimit - pPlayer->pev->frags;
 				if ( remain < bestfrags )
 				{
 					bestfrags = remain;
@@ -321,14 +319,10 @@ BOOL CHalfLifeMultiplay::FShouldSwitchWeapon( CBasePlayer *pPlayer, CBasePlayerI
 
 BOOL CHalfLifeMultiplay :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerItem *pCurrentWeapon )
 {
+	// this will be used in the event that we don't find a weapon in the same category.
 
-	CBasePlayerItem *pCheck;
-	CBasePlayerItem *pBest;// this will be used in the event that we don't find a weapon in the same category.
-	int iBestWeight;
-	int i;
-
-	iBestWeight = -1;// no weapon lower than -1 can be autoswitched to
-	pBest = nullptr;
+	int iBestWeight = -1;// no weapon lower than -1 can be autoswitched to
+	CBasePlayerItem* pBest = nullptr;
 
 	if ( !pCurrentWeapon->CanHolster() )
 	{
@@ -336,9 +330,9 @@ BOOL CHalfLifeMultiplay :: GetNextBestWeapon( CBasePlayer *pPlayer, CBasePlayerI
 		return FALSE;
 	}
 
-	for ( i = 0 ; i < MAX_ITEM_TYPES ; i++ )
+	for ( int i = 0 ; i < MAX_ITEM_TYPES ; i++ )
 	{
-		pCheck = pPlayer->m_rgpPlayerItems[ i ];
+		CBasePlayerItem* pCheck = pPlayer->m_rgpPlayerItems[i];
 
 		while ( pCheck )
 		{
@@ -444,7 +438,7 @@ void CHalfLifeMultiplay :: InitHUD( CBasePlayer *pl )
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		// FIXME:  Probably don't need to cast this just to read m_iDeaths
-		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		const CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 
 		if ( plr )
 		{
@@ -461,7 +455,7 @@ void CHalfLifeMultiplay :: InitHUD( CBasePlayer *pl )
 			// Send their spectator state
 			MESSAGE_BEGIN( MSG_ONE, gmsgSpectator, nullptr, pl->edict() );  
 				WRITE_BYTE( i );
-				WRITE_BYTE( (plr->pev->iuser1 != 0) );
+				WRITE_BYTE( plr->pev->iuser1 != 0 );
 			MESSAGE_END();
 		}
 	}
@@ -500,7 +494,7 @@ void CHalfLifeMultiplay :: ClientDisconnected( edict_t *pClient )
 			MESSAGE_END();
 
 			CBasePlayer *client = nullptr;
-			while ( ((client = (CBasePlayer*)UTIL_FindEntityByClassname( client, "player" )) != nullptr) && (!FNullEnt(client->edict())) ) 
+			while ( (client = (CBasePlayer*)UTIL_FindEntityByClassname( client, "player" )) != nullptr && !FNullEnt(client->edict()) ) 
 			{
 				if ( !client->pev )
 					continue;
@@ -510,7 +504,7 @@ void CHalfLifeMultiplay :: ClientDisconnected( edict_t *pClient )
 				// If a spectator was chasing this player, move him/her onto the next player
 				if ( client->m_hObserverTarget == pPlayer )
 				{
-					int iMode = client->pev->iuser1;
+					const int iMode = client->pev->iuser1;
 					client->pev->iuser1 = 0;
 					client->m_hObserverTarget = nullptr;
 					client->Observer_SetMode( iMode );
@@ -524,7 +518,7 @@ void CHalfLifeMultiplay :: ClientDisconnected( edict_t *pClient )
 //=========================================================
 float CHalfLifeMultiplay :: FlPlayerFallDamage( CBasePlayer *pPlayer )
 {
-	int iFallDamage = (int)CVAR_GET_FLOAT("mp_falldamage");
+	const int iFallDamage = (int)CVAR_GET_FLOAT("mp_falldamage");
 
 	switch ( iFallDamage )
 	{
@@ -568,12 +562,11 @@ void CHalfLifeMultiplay :: PlayerThink( CBasePlayer *pPlayer )
 //=========================================================
 void CHalfLifeMultiplay :: PlayerSpawn( CBasePlayer *pPlayer )
 {
-	BOOL		addDefault;
 	CBaseEntity	*pWeaponEntity = nullptr;
 
-	pPlayer->pev->weapons |= (1<<WEAPON_SUIT);
+	pPlayer->pev->weapons |= 1<<WEAPON_SUIT;
 	
-	addDefault = TRUE;
+	BOOL addDefault = TRUE;
 
 	while ( pWeaponEntity = UTIL_FindEntityByClassname( pWeaponEntity, "game_player_equip" ))
 	{
@@ -604,7 +597,7 @@ float CHalfLifeMultiplay :: FlPlayerSpawnTime( CBasePlayer *pPlayer )
 
 BOOL CHalfLifeMultiplay :: AllowAutoTargetCrosshair()
 {
-	return ( CVAR_GET_FLOAT( "mp_autocrosshair" ) != 0 );
+	return CVAR_GET_FLOAT( "mp_autocrosshair" ) != 0;
 }
 
 //=========================================================
@@ -625,10 +618,9 @@ void CHalfLifeMultiplay :: PlayerKilled( CBasePlayer *pVictim, entvars_t *pKille
 	DeathNotice( pVictim, pKiller, pInflictor );
 
 	FireTargets( "game_playerdie", pVictim, pVictim, USE_TOGGLE, 0 );
-	CBasePlayer *peKiller = nullptr;
 	CBaseEntity *ktmp = CBaseEntity::Instance( pKiller );
-	if ( ktmp && (ktmp->Classify() == CLASS_PLAYER) )
-		peKiller = (CBasePlayer*)ktmp;
+	if ( ktmp && ktmp->Classify() == CLASS_PLAYER )
+		CBasePlayer* peKiller = (CBasePlayer*)ktmp;
 
 	CBaseEntity *ep = CBaseEntity::Instance( pKiller );
 	if ( ep && ep->Classify() == CLASS_PLAYER )
@@ -664,7 +656,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 			if ( pevInflictor == pKiller )
 			{
 				// If the inflictor is the killer,  then it must be their current weapon doing the damage
-				CBasePlayer *pPlayer = (CBasePlayer*)CBaseEntity::Instance( pKiller );
+				const CBasePlayer *pPlayer = (CBasePlayer*)CBaseEntity::Instance( pKiller );
 				
 				if ( pPlayer->m_pActiveItem )
 				{
@@ -707,7 +699,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 		if ( !strcmp( killer_weapon_name, "disc" ) )
 		{
 			int iTele = 0;
-			if ( (pVictim->m_flLastDiscHitTeleport != 0) && (gpGlobals->time < pVictim->m_flLastDiscHitTeleport + MAX_SCORE_TIME_AFTER_HIT) )
+			if ( pVictim->m_flLastDiscHitTeleport != 0 && gpGlobals->time < pVictim->m_flLastDiscHitTeleport + MAX_SCORE_TIME_AFTER_HIT )
 				iTele = REWARD_TELEPORT;
 
 			// Decapitated?
@@ -794,7 +786,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 				pVictim->m_flLastDiscBounces );
 
 			char sz[1024];
-			sprintf( sz, "%dbounce", (int)(pVictim->m_flLastDiscBounces) );
+			snprintf(sz, sizeof(sz), "%dbounce", static_cast<int>(pVictim->m_flLastDiscBounces));
 
 			// Tell the client to display the death message
 			MESSAGE_BEGIN( MSG_ALL, gmsgDeathMsg );
@@ -803,7 +795,7 @@ void CHalfLifeMultiplay::DeathNotice( CBasePlayer *pVictim, entvars_t *pKiller, 
 				WRITE_STRING( sz );								// what they were killed by (should this be a string?)
 			MESSAGE_END();
 
-			pKiller->frags += (1 + pVictim->m_flLastDiscBounces);
+			pKiller->frags += 1 + pVictim->m_flLastDiscBounces;
 
 			// Bonus point for teleport hit
 			if ( iTele )
@@ -893,9 +885,9 @@ float CHalfLifeMultiplay :: FlWeaponRespawnTime( CBasePlayerItem *pWeapon )
 //=========================================================
 float CHalfLifeMultiplay :: FlWeaponTryRespawn( CBasePlayerItem *pWeapon )
 {
-	if ( pWeapon && pWeapon->m_iId && (pWeapon->iFlags() & ITEM_FLAG_LIMITINWORLD) )
+	if ( pWeapon && pWeapon->m_iId && pWeapon->iFlags() & ITEM_FLAG_LIMITINWORLD )
 	{
-		if ( NUMBER_OF_ENTITIES() < (gpGlobals->maxEntities - ENTITY_INTOLERANCE) )
+		if ( NUMBER_OF_ENTITIES() < gpGlobals->maxEntities - ENTITY_INTOLERANCE )
 			return 0;
 
 		// we're past the entity tolerance level,  so delay the respawn
@@ -1089,7 +1081,7 @@ BOOL CHalfLifeMultiplay :: FAllowFlashlight()
 //=========================================================
 BOOL CHalfLifeMultiplay :: FAllowMonsters()
 {
-	return ( CVAR_GET_FLOAT( "mp_allowmonsters" ) != 0 );
+	return CVAR_GET_FLOAT( "mp_allowmonsters" ) != 0;
 }
 
 //=========================================================
@@ -1135,15 +1127,14 @@ Clean up memory used by mapcycle when switching it
 */
 void DestroyMapCycle( mapcycle_t *cycle )
 {
-	mapcycle_item_t *p, *n, *start;
-	p = cycle->items;
+	mapcycle_item_t* p = cycle->items;
 	if ( p )
 	{
-		start = p;
+		const mapcycle_item_t* start = p;
 		p = p->next;
 		while ( p != start )
 		{
-			n = p->next;
+			mapcycle_item_t* n = p->next;
 			delete p;
 			p = n;
 		}
@@ -1166,9 +1157,8 @@ Parse a token out of a string
 char *COM_Parse (char *data)
 {
 	int             c;
-	int             len;
-	
-	len = 0;
+
+	int len = 0;
 	com_token[0] = 0;
 	
 	if (!data)
@@ -1196,7 +1186,7 @@ skipwhite:
 	if (c == '\"')
 	{
 		data++;
-		while (1)
+		while (true)
 		{
 			c = *data++;
 			if (c=='\"' || !c)
@@ -1242,9 +1232,7 @@ Returns 1 if additional data is waiting to be processed on this line
 */
 int COM_TokenWaiting( char *buffer )
 {
-	char *p;
-
-	p = buffer;
+	const char* p = buffer;
 	while ( *p && *p!='\n')
 	{
 		if ( !isspace( *p ) || isalnum( *p ) )
@@ -1271,15 +1259,14 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 	int length;
 	char *pFileList;
 	char *aFileList = pFileList = (char*)LOAD_FILE_FOR_ME( filename, &length );
-	int hasbuffer;
-	mapcycle_item_s *item, *newlist = nullptr, *next;
+	mapcycle_item_s *item, *newlist = nullptr;
 
 	if ( pFileList && length )
 	{
 		// the first map name in the file becomes the default
-		while ( 1 )
+		while (true)
 		{
-			hasbuffer = 0;
+			int hasbuffer = 0;
 			memset( szBuffer, 0, MAX_RULE_BUFFER );
 
 			pFileList = COM_Parse( pFileList );
@@ -1292,7 +1279,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 			if ( COM_TokenWaiting( pFileList ) )
 			{
 				pFileList = COM_Parse( pFileList );
-				if ( strlen( com_token ) > 0 )
+				if (com_token[0] != '\0')
 				{
 					hasbuffer = 1;
 					strcpy( szBuffer, com_token );
@@ -1303,7 +1290,6 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 			if ( IS_MAP_VALID( szMap ) )
 			{
 				// Create entry
-				char *s;
 
 				item = new mapcycle_item_s;
 
@@ -1316,7 +1302,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 
 				if ( hasbuffer )
 				{
-					s = g_engfuncs.pfnInfoKeyValue( szBuffer, "minplayers" );
+					const char* s = g_engfuncs.pfnInfoKeyValue(szBuffer, "minplayers");
 					if ( s && s[0] )
 					{
 						item->minplayers = atoi( s );
@@ -1359,7 +1345,7 @@ int ReloadMapCycleFile( char *filename, mapcycle_t *cycle )
 	// Reverse it to get original order
 	while ( item )
 	{
-		next = item->next;
+		mapcycle_item_s* next = item->next;
 		item->next = newlist;
 		newlist = item;
 		item = next;
@@ -1397,7 +1383,7 @@ int CountPlayers()
 
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CBaseEntity *pEnt = UTIL_PlayerByIndex( i );
+		const CBaseEntity *pEnt = UTIL_PlayerByIndex( i );
 
 		if ( pEnt )
 		{
@@ -1419,17 +1405,16 @@ Parse commands/key value pairs to issue right after map xxx command is issued on
 void ExtractCommandString( char *s, char *szCommand )
 {
 	// Now make rules happen
-	char	pkey[512];
-	char	value[512];	// use two buffers so compares
-								// work without stomping on each other
-	char	*o;
-	
+	// work without stomping on each other
+
 	if ( *s == '\\' )
 		s++;
 
-	while (1)
+	while (true)
 	{
-		o = pkey;
+		char pkey[512];
+		char value[512];
+		char* o = pkey;
 		while ( *s != '\\' )
 		{
 			if ( !*s )
@@ -1450,7 +1435,7 @@ void ExtractCommandString( char *s, char *szCommand )
 		*o = 0;
 
 		strcat( szCommand, pkey );
-		if ( strlen( value ) > 0 )
+		if (value[0] != '\0')
 		{
 			strcat( szCommand, " " );
 			strcat( szCommand, value );
@@ -1482,17 +1467,16 @@ void CHalfLifeMultiplay :: ChangeLevel()
 	int minplayers = 0, maxplayers = 0;
 	strcpy( szFirstMapInList, "hldm1" );  // the absolute default level is hldm1
 
-	int	curplayers;
 	BOOL do_cycle = TRUE;
 
 	// find the map to change to
-	char *mapcfile = (char*)CVAR_GET_STRING( "mapcyclefile" );
+	char *mapcfile = const_cast<char*>(CVAR_GET_STRING("mapcyclefile"));
 	ASSERT( mapcfile != NULL );
 
 	szCommands[ 0 ] = '\0';
 	szRules[ 0 ] = '\0';
 
-	curplayers = CountPlayers();
+	const int curplayers = CountPlayers();
 
 	// Has the map cycle filename changed?
 	if ( stricmp( mapcfile, szPreviousMapCycleFile ) )
@@ -1501,7 +1485,7 @@ void CHalfLifeMultiplay :: ChangeLevel()
 
 		DestroyMapCycle( &mapcycle );
 
-		if ( !ReloadMapCycleFile( mapcfile, &mapcycle ) || ( !mapcycle.items ) )
+		if ( !ReloadMapCycleFile( mapcfile, &mapcycle ) || !mapcycle.items )
 		{
 			ALERT( at_console, "Unable to load map cycle file %s\n", mapcfile );
 			do_cycle = FALSE;
@@ -1510,7 +1494,6 @@ void CHalfLifeMultiplay :: ChangeLevel()
 
 	if ( do_cycle && mapcycle.items )
 	{
-		BOOL keeplooking = FALSE;
 		BOOL found = FALSE;
 		mapcycle_item_s *item;
 
@@ -1521,7 +1504,7 @@ void CHalfLifeMultiplay :: ChangeLevel()
 		// Traverse list
 		for ( item = mapcycle.next_item; item->next != mapcycle.next_item; item = item->next )
 		{
-			keeplooking = FALSE;
+			BOOL keeplooking = FALSE;
 
 			ASSERT( item != NULL );
 
@@ -1585,13 +1568,13 @@ void CHalfLifeMultiplay :: ChangeLevel()
 	{
 		ALERT( at_console, "PLAYER COUNT:  min %i max %i current %i\n", minplayers, maxplayers, curplayers );
 	}
-	if ( strlen( szRules ) > 0 )
+	if (szRules[0] != '\0')
 	{
 		ALERT( at_console, "RULES:  %s\n", szRules );
 	}
 	
 	CHANGE_LEVEL( szNextMap, nullptr);
-	if ( strlen( szCommands ) > 0 )
+	if (szCommands[0] != '\0')
 	{
 		SERVER_COMMAND( szCommands );
 	}

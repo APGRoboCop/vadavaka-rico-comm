@@ -92,19 +92,16 @@ void CSoundEnt :: Spawn()
 //=========================================================
 void CSoundEnt :: Think ()
 {
-	int iSound;
-	int iPreviousSound;
-
 	pev->nextthink = gpGlobals->time + 0.3f;// how often to check the sound list.
 
-	iPreviousSound = SOUNDLIST_EMPTY;
-	iSound = m_iActiveSound; 
+	int iPreviousSound = SOUNDLIST_EMPTY;
+	int iSound = m_iActiveSound; 
 
 	while ( iSound != SOUNDLIST_EMPTY )
 	{
 		if ( m_SoundPool[ iSound ].m_flExpireTime <= gpGlobals->time && m_SoundPool[ iSound ].m_flExpireTime != SOUND_NEVER_EXPIRE )
 		{
-			int iNext = m_SoundPool[ iSound ].m_iNext;
+			const int iNext = m_SoundPool[ iSound ].m_iNext;
 
 			// move this sound back into the free list
 			FreeSound( iSound, iPreviousSound );
@@ -170,8 +167,6 @@ void CSoundEnt :: FreeSound ( int iSound, int iPrevious )
 //=========================================================
 int CSoundEnt :: IAllocSound()
 {
-	int iNewSound;
-
 	if ( m_iFreeSound == SOUNDLIST_EMPTY )
 	{
 		// no free sound!
@@ -181,8 +176,8 @@ int CSoundEnt :: IAllocSound()
 
 	// there is at least one sound available, so move it to the
 	// Active sound list, and return its SoundPool index.
-	
-	iNewSound = m_iFreeSound;// copy the index of the next free sound
+
+	const int iNewSound = m_iFreeSound;// copy the index of the next free sound
 
 	m_iFreeSound = m_SoundPool[ m_iFreeSound ].m_iNext;// move the index down into the free list. 
 
@@ -199,15 +194,13 @@ int CSoundEnt :: IAllocSound()
 //=========================================================
 void CSoundEnt :: InsertSound ( int iType, const Vector &vecOrigin, int iVolume, float flDuration )
 {
-	int	iThisSound;
-
 	if ( !pSoundEnt )
 	{
 		// no sound ent!
 		return;
 	}
 
-	iThisSound = pSoundEnt->IAllocSound();
+	const int iThisSound = pSoundEnt->IAllocSound();
 
 	if ( iThisSound == SOUNDLIST_EMPTY )
 	{
@@ -228,9 +221,8 @@ void CSoundEnt :: InsertSound ( int iType, const Vector &vecOrigin, int iVolume,
 void CSoundEnt :: Initialize ()
 {
   	int i;
-	int iSound;
 
-	m_cLastActiveSounds;
+    m_cLastActiveSounds;
 	m_iFreeSound = 0;
 	m_iActiveSound = SOUNDLIST_EMPTY;
 
@@ -246,7 +238,7 @@ void CSoundEnt :: Initialize ()
 	// now reserve enough sounds for each client
 	for ( i = 0 ; i < gpGlobals->maxClients ; i++ )
 	{
-		iSound = pSoundEnt->IAllocSound();
+		const int iSound = pSoundEnt->IAllocSound();
 
 		if ( iSound == SOUNDLIST_EMPTY )
 		{
@@ -273,7 +265,6 @@ void CSoundEnt :: Initialize ()
 //=========================================================
 int CSoundEnt :: ISoundsInList ( int iListType )
 {
-	int i;
 	int iThisSound;
 
 	if ( iListType == SOUNDLISTTYPE_FREE )
@@ -294,7 +285,7 @@ int CSoundEnt :: ISoundsInList ( int iListType )
 		return 0;
 	}
 
-	i = 0;
+	int i = 0;
 
 	while ( iThisSound != SOUNDLIST_EMPTY )
 	{
@@ -343,7 +334,7 @@ CSound*	CSoundEnt :: SoundPointerForIndex( int iIndex )
 		return nullptr;
 	}
 
-	if ( iIndex > ( MAX_WORLD_SOUNDS - 1 ) )
+	if ( iIndex > MAX_WORLD_SOUNDS - 1 )
 	{
 		ALERT ( at_console, "SoundPointerForIndex() - Index too large!\n" );
 		return nullptr;

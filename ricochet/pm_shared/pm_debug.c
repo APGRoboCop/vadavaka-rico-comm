@@ -84,22 +84,19 @@ PM_ParticleLine(vec3_t start, vec3_t end, int color, float life)
 */
 void PM_ParticleLine(vec3_t start, vec3_t end, int pcolor, float life, float vert)
 {
-	float linestep = 2.0f;
-	float curdist;
-	float len;
 	vec3_t curpos;
 	vec3_t diff;
-	int i;
 	// Determine distance;
 
 	VectorSubtract(end, start, diff);
-	
-	len = VectorNormalize(diff);
 
-	curdist = 0;
+	const float len = VectorNormalize(diff);
+
+	float curdist = 0;
 	while (curdist <= len)
 	{
-		for (i = 0; i < 3; i++)
+		const float linestep = 2.0f;
+		for (int i = 0; i < 3; i++)
 			curpos[i] = start[i] + curdist * diff[i];
 		
 		pmove->PM_Particle( curpos, pcolor, life, 0, vert);
@@ -130,30 +127,30 @@ PM_DrawPhysEntBBox(int num)
 */
 void PM_DrawPhysEntBBox(int num, int pcolor, float life)
 {
-	physent_t *pe;
-	vec3_t org;
 	int j;
 	vec3_t tmp;
 	vec3_t		p[8];
-	float gap = BOX_GAP;
-	vec3_t modelmins, modelmaxs;
 
 	if (num >= pmove->numphysent ||
 		num <= 0)
 		return;
 
-	pe = &pmove->physents[num];
+	const physent_t* pe = &pmove->physents[num];
 
 	if (pe->model)
 	{
+		vec3_t modelmaxs;
+		vec3_t modelmins;
+		vec3_t org;
 		VectorCopy(pe->origin, org);
 
 		pmove->PM_GetModelBounds( pe->model, modelmins, modelmaxs );
 		for (j = 0; j < 8; j++)
 		{
-			tmp[0] = (j & 1) ? modelmins[0] - gap : modelmaxs[0] + gap;
-			tmp[1] = (j & 2) ? modelmins[1] - gap : modelmaxs[1] + gap;
-			tmp[2] = (j & 4) ? modelmins[2] - gap : modelmaxs[2] + gap;
+			const float gap = BOX_GAP;
+			tmp[0] = j & 1 ? modelmins[0] - gap : modelmaxs[0] + gap;
+			tmp[1] = j & 2 ? modelmins[1] - gap : modelmaxs[1] + gap;
+			tmp[2] = j & 4 ? modelmins[2] - gap : modelmaxs[2] + gap;
 
 			VectorCopy(tmp, p[j]);
 		}
@@ -191,9 +188,9 @@ void PM_DrawPhysEntBBox(int num, int pcolor, float life)
 	{
 		for (j = 0; j < 8; j++)
 		{
-			tmp[0] = (j & 1) ? pe->mins[0] : pe->maxs[0];
-			tmp[1] = (j & 2) ? pe->mins[1] : pe->maxs[1];
-			tmp[2] = (j & 4) ? pe->mins[2] : pe->maxs[2];
+			tmp[0] = j & 1 ? pe->mins[0] : pe->maxs[0];
+			tmp[1] = j & 2 ? pe->mins[1] : pe->maxs[1];
+			tmp[2] = j & 4 ? pe->mins[2] : pe->maxs[2];
 
 			VectorAdd(tmp, pe->origin, tmp);
 			VectorCopy(tmp, p[j]);
@@ -224,13 +221,13 @@ void PM_DrawBBox(vec3_t mins, vec3_t maxs, vec3_t origin, int pcolor, float life
 	
 	vec3_t tmp;
 	vec3_t		p[8];
-	float gap = BOX_GAP;
 
 	for (j = 0; j < 8; j++)
 	{
-		tmp[0] = (j & 1) ? mins[0] - gap : maxs[0] + gap;
-		tmp[1] = (j & 2) ? mins[1] - gap : maxs[1] + gap ;
-		tmp[2] = (j & 4) ? mins[2] - gap : maxs[2] + gap ;
+		const float gap = BOX_GAP;
+		tmp[0] = j & 1 ? mins[0] - gap : maxs[0] + gap;
+		tmp[1] = j & 2 ? mins[1] - gap : maxs[1] + gap ;
+		tmp[2] = j & 4 ? mins[2] - gap : maxs[2] + gap ;
 
 		VectorAdd(tmp, origin, tmp);
 		VectorCopy(tmp, p[j]);
@@ -263,10 +260,8 @@ Tries to shoot a ray out by about 128 units.
 void PM_ViewEntity()
 {
 	vec3_t forward, right, up;
-	float raydist = 256.0f;
 	vec3_t origin;
 	vec3_t end;
-	int i;
 	pmtrace_t trace;
 	int pcolor = 77;
 	float fup;
@@ -284,8 +279,9 @@ void PM_ViewEntity()
 	fup += pmove->view_ofs[2];
 	fup -= 4;
 
-	for (i = 0; i < 3; i++)
+	for (int i = 0; i < 3; i++)
 	{
+		const float raydist = 256.0f;
 		end[i] = origin[i] + raydist * forward[i];
 	}
 

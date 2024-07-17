@@ -35,7 +35,7 @@ extern int gmsgMOTD;
 //=========================================================
 CHalfLifeRules::CHalfLifeRules()
 {
-	RefreshSkillData();
+	CGameRules::RefreshSkillData();
 }
 
 //=========================================================
@@ -130,7 +130,7 @@ void CHalfLifeRules :: PlayerSpawn( CBasePlayer *pPlayer )
 //=========================================================
 BOOL CHalfLifeRules :: AllowAutoTargetCrosshair()
 {
-	return ( g_iSkillLevel == SKILL_EASY );
+	return g_iSkillLevel == SKILL_EASY;
 }
 
 //=========================================================

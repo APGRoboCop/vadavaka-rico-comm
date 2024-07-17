@@ -45,7 +45,7 @@ enum
 class CDiscArena : public CBaseEntity
 {
 public:
-	void Spawn();
+	void Spawn() override;
 	void Reset();
 
 	// Battle initialisation

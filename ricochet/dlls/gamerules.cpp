@@ -39,11 +39,9 @@ extern int g_iTeamplay; //Miagi - Teamplay
 //=========================================================
 BOOL CGameRules::CanHaveAmmo( CBasePlayer *pPlayer, const char *pszAmmoName, int iMaxCarry )
 {
-	int iAmmoIndex;
-
 	if ( pszAmmoName )
 	{
-		iAmmoIndex = pPlayer->GetAmmoIndex( pszAmmoName );
+		const int iAmmoIndex = pPlayer->GetAmmoIndex(pszAmmoName);
 
 		if ( iAmmoIndex > -1 )
 		{
@@ -112,9 +110,7 @@ BOOL CGameRules::CanHavePlayerItem( CBasePlayer *pPlayer, CBasePlayerItem *pWeap
 //=========================================================
 void CGameRules::RefreshSkillData ()
 {
-	int	iSkill;
-
-	iSkill = (int)CVAR_GET_FLOAT("skill");
+	int iSkill = (int)CVAR_GET_FLOAT("skill");
 
 	if ( iSkill < 1 )
 	{
@@ -321,9 +317,9 @@ CGameRules *InstallGameRules()
 	{
 
 		// Miagi Teamplay
-		float teamplay = CVAR_GET_FLOAT("mp_teamplay"); //Teamplay
+		const float teamplay = CVAR_GET_FLOAT("mp_teamplay"); //Teamplay
 
-		if ( (teamplay == 1) || ( g_iTeamplay == 1 ) ) // Game.cfg set or map
+		if ( teamplay == 1 || g_iTeamplay == 1 ) // Game.cfg set or map
 			return new CHalfLifeTeamplay;
 			//End Miagi Teamplay
 

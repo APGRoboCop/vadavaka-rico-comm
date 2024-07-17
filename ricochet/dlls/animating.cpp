@@ -44,27 +44,27 @@ IMPLEMENT_SAVERESTORE( CBaseAnimating, CBaseDelay );
 //=========================================================
 float CBaseAnimating :: StudioFrameAdvance ( float flInterval )
 {
-	if (flInterval == 0.0)
+	if (flInterval == 0.0f)
 	{
-		flInterval = (gpGlobals->time - pev->animtime);
+		flInterval = gpGlobals->time - pev->animtime;
 		if (flInterval <= 0.001f)
 		{
 			pev->animtime = gpGlobals->time;
-			return 0.0;
+			return 0.0f;
 		}
 	}
 	if (! pev->animtime)
-		flInterval = 0.0;
+		flInterval = 0.0f;
 	
 	pev->frame += flInterval * m_flFrameRate * pev->framerate;
 	pev->animtime = gpGlobals->time;
 
-	if (pev->frame < 0.0 || pev->frame >= 256.0f) 
+	if (pev->frame < 0.0f || pev->frame >= 256.0f) 
 	{
 		if (m_fSequenceLoops)
-			pev->frame -= (int)(pev->frame / 256.0f) * 256.0f;
+			pev->frame -= static_cast<int>(pev->frame / 256.0f) * 256.0f;
 		else
-			pev->frame = (pev->frame < 0.0f) ? 0 : 255;
+			pev->frame = pev->frame < 0.0f ? 0 : 255;
 		m_fSequenceFinished = TRUE;	// just in case it wasn't caught in GetEvents
 	}
 
@@ -112,9 +112,9 @@ void CBaseAnimating :: ResetSequenceInfo ( )
 	void *pmodel = GET_MODEL_PTR( ENT(pev) );
 
 	GetSequenceInfo( pmodel, pev, &m_flFrameRate, &m_flGroundSpeed );
-	m_fSequenceLoops = ((GetSequenceFlags() & STUDIO_LOOPING) != 0);
+	m_fSequenceLoops = (GetSequenceFlags() & STUDIO_LOOPING) != 0;
 	pev->animtime = gpGlobals->time;
-	pev->framerate = 1.0;
+	pev->framerate = 1.0f;
 	m_fSequenceFinished = FALSE;
 	m_flLastEventCheck = gpGlobals->time;
 }
@@ -149,12 +149,12 @@ void CBaseAnimating :: DispatchAnimEvents ( float flInterval )
 	flInterval = 0.1f;
 
 	// FIX: this still sometimes hits events twice
-	float flStart = pev->frame + (m_flLastEventCheck - pev->animtime) * m_flFrameRate * pev->framerate;
-	float flEnd = pev->frame + flInterval * m_flFrameRate * pev->framerate;
+	const float flStart = pev->frame + (m_flLastEventCheck - pev->animtime) * m_flFrameRate * pev->framerate;
+	const float flEnd = pev->frame + flInterval * m_flFrameRate * pev->framerate;
 	m_flLastEventCheck = pev->animtime + flInterval;
 
 	m_fSequenceFinished = FALSE;
-	if (flEnd >= 256 || flEnd <= 0.0) 
+	if (flEnd >= 256 || flEnd <= 0.0f) 
 		m_fSequenceFinished = TRUE;
 
 	int index = 0;
@@ -181,10 +181,10 @@ void CBaseAnimating :: InitBoneControllers ()
 {
 	void *pmodel = GET_MODEL_PTR( ENT(pev) );
 
-	SetController( pmodel, pev, 0, 0.0 );
-	SetController( pmodel, pev, 1, 0.0 );
-	SetController( pmodel, pev, 2, 0.0 );
-	SetController( pmodel, pev, 3, 0.0 );
+	SetController( pmodel, pev, 0, 0.0f );
+	SetController( pmodel, pev, 1, 0.0f );
+	SetController( pmodel, pev, 2, 0.0f );
+	SetController( pmodel, pev, 3, 0.0f );
 }
 
 //=========================================================
@@ -219,7 +219,7 @@ int CBaseAnimating :: FindTransition( int iEndingSequence, int iGoalSequence, in
 	if (piDir == nullptr)
 	{
 		int iDir;
-		int sequence = ::FindTransition( pmodel, iEndingSequence, iGoalSequence, &iDir );
+		const int sequence = ::FindTransition( pmodel, iEndingSequence, iGoalSequence, &iDir );
 		if (iDir != 1)
 			return -1;
 		else
@@ -264,7 +264,7 @@ void CBaseAnimating :: SetSequenceBox()
 	{
 		// expand box for rotation
 		// find min / max for rotations
-		float yaw = pev->angles.y * (M_PI / 180.0);
+		const float yaw = pev->angles.y * (M_PI / 180.0);
 		
 		Vector xvector, yvector;
 		xvector.x = cos(yaw);
@@ -278,10 +278,11 @@ void CBaseAnimating :: SetSequenceBox()
 		
 		Vector rmin( 9999, 9999, 9999 );
 		Vector rmax( -9999, -9999, -9999 );
-		Vector base, transformed;
+		Vector transformed;
 
 		for (int i = 0; i <= 1; i++ )
 		{
+			Vector base;
 			base.x = bounds[i].x;
 			for ( int j = 0; j <= 1; j++ )
 			{

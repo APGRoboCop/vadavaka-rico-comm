@@ -28,10 +28,10 @@
 // Spark Shower
 class CShower : public CBaseEntity
 {
-	void Spawn();
-	void Think();
-	void Touch( CBaseEntity *pOther );
-	int ObjectCaps() { return FCAP_DONT_SAVE; }
+	void Spawn() override;
+	void Think() override;
+	void Touch( CBaseEntity *pOther ) override;
+	int ObjectCaps() override { return FCAP_DONT_SAVE; }
 };
 
 LINK_ENTITY_TO_CLASS( spark_shower, CShower );
@@ -73,24 +73,24 @@ void CShower::Think()
 void CShower::Touch( CBaseEntity *pOther )
 {
 	if ( pev->flags & FL_ONGROUND )
-		pev->velocity = pev->velocity * 0.1;
+		pev->velocity = pev->velocity * 0.1f;
 	else
-		pev->velocity = pev->velocity * 0.6;
+		pev->velocity = pev->velocity * 0.6f;
 
-	if ( (pev->velocity.x*pev->velocity.x+pev->velocity.y*pev->velocity.y) < 10.0 )
+	if ( pev->velocity.x*pev->velocity.x+pev->velocity.y*pev->velocity.y < 10.0f )
 		pev->speed = 0;
 }
 
 class CEnvExplosion : public CBaseMonster
 {
 public:
-	void Spawn( );
+	void Spawn( ) override;
 	void EXPORT Smoke ();
-	void KeyValue( KeyValueData *pkvd );
-	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void KeyValue( KeyValueData *pkvd ) override;
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 
 	int m_iMagnitude;// how large is the fireball? how much damage?
@@ -130,8 +130,7 @@ void CEnvExplosion::Spawn()
 	}
 	*/
 
-	float flSpriteScale;
-	flSpriteScale = ( m_iMagnitude - 50) * 0.6;
+	float flSpriteScale = (m_iMagnitude - 50) * 0.6;
 	
 	/*
 	if ( flSpriteScale > 50 )
@@ -144,7 +143,7 @@ void CEnvExplosion::Spawn()
 		flSpriteScale = 10;
 	}
 
-	m_spriteScale = (int)flSpriteScale;
+	m_spriteScale = static_cast<int>(flSpriteScale);
 }
 
 void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
@@ -154,26 +153,26 @@ void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	pev->model = iStringNull;//invisible
 	pev->solid = SOLID_NOT;// intangible
 
-	Vector		vecSpot;// trace starts here!
+	// trace starts here!
 
-	vecSpot = pev->origin + Vector ( 0 , 0 , 8 );
+	const Vector vecSpot = pev->origin + Vector(0, 0, 8);
 	
 	UTIL_TraceLine ( vecSpot, vecSpot + Vector ( 0, 0, -40 ),  ignore_monsters, ENT(pev), & tr);
 	
 	// Pull out of the wall a bit
-	if ( tr.flFraction != 1.0 )
+	if ( tr.flFraction != 1.0f )
 	{
-		pev->origin = tr.vecEndPos + (tr.vecPlaneNormal * (m_iMagnitude - 24) * 0.6);
+		pev->origin = tr.vecEndPos + tr.vecPlaneNormal * (m_iMagnitude - 24) * 0.6f;
 	}
 	else
 	{
-		pev->origin = pev->origin;
+		pev->origin;
 	}
 
 	// draw decal
 	if (! ( pev->spawnflags & SF_ENVEXPLOSION_NODECAL))
 	{
-		if ( RANDOM_FLOAT( 0 , 1 ) < 0.5 )
+		if ( RANDOM_FLOAT( 0 , 1 ) < 0.5f )
 		{
 			UTIL_DecalTrace( &tr, DECAL_SCORCH1 );
 		}
@@ -223,7 +222,7 @@ void CEnvExplosion::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 	// draw sparks
 	if ( !( pev->spawnflags & SF_ENVEXPLOSION_NOSPARKS ) )
 	{
-		int sparkCount = RANDOM_LONG(0,3);
+		const int sparkCount = RANDOM_LONG(0,3);
 
 		for ( int i = 0; i < sparkCount; i++ )
 		{
@@ -261,7 +260,7 @@ void ExplosionCreate( const Vector &center, const Vector &angles, edict_t *pOwne
 	char			buf[128];
 
 	CBaseEntity *pExplosion = CBaseEntity::Create( "env_explosion", center, angles, pOwner );
-	sprintf( buf, "%3d", magnitude );
+	snprintf(buf, sizeof(buf), "%3d", magnitude);
 	kvd.szKeyName = "iMagnitude";
 	kvd.szValue = buf;
 	pExplosion->KeyValue( &kvd );

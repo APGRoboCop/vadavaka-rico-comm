@@ -33,19 +33,19 @@
 class CSprite : public CPointEntity
 {
 public:
-	void Spawn();
-	void Precache();
+	void Spawn() override;
+	void Precache() override;
 
-	int		ObjectCaps()
+	int		ObjectCaps() override
 	{ 
 		int flags = 0;
 		if ( pev->spawnflags & SF_SPRITE_TEMPORARY )
 			flags = FCAP_DONT_SAVE;
-		return (CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | flags; 
+		return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION | flags; 
 	}
 	void EXPORT AnimateThink();
 	void EXPORT ExpandThink();
-	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 	void Animate( float frames );
 	void Expand( float scaleSpeed, float fadeSpeed );
 	void SpriteInit( const char *pSpriteName, const Vector &origin );
@@ -83,14 +83,14 @@ public:
 	{ 
 		SetThink(&CSprite :: AnimateUntilDead); 
 		pev->framerate = framerate;
-		pev->dmgtime = gpGlobals->time + (m_maxFrame / framerate); 
+		pev->dmgtime = gpGlobals->time + m_maxFrame / framerate; 
 		pev->nextthink = gpGlobals->time; 
 	}
 
 	void EXPORT AnimateUntilDead();
 
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 	static CSprite *SpriteCreate( const char *pSpriteName, const Vector &origin, BOOL animate );
 
@@ -104,29 +104,29 @@ private:
 class CBeam : public CBaseEntity
 {
 public:
-	void	Spawn();
-	void	Precache();
-	int		ObjectCaps()
+	void	Spawn() override;
+	void	Precache() override;
+	int		ObjectCaps() override
 	{ 
 		int flags = 0;
 		if ( pev->spawnflags & SF_BEAM_TEMPORARY )
 			flags = FCAP_DONT_SAVE;
-		return (CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | flags; 
+		return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION | flags; 
 	}
 
 	void EXPORT TriggerTouch( CBaseEntity *pOther );
 
 	// These functions are here to show the way beams are encoded as entities.
 	// Encoding beams as entities simplifies their management in the client/server architecture
-	void	SetType( int type ) { pev->rendermode = (pev->rendermode & 0xF0) | (type&0x0F); }
-	void	SetFlags( int flags ) { pev->rendermode = (pev->rendermode & 0x0F) | (flags&0xF0); }
+	void	SetType( int type ) { pev->rendermode = pev->rendermode & 0xF0 | type&0x0F; }
+	void	SetFlags( int flags ) { pev->rendermode = pev->rendermode & 0x0F | flags&0xF0; }
 	void SetStartPos( const Vector& pos ) { pev->origin = pos; }
 	void SetEndPos( const Vector& pos ) { pev->angles = pos; }
 	void SetStartEntity( int entityIndex );
 	void SetEndEntity( int entityIndex );
 
-	void SetStartAttachment( int attachment ) { pev->sequence = (pev->sequence & 0x0FFF) | ((attachment&0xF)<<12); }
-	void SetEndAttachment( int attachment ) { pev->skin = (pev->skin & 0x0FFF) | ((attachment&0xF)<<12); }
+	void SetStartAttachment( int attachment ) { pev->sequence = pev->sequence & 0x0FFF | (attachment&0xF)<<12; }
+	void SetEndAttachment( int attachment ) { pev->skin = pev->skin & 0x0FFF | (attachment&0xF)<<12; }
 
 	void SetTexture( int spriteIndex ) { pev->modelindex = spriteIndex; }
 	void SetWidth( int width ) { pev->scale = width; }
@@ -144,7 +144,7 @@ public:
 	const Vector &GetStartPos();
 	const Vector &GetEndPos();
 
-	Vector Center() { return (GetStartPos() + GetEndPos()) * 0.5; }; // center point of beam
+	Vector Center() override { return (GetStartPos() + GetEndPos()) * 0.5; }; // center point of beam
 
 	int  GetTexture() { return pev->modelindex; }
 	int  GetWidth() { return pev->scale; }
@@ -188,9 +188,9 @@ public:
 class CLaser : public CBeam
 {
 public:
-	void	Spawn();
-	void	Precache();
-	void	KeyValue( KeyValueData *pkvd );
+	void	Spawn() override;
+	void	Precache() override;
+	void	KeyValue( KeyValueData *pkvd ) override;
 
 	void	TurnOn();
 	void	TurnOff();
@@ -199,9 +199,9 @@ public:
 	void	FireAtPoint( TraceResult &point );
 
 	void	EXPORT StrikeThink();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 
 	CSprite	*m_pSprite;

@@ -144,17 +144,17 @@ void CBaseMonster :: Look ( int iDistance )
 
 	m_pLink = nullptr;
 
-	CBaseEntity	*pSightEnt = nullptr;// the current visible entity that we're dealing with
+	// the current visible entity that we're dealing with
 
 	CBaseEntity *pList[100];
 
-	Vector delta = Vector( iDistance, iDistance, iDistance );
+	const Vector delta = Vector( iDistance, iDistance, iDistance );
 
 	// Find only monsters/clients in box, NOT limited to PVS
-	int count = UTIL_EntitiesInBox( pList, 100, pev->origin - delta, pev->origin + delta, FL_CLIENT|FL_MONSTER );
+	const int count = UTIL_EntitiesInBox( pList, 100, pev->origin - delta, pev->origin + delta, FL_CLIENT|FL_MONSTER );
 	for ( int i = 0; i < count; i++ )
 	{
-		pSightEnt = pList[i];
+		CBaseEntity* pSightEnt = pList[i];
 		if ( pSightEnt != this && pSightEnt->pev->health > 0 )
 		{
 			// the looker will want to consider this entity
@@ -217,16 +217,10 @@ void CBaseMonster :: Look ( int iDistance )
 //=========================================================
 CBaseEntity *CBaseMonster :: BestVisibleEnemy ()
 {
-	CBaseEntity	*pReturn;
-	CBaseEntity	*pNextEnt;
-	int			iNearest;
-	int			iDist;
-	int			iBestRelationship;
-
-	iNearest = 8192;// so first visible entity will become the closest.
-	pNextEnt = m_pLink;
-	pReturn = nullptr;
-	iBestRelationship = R_NO;
+	int iNearest = 8192;// so first visible entity will become the closest.
+	CBaseEntity* pNextEnt = m_pLink;
+	CBaseEntity* pReturn = nullptr;
+	int iBestRelationship = R_NO;
 
 	while ( pNextEnt != nullptr)
 	{
@@ -246,7 +240,7 @@ CBaseEntity *CBaseMonster :: BestVisibleEnemy ()
 				// this entity is disliked just as much as the entity that
 				// we currently think is the best visible enemy, so we only
 				// get mad at it if it is closer.
-				iDist = ( pNextEnt->pev->origin - pev->origin ).Length();
+				const int iDist = (pNextEnt->pev->origin - pev->origin).Length();
 				
 				if ( iDist <= iNearest )
 				{

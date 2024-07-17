@@ -36,18 +36,18 @@ class CCycler : public CBaseMonster
 {
 public:
 	void GenericCyclerSpawn(char *szModel, Vector vecMin, Vector vecMax);
-	virtual int	ObjectCaps() { return (CBaseEntity :: ObjectCaps() | FCAP_IMPULSE_USE); }
-	int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
-	void Spawn();
-	void Think();
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() | FCAP_IMPULSE_USE; }
+	int TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType ) override;
+	void Spawn() override;
+	void Think() override;
 	//void Pain( float flDamage );
-	void Use ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void Use ( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 
 	// Don't treat as a live target
-	virtual BOOL IsAlive() { return FALSE; }
+	BOOL IsAlive() override { return FALSE; }
 
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 
 	int			m_animate;
@@ -67,7 +67,7 @@ IMPLEMENT_SAVERESTORE( CCycler, CBaseMonster );
 class CGenericCycler : public CCycler
 {
 public:
-	void Spawn() { GenericCyclerSpawn( (char *)STRING(pev->model), Vector(-16, -16, 0), Vector(16, 16, 72) ); }
+	void Spawn() override { GenericCyclerSpawn( const_cast<char*>(STRING(pev->model)), Vector(-16, -16, 0), Vector(16, 16, 72) ); }
 };
 LINK_ENTITY_TO_CLASS( cycler, CGenericCycler );
 
@@ -80,7 +80,7 @@ LINK_ENTITY_TO_CLASS( cycler, CGenericCycler );
 class CCyclerProbe : public CCycler
 {
 public:	
-	void Spawn();
+	void Spawn() override;
 };
 LINK_ENTITY_TO_CLASS( cycler_prdroid, CCyclerProbe );
 void CCyclerProbe :: Spawn()
@@ -218,18 +218,18 @@ int CCycler :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, floa
 class CCyclerSprite : public CBaseEntity
 {
 public:
-	void Spawn();
-	void Think();
-	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-	virtual int	ObjectCaps() { return (CBaseEntity :: ObjectCaps() | FCAP_DONT_SAVE | FCAP_IMPULSE_USE); }
-	virtual int	TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType );
+	void Spawn() override;
+	void Think() override;
+	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() | FCAP_DONT_SAVE | FCAP_IMPULSE_USE; }
+	int	TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType ) override;
 	void	Animate( float frames );
 
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 
-	int		ShouldAnimate() { return m_animate && m_maxFrame > 1.0; }
+	int		ShouldAnimate() { return m_animate && m_maxFrame > 1.0f; }
 	int			m_animate;
 	float		m_lastTime;
 	float		m_maxFrame;
@@ -259,10 +259,10 @@ void CCyclerSprite::Spawn()
 	m_animate			= 1;
 	m_lastTime			= gpGlobals->time;
 
-	PRECACHE_MODEL( (char *)STRING(pev->model) );
+	PRECACHE_MODEL( const_cast<char*>(STRING(pev->model)) );
 	SET_MODEL( ENT(pev), STRING(pev->model) );
 
-	m_maxFrame = (float) MODEL_FRAMES( pev->modelindex ) - 1;
+	m_maxFrame = static_cast<float>(MODEL_FRAMES(pev->modelindex)) - 1;
 }
 
 
@@ -285,9 +285,9 @@ void CCyclerSprite::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 
 int	CCyclerSprite::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
 {
-	if ( m_maxFrame > 1.0 )
+	if ( m_maxFrame > 1.0f )
 	{
-		Animate( 1.0 );
+		Animate( 1.0f );
 	}
 	return 1;
 }
@@ -303,14 +303,14 @@ void CCyclerSprite::Animate( float frames )
 class CWeaponCycler : public CBasePlayerWeapon
 {
 public:
-	void Spawn();
-	int iItemSlot() { return 1; }
-	int GetItemInfo(ItemInfo *p) {return 0; }
+	void Spawn() override;
+	int iItemSlot() override { return 1; }
+	int GetItemInfo(ItemInfo *p) override {return 0; }
 
-	void PrimaryAttack();
-	void SecondaryAttack();
-	BOOL Deploy();
-	void Holster( int skiplocal = 0 );
+	void PrimaryAttack() override;
+	void SecondaryAttack() override;
+	BOOL Deploy() override;
+	void Holster( int skiplocal = 0 ) override;
 	int m_iszModel;
 	int m_iModel;
 };
@@ -322,7 +322,7 @@ void CWeaponCycler::Spawn( )
 	pev->solid			= SOLID_SLIDEBOX;
 	pev->movetype		= MOVETYPE_NONE;
 
-	PRECACHE_MODEL( (char *)STRING(pev->model) );
+	PRECACHE_MODEL( const_cast<char*>(STRING(pev->model)) );
 	SET_MODEL( ENT(pev), STRING(pev->model) );
 	m_iszModel = pev->model;
 	m_iModel = pev->modelindex;
@@ -369,7 +369,7 @@ void CWeaponCycler::SecondaryAttack()
 	GetSequenceInfo( pmodel, pev, &flFrameRate, &flGroundSpeed );
 	pev->modelindex = 0;
 
-	if (flFrameRate == 0.0)
+	if (flFrameRate == 0.0f)
 	{
 		pev->sequence = 0;
 	}
@@ -383,13 +383,13 @@ void CWeaponCycler::SecondaryAttack()
 // Flaming Wreakage
 class CWreckage : public CBaseMonster
 {
-	int		Save( CSave &save );
-	int		Restore( CRestore &restore );
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	static	TYPEDESCRIPTION m_SaveData[];
 
-	void Spawn();
-	void Precache();
-	void Think();
+	void Spawn() override;
+	void Precache() override;
+	void Think() override;
 
 	int m_flStartTime;
 };
@@ -414,7 +414,7 @@ void CWreckage::Spawn()
 
 	if (pev->model)
 	{
-		PRECACHE_MODEL( (char *)STRING(pev->model) );
+		PRECACHE_MODEL( const_cast<char*>(STRING(pev->model)) );
 		SET_MODEL( ENT(pev), STRING(pev->model) );
 	}
 	// pev->scale = 5.0;
@@ -425,7 +425,7 @@ void CWreckage::Spawn()
 void CWreckage::Precache( )
 {
 	if ( pev->model )
-		PRECACHE_MODEL( (char *)STRING(pev->model) );
+		PRECACHE_MODEL( const_cast<char*>(STRING(pev->model)) );
 }
 
 void CWreckage::Think()

@@ -42,7 +42,7 @@ extern DLL_GLOBAL Vector		g_vecAttackDir;
 //
 Vector VecBModelOrigin( entvars_t* pevBModel )
 {
-	return pevBModel->absmin + ( pevBModel->size * 0.5 );
+	return pevBModel->absmin + pevBModel->size * 0.5;
 }
 
 // =================== FUNC_WALL ==============================================
@@ -53,11 +53,11 @@ This is just a solid wall if not inhibited
 class CFuncWall : public CBaseEntity
 {
 public:
-	void	Spawn();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void	Spawn() override;
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 
 	// Bmodels don't go across transitions
-	virtual int	ObjectCaps() { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 };
 
 LINK_ENTITY_TO_CLASS( func_wall, CFuncWall );
@@ -76,7 +76,7 @@ void CFuncWall :: Spawn()
 
 void CFuncWall :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-	if ( ShouldToggle( useType, (int)(pev->frame)) )
+	if ( ShouldToggle( useType, (int)pev->frame) )
 		pev->frame = 1 - pev->frame;
 }
 
@@ -86,8 +86,8 @@ void CFuncWall :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE u
 class CFuncWallToggle : public CFuncWall
 {
 public:
-	void	Spawn();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void	Spawn() override;
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 	void	TurnOff();
 	void	TurnOn();
 	BOOL	IsOn();
@@ -129,7 +129,7 @@ BOOL CFuncWallToggle :: IsOn()
 
 void CFuncWallToggle :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
-	int status = IsOn();
+	const int status = IsOn();
 
 	if ( ShouldToggle( useType, status ) )
 	{
@@ -147,8 +147,8 @@ void CFuncWallToggle :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 class CFuncConveyor : public CFuncWall
 {
 public:
-	void	Spawn();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	void	Spawn() override;
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override;
 	void	UpdateSpeed( float speed );
 };
 
@@ -179,15 +179,15 @@ void CFuncConveyor :: Spawn()
 void CFuncConveyor :: UpdateSpeed( float speed )
 {
 	// Encode it as an integer with 4 fractional bits
-	int speedCode = (int)(fabs(speed) * 16.0);
+	const int speedCode = (int)(fabs(speed) * 16.0f);
 
 	if ( speed < 0 )
 		pev->rendercolor.x = 1;
 	else
 		pev->rendercolor.x = 0;
 
-	pev->rendercolor.y = (speedCode >> 8);
-	pev->rendercolor.z = (speedCode & 0xFF);
+	pev->rendercolor.y = speedCode >> 8;
+	pev->rendercolor.z = speedCode & 0xFF;
 }
 
 
@@ -208,10 +208,10 @@ A simple entity that looks solid but lets you walk through it.
 class CFuncIllusionary : public CBaseToggle 
 {
 public:
-	void Spawn();
+	void Spawn() override;
 	void EXPORT SloshTouch( CBaseEntity *pOther );
-	void KeyValue( KeyValueData *pkvd );
-	virtual int	ObjectCaps() { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	void KeyValue( KeyValueData *pkvd ) override;
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
 };
 
 LINK_ENTITY_TO_CLASS( func_illusionary, CFuncIllusionary );
@@ -255,8 +255,8 @@ void CFuncIllusionary :: Spawn()
 class CFuncMonsterClip : public CFuncWall
 {
 public:
-	void	Spawn();
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) {}		// Clear out func_wall's use function
+	void	Spawn() override;
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value ) override {}		// Clear out func_wall's use function
 };
 
 LINK_ENTITY_TO_CLASS( func_monsterclip, CFuncMonsterClip );
@@ -275,19 +275,19 @@ class CFuncRotating : public CBaseEntity
 {
 public:
 	// basic functions
-	void Spawn();
-	void Precache();
+	void Spawn() override;
+	void Precache() override;
 	void EXPORT SpinUp ();
 	void EXPORT SpinDown ();
-	void KeyValue( KeyValueData* pkvd);
+	void KeyValue( KeyValueData* pkvd) override;
 	void EXPORT HurtTouch ( CBaseEntity *pOther );
 	void EXPORT RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void EXPORT Rotate();
 	void RampPitchVol (int fUp );
-	void Blocked( CBaseEntity *pOther );
-	virtual int	ObjectCaps() { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
+	void Blocked( CBaseEntity *pOther ) override;
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
 	
 	static	TYPEDESCRIPTION m_SaveData[];
 
@@ -321,18 +321,18 @@ void CFuncRotating :: KeyValue( KeyValueData* pkvd)
 	}
 	else if (FStrEq(pkvd->szKeyName, "Volume"))
 	{
-		m_flVolume = atof(pkvd->szValue)/10.0;
+		m_flVolume = atof(pkvd->szValue)/10.0f;
 
-		if (m_flVolume > 1.0)
-			m_flVolume = 1.0;
-		if (m_flVolume < 0.0)
-			m_flVolume = 0.0;
+		if (m_flVolume > 1.0f)
+			m_flVolume = 1.0f;
+		if (m_flVolume < 0.0f)
+			m_flVolume = 0.0f;
 		pkvd->fHandled = TRUE;
 	}
 	else if (FStrEq(pkvd->szKeyName, "spawnorigin"))
 	{
 		Vector tmp;
-		UTIL_StringToVector( (float *)tmp, pkvd->szValue );
+		UTIL_StringToVector( tmp, pkvd->szValue );
 		if ( tmp != g_vecZero )
 			pev->origin = tmp;
 	}
@@ -367,8 +367,8 @@ void CFuncRotating :: Spawn( )
 	m_pitch = PITCH_NORM - 1;
 
 	// maintain compatibility with previous maps
-	if (m_flVolume == 0.0)
-		m_flVolume = 1.0;
+	if (m_flVolume == 0.0f)
+		m_flVolume = 1.0f;
 
 	// if the designer didn't set a sound attenuation, default to one.
 	m_flAttenuation = ATTN_NORM;
@@ -447,11 +447,11 @@ void CFuncRotating :: Spawn( )
 
 void CFuncRotating :: Precache()
 {
-	char* szSoundFile = (char*) STRING(pev->message);
+	char* szSoundFile = const_cast<char*>(STRING(pev->message));
 
 	// set up fan sounds
 
-	if (!FStringNull( pev->message ) && strlen( szSoundFile ) > 0)
+	if (!FStringNull(pev->message) && szSoundFile[0] != '\0')
 	{
 		// if a path is set for a wave, use it
 
@@ -486,14 +486,14 @@ void CFuncRotating :: Precache()
 
 		case 0:
 		default:
-			if (!FStringNull( pev->message ) && strlen( szSoundFile ) > 0)
 			{
-				PRECACHE_SOUND(szSoundFile);
+				if (!FStringNull(pev->message) && szSoundFile[0] != '\0')
+				{
+					PRECACHE_SOUND(szSoundFile);
 				
-				pev->noiseRunning = ALLOC_STRING(szSoundFile);
-				break;
-			} else
-			{
+					pev->noiseRunning = ALLOC_STRING(szSoundFile);
+					break;
+				}
 				pev->noiseRunning = ALLOC_STRING("common/null.wav");
 				break;
 			}
@@ -539,42 +539,35 @@ void CFuncRotating :: HurtTouch ( CBaseEntity *pOther )
 
 void CFuncRotating :: RampPitchVol (int fUp)
 {
+	const Vector vecAVel = pev->avelocity;
 
-	Vector vecAVel = pev->avelocity;
-	vec_t vecCur;
-	vec_t vecFinal;
-	float fpct;
-	float fvol;
-	float fpitch;
-	int pitch;
-	
 	// get current angular velocity
 
-	vecCur = fabs(vecAVel.x != 0 ? vecAVel.x : (vecAVel.y != 0 ? vecAVel.y : vecAVel.z));
+	const vec_t vecCur = fabs(vecAVel.x != 0 ? vecAVel.x : vecAVel.y != 0 ? vecAVel.y : vecAVel.z);
 	
 	// get target angular velocity
 
-	vecFinal = (pev->movedir.x != 0 ? pev->movedir.x : (pev->movedir.y != 0 ? pev->movedir.y : pev->movedir.z));
+	vec_t vecFinal = pev->movedir.x != 0 ? pev->movedir.x : pev->movedir.y != 0 ? pev->movedir.y : pev->movedir.z;
 	vecFinal *= pev->speed;
 	vecFinal = fabs(vecFinal);
 
 	// calc volume and pitch as % of final vol and pitch
 
-	fpct = vecCur / vecFinal;
+	const float fpct = vecCur / vecFinal;
 //	if (fUp)
 //		fvol = m_flVolume * (0.5 + fpct/2.0); // spinup volume ramps up from 50% max vol
 //	else
-		fvol = m_flVolume * fpct;			  // slowdown volume ramps down to 0
+	const float fvol = m_flVolume * fpct;			  // slowdown volume ramps down to 0
 
-	fpitch = FANPITCHMIN + (FANPITCHMAX - FANPITCHMIN) * fpct;	
+	const float fpitch = FANPITCHMIN + (FANPITCHMAX - FANPITCHMIN) * fpct;	
 	
-	pitch = (int) fpitch;
+	int pitch = (int)fpitch;
 	if (pitch == PITCH_NORM)
 		pitch = PITCH_NORM-1;
 
 	// change the fan's vol and pitch
 
-	EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 
+	EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, STRING(pev->noiseRunning), 
 		fvol, m_flAttenuation, SND_CHANGE_PITCH | SND_CHANGE_VOL, pitch);
 
 }
@@ -584,12 +577,12 @@ void CFuncRotating :: RampPitchVol (int fUp)
 //
 void CFuncRotating :: SpinUp()
 {
-	Vector	vecAVel;//rotational velocity
+	//rotational velocity
 
 	pev->nextthink = pev->ltime + 0.1f;
-	pev->avelocity = pev->avelocity + ( pev->movedir * ( pev->speed * m_flFanFriction ) );
+	pev->avelocity = pev->avelocity + pev->movedir * ( pev->speed * m_flFanFriction );
 
-	vecAVel = pev->avelocity;// cache entity's rotational velocity
+	const Vector vecAVel = pev->avelocity;// cache entity's rotational velocity
 
 	// if we've met or exceeded target speed, set target speed and stop thinking
 	if (	fabs(vecAVel.x) >= fabs(pev->movedir.x * pev->speed)	&&
@@ -597,7 +590,7 @@ void CFuncRotating :: SpinUp()
 			fabs(vecAVel.z) >= fabs(pev->movedir.z * pev->speed) )
 	{
 		pev->avelocity = pev->movedir * pev->speed;// set speed in case we overshot
-		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 
+		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, STRING(pev->noiseRunning), 
 			m_flVolume, m_flAttenuation, SND_CHANGE_PITCH | SND_CHANGE_VOL, FANPITCHMAX);
 		
 		SetThink( &CFuncRotating :: Rotate );
@@ -614,14 +607,14 @@ void CFuncRotating :: SpinUp()
 //
 void CFuncRotating :: SpinDown()
 {
-	Vector	vecAVel;//rotational velocity
+	//rotational velocity
 	vec_t vecdir;
 
 	pev->nextthink = pev->ltime + 0.1f;
 
-	pev->avelocity = pev->avelocity - ( pev->movedir * ( pev->speed * m_flFanFriction ) );//spin down slower than spinup
+	pev->avelocity = pev->avelocity - pev->movedir * ( pev->speed * m_flFanFriction );//spin down slower than spinup
 
-	vecAVel = pev->avelocity;// cache entity's rotational velocity
+	const Vector vecAVel = pev->avelocity;// cache entity's rotational velocity
 
 	if (pev->movedir.x != 0)
 		vecdir = pev->movedir.x;
@@ -632,13 +625,13 @@ void CFuncRotating :: SpinDown()
 
 	// if we've met or exceeded target speed, set target speed and stop thinking
 	// (note: must check for movedir > 0 or < 0)
-	if (((vecdir > 0) && (vecAVel.x <= 0 && vecAVel.y <= 0 && vecAVel.z <= 0)) || 
-		((vecdir < 0) && (vecAVel.x >= 0 && vecAVel.y >= 0 && vecAVel.z >= 0)))
+	if ((vecdir > 0 && (vecAVel.x <= 0 && vecAVel.y <= 0 && vecAVel.z <= 0)) || 
+		(vecdir < 0 && (vecAVel.x >= 0 && vecAVel.y >= 0 && vecAVel.z >= 0)))
 	{
 		pev->avelocity = g_vecZero;// set speed in case we overshot
 		
 		// stop sound, we're done
-		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning /* Stop */), 
+		EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, STRING(pev->noiseRunning /* Stop */), 
 				0, 0, SND_STOP, m_pitch);
 
 		SetThink( &CFuncRotating :: Rotate );
@@ -675,8 +668,8 @@ void CFuncRotating :: RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 		else// fan is not moving, so start it
 		{
 			SetThink ( &CFuncRotating :: SpinUp );
-			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 
-				0.01, m_flAttenuation, 0, FANPITCHMIN);
+			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, STRING(pev->noiseRunning), 
+				0.01f, m_flAttenuation, 0, FANPITCHMIN);
 
 			pev->nextthink = pev->ltime + 0.1f;
 		}
@@ -696,7 +689,7 @@ void CFuncRotating :: RotatingUse( CBaseEntity *pActivator, CBaseEntity *pCaller
 		}
 		else
 		{
-			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 
+			EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, STRING(pev->noiseRunning), 
 				m_flVolume, m_flAttenuation, 0, FANPITCHMAX);
 			pev->avelocity = pev->movedir * pev->speed;
 
@@ -727,17 +720,17 @@ void CFuncRotating :: Blocked( CBaseEntity *pOther )
 class CPendulum : public CBaseEntity
 {
 public:
-	void	Spawn ();
-	void	KeyValue( KeyValueData *pkvd );
+	void	Spawn () override;
+	void	KeyValue( KeyValueData *pkvd ) override;
 	void	EXPORT Swing();
 	void	EXPORT PendulumUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void	EXPORT Stop();
-	void	Touch( CBaseEntity *pOther );
+	void	Touch( CBaseEntity *pOther ) override;
 	void	EXPORT RopeTouch ( CBaseEntity *pOther );// this touch func makes the pendulum a rope
-	virtual int	ObjectCaps() { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
-	virtual int		Save( CSave &save );
-	virtual int		Restore( CRestore &restore );
-	void	Blocked( CBaseEntity *pOther );
+	int	ObjectCaps() override { return CBaseEntity :: ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	int		Save( CSave &save ) override;
+	int		Restore( CRestore &restore ) override;
+	void	Blocked( CBaseEntity *pOther ) override;
 
 	static	TYPEDESCRIPTION m_SaveData[];
 	
@@ -778,7 +771,7 @@ void CPendulum :: KeyValue( KeyValueData *pkvd )
 	}
 	else if (FStrEq(pkvd->szKeyName, "damp"))
 	{
-		m_damp = atof(pkvd->szValue) * 0.001;
+		m_damp = atof(pkvd->szValue) * 0.001f;
 		pkvd->fHandled = TRUE;
 	}
 	else 
@@ -805,10 +798,10 @@ void CPendulum :: Spawn()
 	if (pev->speed == 0)
 		pev->speed = 100;
 
-	m_accel = (pev->speed * pev->speed) / (2 * fabs(m_distance));	// Calculate constant acceleration from speed and distance
+	m_accel = pev->speed * pev->speed / (2 * fabs(m_distance));	// Calculate constant acceleration from speed and distance
 	m_maxSpeed = pev->speed;
 	m_start = pev->angles;
-	m_center = pev->angles + (m_distance * 0.5f) * pev->movedir;
+	m_center = pev->angles + m_distance * 0.5f * pev->movedir;
 
 	if ( FBitSet( pev->spawnflags, SF_BRUSH_ROTATE_INSTANT) )
 	{		
@@ -830,13 +823,11 @@ void CPendulum :: PendulumUse( CBaseEntity *pActivator, CBaseEntity *pCaller, US
 	if ( pev->speed )		// Pendulum is moving, stop it and auto-return if necessary
 	{
 		if ( FBitSet( pev->spawnflags, SF_PENDULUM_AUTO_RETURN ) )
-		{		
-			float	delta;
-
-			delta = CBaseToggle :: AxisDelta( pev->spawnflags, pev->angles, m_start );
+		{
+			const float delta = CBaseToggle::AxisDelta(pev->spawnflags, pev->angles, m_start);
 
 			pev->avelocity = m_maxSpeed * pev->movedir;
-			pev->nextthink = pev->ltime + (delta / m_maxSpeed);
+			pev->nextthink = pev->ltime + delta / m_maxSpeed;
 			SetThink( &CPendulum :: Stop );
 		}
 		else
@@ -873,10 +864,8 @@ void CPendulum::Blocked( CBaseEntity *pOther )
 
 void CPendulum :: Swing()
 {
-	float delta, dt;
-	
-	delta = CBaseToggle :: AxisDelta( pev->spawnflags, pev->angles, m_center );
-	dt = gpGlobals->time - m_time;	// How much time has passed?
+	const float delta = CBaseToggle::AxisDelta(pev->spawnflags, pev->angles, m_center);
+	const float dt = gpGlobals->time - m_time;	// How much time has passed?
 	m_time = gpGlobals->time;		// Remember the last time called
 
 	if ( delta > 0 && m_accel > 0 )
@@ -897,7 +886,7 @@ void CPendulum :: Swing()
 	if ( m_damp )
 	{
 		m_dampSpeed -= m_damp * m_dampSpeed * dt;
-		if ( m_dampSpeed < 30.0 )
+		if ( m_dampSpeed < 30.0f )
 		{
 			pev->angles = m_center;
 			pev->speed = 0;
