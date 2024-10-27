@@ -2747,12 +2747,12 @@ pt_end:
 				
 				if ( gun && gun->UseDecrement() )
 				{
-					gun->m_flNextPrimaryAttack		= fmax( gun->m_flNextPrimaryAttack - gpGlobals->frametime, -1.0f );
-					gun->m_flNextSecondaryAttack	= fmax( gun->m_flNextSecondaryAttack - gpGlobals->frametime, -0.001f );
+					gun->m_flNextPrimaryAttack		= std::fmax( gun->m_flNextPrimaryAttack - gpGlobals->frametime, -1.0f );
+					gun->m_flNextSecondaryAttack	= std::fmax( gun->m_flNextSecondaryAttack - gpGlobals->frametime, -0.001f );
 
 					if ( gun->m_flTimeWeaponIdle != 1000 )
 					{
-						gun->m_flTimeWeaponIdle		= fmax( gun->m_flTimeWeaponIdle - gpGlobals->frametime, -0.001f );
+						gun->m_flTimeWeaponIdle		= std::fmax( gun->m_flTimeWeaponIdle - gpGlobals->frametime, -0.001f );
 					}
 				}
 
@@ -3468,7 +3468,7 @@ void CBasePlayer :: ForceClientDllUpdate()
 ImpulseCommands
 ============
 */
-extern float g_flWeaponCheat;
+//extern float g_flWeaponCheat;
 
 void CBasePlayer::ImpulseCommands( )
 {
@@ -3553,7 +3553,7 @@ void CBasePlayer::ImpulseCommands( )
 void CBasePlayer::CheatImpulseCommands( int iImpulse )
 {
 #if !defined( HLDEMO_BUILD )
-	if ( g_flWeaponCheat == 0.0f )
+	if (CVAR_GET_FLOAT("sv_cheats") == 0.0f)
 	{
 		return;
 	}
@@ -3799,7 +3799,7 @@ int CBasePlayer::RemovePlayerItem( CBasePlayerItem *pItem )
 		pev->viewmodel = 0;
 		pev->weaponmodel = 0;
 	}
-	else if ( m_pLastItem == pItem )
+	if ( m_pLastItem == pItem )
 		m_pLastItem = nullptr;
 
 	CBasePlayerItem *pPrev = m_rgpPlayerItems[pItem->iItemSlot()];

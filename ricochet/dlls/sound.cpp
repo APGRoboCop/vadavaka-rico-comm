@@ -1515,7 +1515,9 @@ static char *memfgets( byte *pMemFile, int fileSize, int &filePos, char *pBuffer
 void TEXTURETYPE_Init()
 {
 	char buffer[512];
-	int fileSize, filePos;
+	
+	int fileSize = 0;
+	int filePos = 0;
 
 	if (fTextureTypeInit)
 		return;

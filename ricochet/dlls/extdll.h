@@ -76,6 +76,10 @@ typedef int BOOL;
 // Misc C-runtime library headers
 #include <cstdio>
 #include <cstdlib>
+//#include "minmax.h"
+#ifndef _WIN32
+# define _vsnprintf(a,b,c,d) vsnprintf(a,b,c,d)
+#endif
 #include <cmath>
 
 // Header file containing definition of globalvars_t and entvars_t

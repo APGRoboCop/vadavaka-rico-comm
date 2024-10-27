@@ -88,7 +88,7 @@ UTIL_SharedRandomLong
 */
 int UTIL_SharedRandomLong( unsigned int seed, int low, int high )
 {
-	U_Srand( (int)seed + low + high );
+	U_Srand( static_cast<int>(seed) + low + high );
 
 	const unsigned int range = high - low + 1;
 	if ( !(range - 1) )
@@ -1376,7 +1376,8 @@ void UTIL_StringToVector( float *pVector, const char *pString )
 	char *pfront, tempString[128];
 	int	j;
 
-	strcpy( tempString, pString );
+	strncpy(tempString, pString, sizeof(tempString));
+	tempString[sizeof(tempString) - 1] = '\0';
 	char* pstr = pfront = tempString;
 
 	for ( j = 0; j < 3; j++ )			// lifted from pr_edict.c
@@ -1407,7 +1408,8 @@ void UTIL_StringToIntArray( int *pVector, int count, const char *pString )
 	char *pfront, tempString[128];
 	int	j;
 
-	strcpy( tempString, pString );
+	strncpy(tempString, pString, sizeof(tempString));
+	tempString[sizeof(tempString) - 1] = '\0';
 	char* pstr = pfront = tempString;
 
 	for ( j = 0; j < count; j++ )			// lifted from pr_edict.c
@@ -1492,7 +1494,7 @@ extern DLL_GLOBAL	short	g_sModelIndexBubbles;// holds the index for the bubbles 
 
 void UTIL_Bubbles( Vector mins, Vector maxs, int count )
 {
-	Vector mid =  (mins + maxs) * 0.5;
+	Vector mid =  (mins + maxs) * 0.5f;
 
 	float flHeight = UTIL_WaterLevel( mid,  mid.z, mid.z + 1024 );
 	flHeight = flHeight - mins.z;
@@ -1614,11 +1616,11 @@ float UTIL_DotPoints ( const Vector &vecSrc, const Vector &vecCheck, const Vecto
 //=========================================================
 // UTIL_StripToken - for redundant keynames
 //=========================================================
-void UTIL_StripToken( const char *pKey, char *pDest )
+void UTIL_StripToken(const char* pKey, char* pDest, int nLen)
 {
 	int i = 0;
 
-	while ( pKey[i] && pKey[i] != '#' )
+	while (i < nLen - 1 && pKey[i] && pKey[i] != '#')
 	{
 		pDest[i] = pKey[i];
 		i++;
@@ -2199,7 +2201,7 @@ int CRestore::ReadField( void *pBaseData, TYPEDESCRIPTION *pFields, int fieldCou
 	{
 		const int fieldNumber = (i + startField) % fieldCount;
 		const TYPEDESCRIPTION* pTest = &pFields[fieldNumber];
-		if ( !stricmp( pTest->fieldName, pName ) )
+		if (pTest->fieldName && !stricmp(pTest->fieldName, pName))
 		{
 			if ( !m_global || !(pTest->flags & FTYPEDESC_GLOBAL) )
 			{

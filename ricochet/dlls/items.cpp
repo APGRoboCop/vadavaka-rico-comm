@@ -27,6 +27,9 @@
 #include "player.h"
 #include "skill.h"
 #include "items.h"
+
+#include <algorithm>
+
 #include "gamerules.h"
 
 extern int gmsgItemPickup;
@@ -218,7 +221,7 @@ class CItemBattery : public CItem
 	BOOL MyTouch( CBasePlayer *pPlayer ) override
 	{
 		if (pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY &&
-			pPlayer->pev->weapons & 1<<WEAPON_SUIT)
+			pPlayer->pev->weapons & 1 << WEAPON_SUIT)
 		{
 			char szcharge[64];
 
@@ -234,7 +237,7 @@ class CItemBattery : public CItem
 			
 			// Suit reports new power level
 			// For some reason this wasn't working in release build -- round it.
-			int pct = (int)(pPlayer->pev->armorvalue * 100.0f * (1.0f / MAX_NORMAL_BATTERY) + 0.5f);
+			int pct = static_cast<int>(pPlayer->pev->armorvalue * 100.0f * (1.0f / MAX_NORMAL_BATTERY) + 0.5f);
 			pct = pct / 5;
 			if (pct > 0)
 				pct--;

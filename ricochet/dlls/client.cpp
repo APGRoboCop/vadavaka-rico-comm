@@ -497,7 +497,7 @@ ClientCommand
 called each time a player uses a "cmd" command
 ============
 */
-extern float g_flWeaponCheat;
+//extern float g_flWeaponCheat;
 
 // Use CMD_ARGV,  CMD_ARGV, and CMD_ARGC to get pointers the character string command.
 void ClientCommand( edict_t *pEntity )
@@ -560,7 +560,7 @@ void ClientCommand( edict_t *pEntity )
 
 	else if ( FStrEq(pcmd, "give" ) )
 	{
-		if ( g_flWeaponCheat != 0.0f)
+		if (CVAR_GET_FLOAT("sv_cheats") != 0.0f)
 		{
 			const int iszItem = ALLOC_STRING( CMD_ARGV(1) );	// Make a copy of the classname
 			GetClassPtr((CBasePlayer *)pev)->GiveNamedItem( STRING(iszItem) );
@@ -570,11 +570,11 @@ void ClientCommand( edict_t *pEntity )
 	else if ( FStrEq(pcmd, "drop" ) )
 	{
 		// player is dropping an item. 
-		GetClassPtr((CBasePlayer *)pev)->DropPlayerItem((char *)CMD_ARGV(1));
+		GetClassPtr((CBasePlayer *)pev)->DropPlayerItem(const_cast<char*>(CMD_ARGV(1)));
 	}
 	else if ( FStrEq(pcmd, "fov" ) )
 	{
-		if ( g_flWeaponCheat && CMD_ARGC() > 1)
+		if (CVAR_GET_FLOAT("sv_cheats") && CMD_ARGC() > 1)
 		{
 			GetClassPtr((CBasePlayer *)pev)->m_iFOV = atoi( CMD_ARGV(1) );
 		}
@@ -1328,6 +1328,14 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 		state->health		= ent->v.health;
 	}
 
+	//TODO: Required for HL25th Anniv? [APG]RoboCop[CL]
+	/*CBaseEntity* pEntity = static_cast<CBaseEntity*>(GET_PRIVATE(ent));
+	if (pEntity && pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE)
+		state->eflags |= EFLAG_FLESH_SOUND;
+	else
+		state->eflags &= ~EFLAG_FLESH_SOUND;
+	*/
+
 	return 1;
 }
 
@@ -1452,7 +1460,7 @@ void Entity_Encode( struct delta_s *pFields, const unsigned char *from, const un
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN2 ].field );
 	}
 
-	if ( t->impacttime != 0 && t->starttime != 0 )
+	if ( t->impacttime != 0.0f && t->starttime != 0.0f )
 	{
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN0 ].field );
 		DELTA_UNSETBYINDEX( pFields, entity_field_alias[ FIELD_ORIGIN1 ].field );

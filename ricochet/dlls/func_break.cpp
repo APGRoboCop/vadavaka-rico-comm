@@ -456,9 +456,9 @@ void CBreakable::BreakTouch( CBaseEntity *pOther )
 		SetThink ( &CBreakable::Die );
 		SetTouch( NULL );
 		
-		if ( m_flDelay == 0 )
+		if ( m_flDelay == 0.0f )
 		{// !!!BUGBUG - why doesn't zero delay work?
-			m_flDelay = 0.1;
+			m_flDelay = 0.1f;
 		}
 
 		pev->nextthink = pev->ltime + m_flDelay;
@@ -528,7 +528,7 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 	// (that is, no actual entity projectile was involved in the attack so use the shooter's origin). 
 	if ( pevAttacker == pevInflictor )	
 	{
-		vecTemp = pevInflictor->origin - ( pev->absmin + pev->size * 0.5 );
+		vecTemp = pevInflictor->origin - ( pev->absmin + pev->size * 0.5f );
 		
 		// if a client hit the breakable with a crowbar, and breakable is crowbar-sensitive, break it now.
 		if ( FBitSet ( pevAttacker->flags, FL_CLIENT ) &&
@@ -538,7 +538,7 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 	else
 	// an actual missile was involved.
 	{
-		vecTemp = pevInflictor->origin - ( pev->absmin + pev->size * 0.5 );
+		vecTemp = pevInflictor->origin - ( pev->absmin + pev->size * 0.5f );
 	}
 	
 	if (!IsBreakable())
@@ -550,7 +550,7 @@ int CBreakable :: TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, f
 
 	// Boxes / glass / etc. don't take much poison damage, just the impact of the dart - consider that 10%
 	if ( bitsDamageType & DMG_POISON )
-		flDamage *= 0.1;
+		flDamage *= 0.1f;
 
 // this global is still used for glass and other non-monster killables, along with decals.
 	g_vecAttackDir = vecTemp.Normalize();
@@ -668,7 +668,7 @@ void CBreakable::Die()
 		vecVelocity.z = 0;
 	}
 
-	Vector vecSpot = pev->origin + (pev->mins + pev->maxs) * 0.5;
+	Vector vecSpot = pev->origin + (pev->mins + pev->maxs) * 0.5f;
 	MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, vecSpot );
 		WRITE_BYTE( TE_BREAKMODEL);
 
@@ -918,7 +918,7 @@ void CPushable :: Move( CBaseEntity *pOther, int push )
 	{
 		// Only push if floating
 		if ( pev->waterlevel > 0 )
-			pev->velocity.z += pevToucher->velocity.z * 0.1;
+			pev->velocity.z += pevToucher->velocity.z * 0.1f;
 
 		return;
 	}
@@ -926,7 +926,11 @@ void CPushable :: Move( CBaseEntity *pOther, int push )
 
 	if ( pOther->IsPlayer() )
 	{
-		if ( push && !(pevToucher->button & (IN_FORWARD|IN_USE)) )	// Don't push unless the player is pushing forward and NOT use (pull)
+		// JoshA: Used to check for FORWARD too and logic was inverted
+		// from comment which seems wrong.
+		// Fixed to just check for USE being not set for PUSH.
+		// Should have the right effect.
+		if (push && !!(pevToucher->button & IN_USE))	// Don't push unless the player is not useing (pull)
 			return;
 		playerTouch = 1;
 	}
@@ -940,36 +944,55 @@ void CPushable :: Move( CBaseEntity *pOther, int push )
 			if ( pev->waterlevel < 1 )
 				return;
 			else 
-				factor = 0.1;
+				factor = 0.1f;
 		}
 		else
 			factor = 1;
 	}
 	else 
-		factor = 0.25;
+		factor = 0.25f;
 
-	pev->velocity.x += pevToucher->velocity.x * factor;
-	pev->velocity.y += pevToucher->velocity.y * factor;
+	// This used to be added every 'frame', but to be consistent at high fps,
+	// now act as if it's added at a constant rate with a fudge factor.
+	extern cvar_t sv_pushable_fixed_tick_fudge;
 
-	const float length = sqrt( pev->velocity.x * pev->velocity.x + pev->velocity.y * pev->velocity.y );
-	if ( push && length > MaxSpeed() )
+	if (!push && sv_pushable_fixed_tick_fudge.value >= 0.0f)
+	{
+		factor *= gpGlobals->frametime * sv_pushable_fixed_tick_fudge.value;
+	}
+
+	// JoshA: Always apply this if pushing, or if under the player's velocity.
+	if (push || (std::abs(pev->velocity.x) < std::abs(pevToucher->velocity.x - pevToucher->velocity.x * factor)))
+		pev->velocity.x += pevToucher->velocity.x * factor;
+	if (push || (std::abs(pev->velocity.y) < std::abs(pevToucher->velocity.y - pevToucher->velocity.y * factor)))
+		pev->velocity.y += pevToucher->velocity.y * factor;
+
+	const float length = std::sqrt( pev->velocity.x * pev->velocity.x + pev->velocity.y * pev->velocity.y );
+	if (length > MaxSpeed())
 	{
 		pev->velocity.x = pev->velocity.x * MaxSpeed() / length;
 		pev->velocity.y = pev->velocity.y * MaxSpeed() / length;
 	}
 	if ( playerTouch )
 	{
-		pevToucher->velocity.x = pev->velocity.x;
-		pevToucher->velocity.y = pev->velocity.y;
-		if ( gpGlobals->time - m_soundTime > 0.7 )
+		// JoshA: Match the player to our pushable's velocity.
+		// Previously this always happened, but it should only
+		// happen if the player is pushing (or rather, being pushed.)
+		// This either stops the player in their tracks or nudges them along.
+		if (push)
+		{
+			pevToucher->velocity.x = pev->velocity.x;
+			pevToucher->velocity.y = pev->velocity.y;
+		}
+		if ( gpGlobals->time - m_soundTime > 0.7f )
 		{
 			m_soundTime = gpGlobals->time;
 			if ( length > 0 && FBitSet(pev->flags,FL_ONGROUND) )
 			{
 				m_lastSound = RANDOM_LONG(0,2);
-				EMIT_SOUND(ENT(pev), CHAN_WEAPON, m_soundNames[m_lastSound], 0.5, ATTN_NORM);
+				EMIT_SOUND(ENT(pev), CHAN_WEAPON, m_soundNames[m_lastSound], 0.5f, ATTN_NORM);
 	//			SetThink( StopSound );
-	//			pev->nextthink = pev->ltime + 0.1;
+	//			pev->nextthink = pev->ltime + 0.1f;
 			}
 			else
 				STOP_SOUND( ENT(pev), CHAN_WEAPON, m_soundNames[m_lastSound] );
