@@ -15,6 +15,8 @@
 #ifndef EXTDLL_H
 #define EXTDLL_H
 
+#include <algorithm>
+#define NOMINMAX
 
 //
 // Global header file for extension DLLs
@@ -57,8 +59,6 @@ typedef int BOOL;
 
 #include <limits.h>
 #include <stdarg.h>
-
-#include <algorithm>
 
 //#ifndef min
 //#define min(a,b)  (((a) < (b)) ? (a) : (b))

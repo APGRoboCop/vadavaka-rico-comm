@@ -2741,7 +2741,7 @@ void PM_CheckParamters(void)
 	const float maxspeed = pmove->clientmaxspeed; //atof( pmove->PM_Info_ValueForKey( pmove->physinfo, "maxspd" ) );
 	if ( maxspeed != 0.0f )
 	{
-		pmove->maxspeed = fmin( maxspeed, pmove->maxspeed );
+		pmove->maxspeed = min( maxspeed, pmove->maxspeed );
 	}
 
 	if ( spd != 0.0f &&
