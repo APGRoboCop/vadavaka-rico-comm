@@ -577,9 +577,10 @@ void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 	pName = strtok( pName, ";" );
 	while ( pName != nullptr && *pName )
 	{
-		if ( GetTeamIndex( pName ) < 0 )
+		if ( GetTeamIndex( pName ) < 0 && num_teams < MAX_TEAMS )
 		{
-			strcpy( team_names[num_teams], pName );
+			strncpy( team_names[num_teams], pName, MAX_TEAMNAME_LENGTH );
+			team_names[num_teams][MAX_TEAMNAME_LENGTH - 1] = '\0';
 			num_teams++;
 		}
 		pName = strtok(nullptr, ";" );
@@ -607,13 +608,14 @@ void CHalfLifeTeamplay::RecountTeams( bool bResendInfo )
 			
 			if ( tm < 0 ) // no team match found
 			{ 
-				if ( !m_teamLimit )
+				if ( !m_teamLimit && num_teams < MAX_TEAMS )
 				{
 					// add to new team
 					tm = num_teams;
 					num_teams++;
 					team_scores[tm] = 0;
 					strncpy( team_names[tm], pTeamName, MAX_TEAMNAME_LENGTH );
+					team_names[tm][MAX_TEAMNAME_LENGTH - 1] = '\0';
 				}
 			}
 

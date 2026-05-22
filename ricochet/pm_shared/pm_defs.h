@@ -26,6 +26,12 @@
 #include "usercmd.h"
 #endif
 
+// Forward declaration so the PM_HullPointContents function pointer below refers
+// to the file-scope struct hull_s (defined in pm_shared.c) rather than an
+// incomplete type scoped to the prototype's parameter list. Without this,
+// GCC 14+ rejects the call site as -Wincompatible-pointer-types (now an error). [APG]RoboCop[CL]
+struct hull_s;
+
 // physent_t
 typedef struct physent_s
 {

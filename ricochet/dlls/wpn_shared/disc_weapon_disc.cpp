@@ -102,9 +102,10 @@ float g_iaDiscColors[33][3] =
 	{ 128, 250, 64 },//29
 	{ 64, 128, 250 },//30
 	{ 128, 64, 250 },//31
+	{ 192, 192, 192 },//32 - highest player slot (entindex-as-team in FFA)
 };
 
-enum disc_e 
+enum disc_e
 {
 	DISC_IDLE = 0,
 	DISC_FIDGET,
@@ -227,17 +228,14 @@ void CDisc::SetObjectCollisionBox()
 // Give the disc back to it's owner
 void CDisc::ReturnToThrower()
 {
+	CBasePlayer *pOwner = (CBasePlayer*)(CBaseEntity*)m_hOwner;
+
 	if (m_bDecapitate)
-	{
 		STOP_SOUND( edict(), CHAN_VOICE, "weapons/rocket1.wav" );
-		if ( !m_bRemoveSelf )
-			((CBasePlayer*)(CBaseEntity*)m_hOwner)->GiveAmmo( MAX_DISCS, "disc", MAX_DISCS );
-	}
-	else
-	{
-		if ( !m_bRemoveSelf )
-			((CBasePlayer*)(CBaseEntity*)m_hOwner)->GiveAmmo( 1, "disc", MAX_DISCS );
-	}
+
+	// Owner may have disconnected/been freed since the disc was thrown
+	if ( pOwner && !m_bRemoveSelf )
+		pOwner->GiveAmmo( m_bDecapitate ? MAX_DISCS : 1, "disc", MAX_DISCS );
 
 	UTIL_Remove( this );
 }
@@ -344,9 +342,12 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 		{
 			// Play a warp sound and sprite
 			CSprite *pSprite = CSprite::SpriteCreate( "sprites/discreturn.spr", pev->origin, TRUE );
-			pSprite->AnimateAndDie( 60 );
-			pSprite->SetTransparency( kRenderTransAdd, 255, 255, 255, 255, kRenderFxNoDissipation );
-			pSprite->SetScale( 1 );
+			if ( pSprite )
+			{
+				pSprite->AnimateAndDie( 60 );
+				pSprite->SetTransparency( kRenderTransAdd, 255, 255, 255, 255, kRenderFxNoDissipation );
+				pSprite->SetScale( 1 );
+			}
 			EMIT_SOUND_DYN( edict(), CHAN_ITEM, "dischit.wav", 1.0f, ATTN_NORM, 0, 98 + RANDOM_LONG(0,3));
 
 			// Return both discs to their owners
@@ -374,15 +375,14 @@ void CDisc::DiscTouch ( CBaseEntity *pOther )
 
 void CDisc::DiscThink()
 {
+	CBasePlayer *pOwner = (CBasePlayer*)(CBaseEntity*)m_hOwner;
 
 	//Miagi prevent disc returning to spectators and disconnected players
-	if ( ((CBasePlayer*)(CBaseEntity*)m_hOwner)->IsObserver() || ((CBasePlayer*)(CBaseEntity*)m_hOwner)->m_bHasDisconnected == TRUE )
+	// (a null owner means the player fully disconnected and was freed)
+	if ( !pOwner || pOwner->IsObserver() || pOwner->m_bHasDisconnected == TRUE )
 	{
- 
- 	//UTIL_ClientPrintAll( HUD_PRINTNOTIFY, "Observer is true" );
- 	ReturnToThrower();
- 	return;
-
+		ReturnToThrower();
+		return;
 	}
 	//End miagi
 
@@ -740,7 +740,7 @@ void CDiscWeapon::WeaponIdle()
 			UTIL_MakeVectors( vecFireDir );
 			UTIL_TraceLine( vecSrc, vecSrc + gpGlobals->v_forward * 2048, ignore_monsters, ENT(pev), &tr );
 
-			MESSAGE_BEGIN( MSG_BROADCAST, SVC_TEMPENTITY );
+			MESSAGE_BEGIN( MSG_ONE, SVC_TEMPENTITY, nullptr, m_pPlayer->pev );
 				WRITE_BYTE( TE_BEAMPOINTS );
 				WRITE_COORD( vecSrc.x);
 				WRITE_COORD( vecSrc.y);
@@ -765,12 +765,12 @@ void CDiscWeapon::WeaponIdle()
 			Vector vecOut;
 			Vector vecIn = tr.vecEndPos - (tr.vecEndPos - gpGlobals->v_forward * 5);
 			const float backoff = DotProduct( vecIn, tr.vecPlaneNormal ) * 2.0f;
-			for (int i=0 ; i<3 ; i++)
+			for (int j=0 ; j<3 ; j++)
 			{
-				const float change = tr.vecPlaneNormal[i] * backoff;
-				vecOut[i] = vecIn[i] - change;
-				if (vecOut[i] > -0.1f && vecOut[i] < 0.1f)
-					vecOut[i] = 0;
+				const float change = tr.vecPlaneNormal[j] * backoff;
+				vecOut[j] = vecIn[j] - change;
+				if (vecOut[j] > -0.1f && vecOut[j] < 0.1f)
+					vecOut[j] = 0;
 			}
 
 			vecOut = vecOut.Normalize();

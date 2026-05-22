@@ -27,8 +27,8 @@ BASE_CFLAGS=-D_stricmp=strcasecmp -Dstricmp=strcasecmp -D_strnicmp=strncasecmp -
             -std=gnu++17 -std=gnu99
 
 #full optimization
-CFLAGS=$(BASE_CFLAGS) -w -mtune=generic -march=i686 -O2 -m32 -msse4.2 -mfpmath=sse \
-		-funsafe-math-optimizations -Wno-attributes -Wno-write-strings -static-libgcc
+CFLAGS=$(BASE_CFLAGS) -mtune=generic -march=i686 -O2 -m32 -msse4.2 -mfpmath=sse \
+		-Wno-attributes -Wno-write-strings -static-libgcc
 #		-malign-loops=2 -malign-jumps=2 -malign-functions=2
 
 #use these when debugging 
