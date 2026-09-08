@@ -1,5 +1,5 @@
 // pm_defs.h
-#if !defined( PM_DEFSH )
+#ifndef PM_DEFSH
 #define PM_DEFSH
 #pragma once
 
@@ -22,7 +22,7 @@
 // PM_PlayerTrace results.
 #include "../common/pmtrace.h"
 
-#if !defined ( USERCMD_H )
+#ifndef USERCMD_H
 #include "usercmd.h"
 #endif
 

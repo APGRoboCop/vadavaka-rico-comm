@@ -317,7 +317,7 @@ void CDiscArena::CountDownThink()
 			//.ASM : white disc haxxx...
 			// if the player is "dead" and not null during the round countdown, 
 			// then bring the bastard back... 
-			if ( m_hCombatants[i] != NULL && !m_hCombatants[i]->IsAlive() && pPlayer->m_bHasDisconnected != TRUE )
+			if ( m_hCombatants[i] != nullptr && !m_hCombatants[i]->IsAlive() && pPlayer->m_bHasDisconnected != TRUE )
 			{
 				pPlayer->Spawn();
 				//Miagi Stop floaters
@@ -335,7 +335,7 @@ void CDiscArena::CountDownThink()
 
 
 				//miagi for 2v2
-				if ( pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE && m_hCombatants[i] != NULL )
+				if ( pPlayer && pPlayer->pev->groupinfo & pev->groupinfo && pPlayer->m_bHasDisconnected != TRUE && m_hCombatants[i] != nullptr )
 				{
 				// Get the players in the battle
 
@@ -536,7 +536,7 @@ bool CDiscArena::CheckBattleOver()
 	int i;
 	for ( i = 0; i < m_iPlayersPerTeam * 2; i++ )
 	{
-		if ( m_hCombatants[i] != NULL && ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i])->IsAlive() )
+		if ( m_hCombatants[i] != nullptr && ((CBasePlayer*)(CBaseEntity*)m_hCombatants[i])->IsAlive() )
 		{
 			if ( m_hCombatants[i]->pev->team == 1 )
 				bTeamOneAlive = true;
@@ -900,7 +900,7 @@ void CDiscArena::RemovePlayerFromQueue( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 CBasePlayer *CDiscArena::GetNextPlayer()
 {
-	if ( m_pPlayerQueue == NULL )
+	if ( m_pPlayerQueue == nullptr )
 		return nullptr;
 
 	CBasePlayer *pCurr = (CBasePlayer*)(CBaseEntity*)m_pPlayerQueue;
@@ -923,7 +923,7 @@ int CDiscArena::IsFull()
 // Returns the first player in the Arena's queue, if any
 CBasePlayer *CDiscArena::GetFirstSparePlayer()
 {
-	if ( m_pPlayerQueue == NULL )
+	if ( m_pPlayerQueue == nullptr )
 		return nullptr;
 
 	return (CBasePlayer*)(CBaseEntity*)m_pPlayerQueue;

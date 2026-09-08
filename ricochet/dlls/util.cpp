@@ -311,11 +311,11 @@ TYPEDESCRIPTION	gEntvarsDescription[] =
 #ifdef	DEBUG
 edict_t *DBG_EntOfVars( const entvars_t *pev )
 {
-	if (pev->pContainingEntity != NULL)
+	if (pev->pContainingEntity != nullptr)
 		return pev->pContainingEntity;
 	ALERT(at_console, "entvars_t pContainingEntity is NULL, calling into engine");
 	edict_t* pent = (*g_engfuncs.pfnFindEntityByVars)((entvars_t*)pev);
-	if (pent == NULL)
+	if (pent == nullptr)
 		ALERT(at_console, "DAMN!  Even the engine couldn't FindEntityByVars!");
 	((entvars_t *)pev)->pContainingEntity = pent;
 	return pent;
@@ -353,11 +353,11 @@ float	UTIL_AngleMod(float a)
 {
 	if (a < 0)
 	{
-		a = a + 360 * ((int)(a / 360) + 1);
+		a = a + 360.0f * ((int)(a / 360) + 1);
 	}
 	else if (a >= 360)
 	{
-		a = a - 360 * (int)(a / 360);
+		a = a - 360.0f * (int)(a / 360);
 	}
 	// a = (360.0/65536) * ((int)(a*(65536/360.0)) & 65535);
 	return a;
@@ -1752,8 +1752,8 @@ void CSaveRestoreBuffer :: BufferRewind( int size )
 extern "C" {
 unsigned _rotr ( unsigned val, int shift)
 {
-        register unsigned lobit;        /* non-zero means lo bit set */
-        register unsigned num = val;    /* number to rotate */
+        unsigned lobit;                 /* non-zero means lo bit set */
+        unsigned num = val;             /* number to rotate */
 
         shift &= 0x1f;                  /* modulo 32 -- this will also make
                                            negative shifts work */
@@ -2391,7 +2391,7 @@ int CRestore::ReadFields( const char *pname, void *pBaseData, TYPEDESCRIPTION *p
 
 void CRestore::BufferReadHeader( HEADER *pheader )
 {
-	ASSERT( pheader!=NULL );
+	ASSERT( pheader!=nullptr );
 	pheader->size = ReadShort();				// Read field size
 	pheader->token = ReadShort();				// Read field name token
 	pheader->pData = BufferPointer();			// Field Data is next
@@ -2448,7 +2448,7 @@ char *CRestore::BufferPointer()
 
 void CRestore::BufferReadBytes( char *pOutput, int size )
 {
-	ASSERT( m_pdata !=NULL );
+	ASSERT( m_pdata !=nullptr );
 
 	if ( !m_pdata || Empty() )
 		return;

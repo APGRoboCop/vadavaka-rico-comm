@@ -320,7 +320,7 @@ void CGlobalState :: EntityAdd( string_t globalname, string_t mapName, GLOBALEST
 	ASSERT( !Find(globalname) );
 
 	globalentity_t *pNewEntity = (globalentity_t *)calloc( sizeof( globalentity_t ), 1 );
-	ASSERT( pNewEntity != NULL );
+	ASSERT( pNewEntity != nullptr );
 	pNewEntity->pNext = m_pList;
 	m_pList = pNewEntity;
 	strcpy( pNewEntity->name, STRING( globalname ) );

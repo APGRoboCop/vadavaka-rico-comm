@@ -390,7 +390,7 @@ void CDisc::DiscThink()
 	if ( m_iPowerupFlags & POW_FREEZE && m_iBounces == 0 )
 	{
 		// Use an existing target if he's still in the view cone
-		if ( m_pLockTarget != NULL )
+		if ( m_pLockTarget != nullptr )
 		{
 			const Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();
 			UTIL_MakeVectors( pev->angles );
@@ -400,7 +400,7 @@ void CDisc::DiscThink()
 		}
 
 		// Get a new target if we don't have one
-		if ( m_pLockTarget == NULL )
+		if ( m_pLockTarget == nullptr )
 		{
 			CBaseEntity *pOther = nullptr;
 
@@ -430,7 +430,7 @@ void CDisc::DiscThink()
 		}
 
 		// Track towards our target
-		if ( m_pLockTarget != NULL )
+		if ( m_pLockTarget != nullptr )
 		{
 			// Calculate new velocity
 			const Vector vecDir = (m_pLockTarget->pev->origin - pev->origin).Normalize();

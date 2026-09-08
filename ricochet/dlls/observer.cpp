@@ -42,7 +42,7 @@ void CBasePlayer::StartObserver( Vector vecPosition, Vector vecViewAngle )
 	if (m_pActiveItem)
 		m_pActiveItem->Holster( );
 
-	if ( m_pTank != NULL )
+	if ( m_pTank != nullptr )
 	{
 		m_pTank->Use( this, this, USE_OFF, 0 );
 		m_pTank = nullptr;
@@ -310,7 +310,7 @@ void CBasePlayer::Observer_SetMode( int iMode )
 	if ( iMode == OBS_CHASE_FREE )
 	{
 		// If changing from Roaming, or starting observing, make sure there is a target
-		if ( m_hObserverTarget == NULL )
+		if ( m_hObserverTarget == nullptr )
 			Observer_FindNextPlayer( false );
 
 		if (m_hObserverTarget)

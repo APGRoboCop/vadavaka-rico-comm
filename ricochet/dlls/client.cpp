@@ -417,7 +417,7 @@ void Host_Say( edict_t *pEntity, int teamonly )
 	for ( pc = p; pc != nullptr && *pc != 0; pc++ )
 
 
-	//for (char *pc = p; pc != NULL && *pc != 0; pc++ )
+	//for (char *pc = p; pc != nullptr && *pc != 0; pc++ )
 	{
 		if ( isprint( *pc ) && !isspace( *pc ) )
 		{
@@ -1130,7 +1130,7 @@ void SetupVisibility( edict_t *pViewEntity, edict_t *pClient, unsigned char **pv
 
 	// Tracking Spectators use the visibility of their target
 	CBasePlayer *pPlayer = (CBasePlayer *)CBaseEntity::Instance( pClient );
-	if ( pPlayer->pev->iuser2 != 0 && pPlayer->m_hObserverTarget != NULL )
+	if ( pPlayer->pev->iuser2 != 0 && pPlayer->m_hObserverTarget != nullptr )
 	{
 		pView = pPlayer->m_hObserverTarget->edict();
 	}

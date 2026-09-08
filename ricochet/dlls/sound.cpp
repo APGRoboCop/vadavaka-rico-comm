@@ -368,14 +368,14 @@ void CAmbientGeneric :: RampThink()
 		if (m_dpv.lfofrac < 0)
 		{
 			m_dpv.lfofrac = 0;
-			m_dpv.lforate = abs(m_dpv.lforate);
+			m_dpv.lforate = std::abs(m_dpv.lforate);
 			pos = 0;
 		}
 		else if (pos > 255)
 		{
 			pos = 255;
 			m_dpv.lfofrac = 255 << 8;
-			m_dpv.lforate = -abs(m_dpv.lforate);
+			m_dpv.lforate = -std::abs(m_dpv.lforate);
 		}
 
 		switch(m_dpv.lfotype)
@@ -506,7 +506,7 @@ void CAmbientGeneric :: InitModulationParms()
 	m_dpv.volfrac = m_dpv.vol << 8;
 
 	m_dpv.lfofrac = 0;
-	m_dpv.lforate = abs(m_dpv.lforate);
+	m_dpv.lforate = std::abs(m_dpv.lforate);
 
 	m_dpv.cspincount = 1;
 	
@@ -647,14 +647,14 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// preset
 	if (FStrEq(pkvd->szKeyName, "preset"))
 	{
-		m_dpv.preset = atoi(pkvd->szValue);
+		m_dpv.preset = std::atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 
 	// pitchrun
 	else if (FStrEq(pkvd->szKeyName, "pitch"))
 	{
-		m_dpv.pitchrun = atoi(pkvd->szValue);
+		m_dpv.pitchrun = std::atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 		
 		if (m_dpv.pitchrun > 255) m_dpv.pitchrun = 255;
@@ -664,7 +664,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// pitchstart
 	else if (FStrEq(pkvd->szKeyName, "pitchstart"))
 	{
-		m_dpv.pitchstart = atoi(pkvd->szValue);
+		m_dpv.pitchstart = std::atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;		
 		
 		if (m_dpv.pitchstart > 255) m_dpv.pitchstart = 255;
@@ -674,7 +674,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// spinup
 	else if (FStrEq(pkvd->szKeyName, "spinup"))
 	{
-		m_dpv.spinup = atoi(pkvd->szValue);
+		m_dpv.spinup = std::atoi(pkvd->szValue);
 		
 		if (m_dpv.spinup > 100) m_dpv.spinup = 100;
 		if (m_dpv.spinup < 0) m_dpv.spinup = 0;
@@ -688,7 +688,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// spindown
 	else if (FStrEq(pkvd->szKeyName, "spindown"))
 	{
-		m_dpv.spindown = atoi(pkvd->szValue);
+		m_dpv.spindown = std::atoi(pkvd->szValue);
 		
 		if (m_dpv.spindown > 100) m_dpv.spindown = 100;
 		if (m_dpv.spindown < 0) m_dpv.spindown = 0;
@@ -702,7 +702,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// volstart
 	else if (FStrEq(pkvd->szKeyName, "volstart"))
 	{
-		m_dpv.volstart = atoi(pkvd->szValue);
+		m_dpv.volstart = std::atoi(pkvd->szValue);
 
 		if (m_dpv.volstart > 10) m_dpv.volstart = 10;
 		if (m_dpv.volstart < 0) m_dpv.volstart = 0;
@@ -715,7 +715,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// fadein
 	else if (FStrEq(pkvd->szKeyName, "fadein"))
 	{
-		m_dpv.fadein = atoi(pkvd->szValue);
+		m_dpv.fadein = std::atoi(pkvd->szValue);
 		
 		if (m_dpv.fadein > 100) m_dpv.fadein = 100;
 		if (m_dpv.fadein < 0) m_dpv.fadein = 0;
@@ -729,7 +729,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// fadeout
 	else if (FStrEq(pkvd->szKeyName, "fadeout"))
 	{
-		m_dpv.fadeout = atoi(pkvd->szValue);
+		m_dpv.fadeout = std::atoi(pkvd->szValue);
 		
 		if (m_dpv.fadeout > 100) m_dpv.fadeout = 100;
 		if (m_dpv.fadeout < 0) m_dpv.fadeout = 0;
@@ -743,7 +743,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// lfotype
 	else if (FStrEq(pkvd->szKeyName, "lfotype"))
 	{
-		m_dpv.lfotype = atoi(pkvd->szValue);
+		m_dpv.lfotype = std::atoi(pkvd->szValue);
 		if (m_dpv.lfotype > 4) m_dpv.lfotype = LFO_TRIANGLE;
 		pkvd->fHandled = TRUE;
 	}
@@ -751,7 +751,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// lforate
 	else if (FStrEq(pkvd->szKeyName, "lforate"))
 	{
-		m_dpv.lforate = atoi(pkvd->szValue);
+		m_dpv.lforate = std::atoi(pkvd->szValue);
 		
 		if (m_dpv.lforate > 1000) m_dpv.lforate = 1000;
 		if (m_dpv.lforate < 0) m_dpv.lforate = 0;
@@ -763,7 +763,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// lfomodpitch
 	else if (FStrEq(pkvd->szKeyName, "lfomodpitch"))
 	{
-		m_dpv.lfomodpitch = atoi(pkvd->szValue);
+		m_dpv.lfomodpitch =	std::atoi(pkvd->szValue);
 		if (m_dpv.lfomodpitch > 100) m_dpv.lfomodpitch = 100;
 		if (m_dpv.lfomodpitch < 0) m_dpv.lfomodpitch = 0;
 		
@@ -774,7 +774,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// lfomodvol
 	else if (FStrEq(pkvd->szKeyName, "lfomodvol"))
 	{
-		m_dpv.lfomodvol = atoi(pkvd->szValue);
+		m_dpv.lfomodvol = std::atoi(pkvd->szValue);
 		if (m_dpv.lfomodvol > 100) m_dpv.lfomodvol = 100;
 		if (m_dpv.lfomodvol < 0) m_dpv.lfomodvol = 0;
 
@@ -784,7 +784,7 @@ void CAmbientGeneric :: KeyValue( KeyValueData *pkvd )
 	// cspinup
 	else if (FStrEq(pkvd->szKeyName, "cspinup"))
 	{
-		m_dpv.cspinup = atoi(pkvd->szValue);
+		m_dpv.cspinup = std::atoi(pkvd->szValue);
 		if (m_dpv.cspinup > 100) m_dpv.cspinup = 100;
 		if (m_dpv.cspinup < 0) m_dpv.cspinup = 0;
 
@@ -828,12 +828,12 @@ void CEnvSound :: KeyValue( KeyValueData *pkvd )
 	
 	if (FStrEq(pkvd->szKeyName, "radius"))
 	{
-		m_flRadius = atof(pkvd->szValue);
+		m_flRadius = std::atof(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 	if (FStrEq(pkvd->szKeyName, "roomtype"))
 	{
-		m_flRoomtype = atof(pkvd->szValue);
+		m_flRoomtype = std::atof(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 }
@@ -902,7 +902,7 @@ void CEnvSound :: Think()
 		// this is the entity currently affecting player, check
 		// for validity
 
-		if (pPlayer->m_flSndRoomtype != 0 && pPlayer->m_flSndRange != 0) {
+		if (pPlayer->m_flSndRoomtype != 0.0f && pPlayer->m_flSndRange != 0.0f) {
 		
 			// we're looking at a valid sound entity affecting
 			// player, make sure it's still valid, update range
@@ -947,7 +947,7 @@ void CEnvSound :: Think()
 			//CLIENT_COMMAND(pentPlayer, "room_type %f", m_flRoomtype);
 			
 			MESSAGE_BEGIN( MSG_ONE, SVC_ROOMTYPE, nullptr, pentPlayer );		// use the magic #1 for "one client"
-				WRITE_SHORT( (short)m_flRoomtype );					// sequence number
+				WRITE_SHORT( static_cast<short>(m_flRoomtype) );					// sequence number
 			MESSAGE_END();
 
 			// crank up nextthink rate for new active sound entity
@@ -1017,7 +1017,7 @@ void USENTENCEG_InitLRU(unsigned char *plru, int count)
 		count = CSENTENCE_LRU_MAX;
 
 	for (i = 0; i < count; i++)
-		plru[i] = (unsigned char) i;
+		plru[i] = static_cast<unsigned char>(i);
 
 	// randomize array
 	for (i = 0; i < count * 4; i++)
@@ -1548,7 +1548,7 @@ void TEXTURETYPE_Init()
 			continue;
 
 		// get texture type
-		grgchTextureType[gcTextures] = toupper(buffer[i++]);
+		grgchTextureType[gcTextures] = std::toupper(buffer[i++]);
 
 		// skip whitespace
 		while(buffer[i] && isspace(buffer[i]))
@@ -1566,7 +1566,7 @@ void TEXTURETYPE_Init()
 			continue;
 
 		// null-terminate name and save in sentences array
-		j = fmin (j, CBTEXTURENAMEMAX-1+i);
+		j = std::fmin (j, CBTEXTURENAMEMAX-1+i);
 		buffer[j] = 0;
 		strcpy(&grgszTextureName[gcTextures++][0], &buffer[i]);
 	}
@@ -1582,7 +1582,7 @@ void TEXTURETYPE_Init()
 // NOTE: this routine should ONLY be called if the 
 // current texture under the player changes!
 
-char TEXTURETYPE_Find(char *name)
+char TEXTURETYPE_Find(const char *name)
 {
 	// CONSIDER: pre-sort texture names and perform faster binary search here
 
@@ -1605,7 +1605,7 @@ float TEXTURETYPE_PlaySound(TraceResult *ptr, Vector vecSrc, Vector vecEnd, int 
 
 	float fvol;
 	float fvolbar;
-	char *rgsz[4];
+	const char *rgsz[4];
 	int cnt;
 	float fattn = ATTN_NORM;
 
@@ -1831,7 +1831,7 @@ void CSpeaker :: Precache()
 }
 void CSpeaker :: SpeakerThink()
 {
-	char* szSoundFile;
+	const char* szSoundFile = nullptr;
 	const float flvolume = pev->health * 0.1f;
 	constexpr float flattenuation = 0.3f;
 	constexpr int flags = 0;
@@ -1949,7 +1949,7 @@ void CSpeaker :: KeyValue( KeyValueData *pkvd )
 	// preset
 	if (FStrEq(pkvd->szKeyName, "preset"))
 	{
-		m_preset = atoi(pkvd->szValue);
+		m_preset = std::atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
 	else

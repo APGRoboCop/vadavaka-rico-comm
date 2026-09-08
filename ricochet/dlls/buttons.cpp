@@ -403,7 +403,7 @@ int CBaseButton::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 	SetTouch( NULL );
 
 	m_hActivator = Instance( pevAttacker );
-	if ( m_hActivator == NULL )
+	if ( m_hActivator == nullptr )
 		return 0;
 
 	if ( code == BUTTON_RETURN )

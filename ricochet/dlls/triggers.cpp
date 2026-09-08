@@ -2248,7 +2248,7 @@ void CTriggerCamera::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 	}
 
 	// Nothing to look at!
-	if ( m_hTarget == NULL )
+	if ( m_hTarget == nullptr )
 	{
 		return;
 	}
@@ -2306,10 +2306,10 @@ void CTriggerCamera::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 
 void CTriggerCamera::FollowTarget( )
 {
-	if (m_hPlayer == NULL)
+	if (m_hPlayer == nullptr)
 		return;
 
-	if (m_hTarget == NULL || m_flReturnTime < gpGlobals->time)
+	if (m_hTarget == nullptr || m_flReturnTime < gpGlobals->time)
 	{
 		if (m_hPlayer->IsAlive( ))
 		{

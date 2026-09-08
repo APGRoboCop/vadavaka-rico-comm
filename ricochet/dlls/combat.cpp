@@ -781,7 +781,7 @@ int CBaseMonster :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker,
 			// enemy's last known position is somewhere down the vector that the attack came from.
 			if (pevInflictor)
 			{
-				if (m_hEnemy == NULL || pevInflictor == m_hEnemy->pev || !HasConditions(bits_COND_SEE_ENEMY))
+				if (m_hEnemy == nullptr || pevInflictor == m_hEnemy->pev || !HasConditions(bits_COND_SEE_ENEMY))
 				{
 					m_vecEnemyLKP = pevInflictor->origin;
 				}

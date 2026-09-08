@@ -519,7 +519,7 @@ void CBasePlayer::Killed( entvars_t *pevAttacker, int iGib )
 
 	g_pGameRules->PlayerKilled( this, pevAttacker, g_pevLastInflictor );
 
-	if ( m_pTank != NULL )
+	if ( m_pTank != nullptr )
 	{
 		m_pTank->Use( this, this, USE_OFF, 0 );
 		m_pTank = nullptr;
@@ -1277,7 +1277,7 @@ void CBasePlayer::PlayerUse ()
 	// Hit Use on a train?
 	if ( m_afButtonPressed & IN_USE )
 	{
-		if ( m_pTank != NULL )
+		if ( m_pTank != nullptr )
 		{
 			// Stop controlling the tank
 			// TODO: Send HUD Update
@@ -2381,7 +2381,7 @@ void CBasePlayer::SetSuitUpdate(char *name, int fgroup, int iNoRepeatTime)
 		return;
 	}
 
-	// if name == NULL, then clear out the queue
+	// if name == nullptr, then clear out the queue
 
 	if (!name)
 	{
@@ -2604,7 +2604,7 @@ void CBasePlayer::PostThink()
 		goto pt_end;
 
 	// Handle Tank controlling
-	if ( m_pTank != NULL )
+	if ( m_pTank != nullptr )
 	{ // if they've moved too far from the gun,  or selected a weapon, unuse the gun
 		if ( m_pTank->OnControls( pev ) && !pev->weaponmodel )
 		{  
@@ -3900,7 +3900,7 @@ void CBasePlayer::ItemPostFrame()
 	static int fInSelect = FALSE;
 
 	// check if the player is using a tank
-	if ( m_pTank != NULL )
+	if ( m_pTank != nullptr )
 		return;
 
     if ( m_flNextAttack > 0 )

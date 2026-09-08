@@ -396,7 +396,7 @@ void CFuncTank :: StopControl()
 // Called each frame by the player's ItemPostFrame
 void CFuncTank :: ControllerPostFrame()
 {
-	ASSERT(m_pController != NULL);
+	ASSERT(m_pController != nullptr);
 
 	if ( gpGlobals->time < m_flNextAttack )
 		return;
@@ -993,7 +993,7 @@ void CFuncTankControls :: Use( CBaseEntity *pActivator, CBaseEntity *pCaller, US
 	if ( m_pTank )
 		m_pTank->Use( pActivator, pCaller, useType, value );
 
-	ASSERT( m_pTank != NULL );	// if this fails,  most likely means save/restore hasn't worked properly
+	ASSERT( m_pTank != nullptr );	// if this fails,  most likely means save/restore hasn't worked properly
 }
 
 

@@ -539,7 +539,7 @@ int CBaseDoor::DoorActivate( )
 	else
 	{// door should open
 
-		if ( m_hActivator != NULL && m_hActivator->IsPlayer() )
+		if ( m_hActivator != nullptr && m_hActivator->IsPlayer() )
 		{// give health if player opened the door (medikit)
 		// VARS( m_eoActivator )->health += m_bHealthValue;
 	
@@ -578,7 +578,7 @@ void CBaseDoor::DoorGoUp()
 	{
 		float	sign = 1.0f;
 
-		if ( m_hActivator != NULL )
+		if ( m_hActivator != nullptr )
 		{
 			const entvars_t* pevActivator = m_hActivator->pev;
 			

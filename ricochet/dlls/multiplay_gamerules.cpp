@@ -1473,7 +1473,7 @@ void CHalfLifeMultiplay :: ChangeLevel()
 
 	// find the map to change to
 	char *mapcfile = const_cast<char*>(CVAR_GET_STRING("mapcyclefile"));
-	ASSERT( mapcfile != NULL );
+	ASSERT( mapcfile != nullptr );
 
 	szCommands[ 0 ] = '\0';
 	szRules[ 0 ] = '\0';
@@ -1508,7 +1508,7 @@ void CHalfLifeMultiplay :: ChangeLevel()
 		{
 			BOOL keeplooking = FALSE;
 
-			ASSERT( item != NULL );
+			ASSERT( item != nullptr );
 
 			if ( item->minplayers != 0 )
 			{

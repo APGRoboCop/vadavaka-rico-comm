@@ -177,7 +177,7 @@ void CDiscwarPowerup::AnimateThink()
 // Remove the powerup from the person we gave it to
 void CDiscwarPowerup::RemovePowerupThink()
 {
-	if (m_hPlayerIGaveTo == NULL)
+	if (m_hPlayerIGaveTo == nullptr)
 		return;
 
 	((CBasePlayer*)(CBaseEntity*)m_hPlayerIGaveTo)->RemovePowerup( m_iPowerupType );
